@@ -87,6 +87,9 @@
       "@activepieces/piece-aminos": [
         "packages/pieces/community/aminos/src/index.ts"
       ],
+      "@activepieces/piece-amocrm": [
+        "packages/pieces/community/amocrm/src/index.ts"
+      ],
       "@activepieces/piece-anyhook-graphql": [
         "packages/pieces/community/anyhook-graphql/src/index.ts"
       ],

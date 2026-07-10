@@ -54,7 +54,7 @@
 
 ## Фаза 0 — Каркас и инфраструктура
 
-### - [ ] T001 — Scaffold piece + auth + validate
+### - [x] T001 — Scaffold piece + auth + validate
 - **spec:** Создать piece `@activepieces/piece-amocrm` (displayName `amoCRM`, categories `SALES_AND_CRM`, `COMMUNICATION`, logoUrl-заглушка `https://cdn.activepieces.com/pieces/amocrm.png`). Auth = `PieceAuth.CustomAuth` с props: `subdomain` (SecretText, required), `zone` (`Property.StaticDropdown`, опции `amocrm.ru`/`amocrm.com`, default `amocrm.ru`, required), `apiToken` (SecretText long-lived, required). Реализовать `validate` callback: `GET /account` → success если 200, иначе `{ valid: false, error: '...' }`. Зарегистрировать `createCustomApiCallAction` (baseUrl из auth.zone/subdomain, Bearer) как в kommo `index.ts`. Массивы `actions`/`triggers` пока пустые (кроме custom api call).
 - **Решение по auth:** long-lived token, НЕ OAuth2. Причина: self-hosting rule (zero setup) — токен вставляется вручную из amo без регистрации интеграции/redirect URI; OAuth2 ломается в embed/cloud (redirect на cloud.activepieces.com). OAuth2 для виджета — вне ночного цикла.
 - **files:** `packages/pieces/community/amocrm/`: `package.json` (name `@activepieces/piece-amocrm`, копия структуры kommo `package.json`), `project.json`, `tsconfig.json`, `tsconfig.lib.json`, `src/index.ts`, `src/lib/auth.ts`, `src/i18n/translation.json` (со всеми ключами задачи), `README.md`. Проще всего: `npm run create-piece` (name `amocrm`), затем правка auth. Добавить path в `tsconfig.base.json`: `"@activepieces/piece-amocrm": ["packages/pieces/community/amocrm/src/index.ts"]` (ЕДИНСТВЕННАЯ задача, трогающая `tsconfig.base.json`).
