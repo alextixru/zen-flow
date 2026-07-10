@@ -30,3 +30,10 @@
 - Верификация: pass. code-review (low) — находок нет. Smoke на dev-стенде: `GET /api/v4/leads?page=1&limit=1` → ключи `_embedded.leads`, `_links.next` — форма совпадает с реализацией fetchAllPages.
 - Блокеры: нет.
 
+### 2026-07-10 — T003: common/props.ts — дропдауны с пагинацией
+- Статус: done
+- Изменения: `src/lib/common/props.ts` (фабрики `pipelineDropdown`/`statusDropdown` (refresher pipelineId)/`userDropdown`/`taskTypeDropdown` (GET /account?with=task_types)/`tagDropdown({entity})`/`lossReasonDropdown` (required: false, без параметров)/`leadDropdown`/`contactDropdown`/`companyDropdown` — последние три через общий `entityDropdown`, одна страница `limit=250&order[updated_at]=desc`, label `name (id)`, ponytail-коммент про потолок 250; справочники — через `fetchAllPages`; разбор ответов через unknown + гварды `toOptions`/`extractEmbedded`, без any/as), `src/lib/common/index.ts` (реэкспорт props), `src/i18n/translation.json` (+11 ключей: displayName'ы и плейсхолдеры).
+- Команды: `npx turbo run lint --filter=@activepieces/piece-amocrm` — pass (5/5); `npx turbo run build --filter=@activepieces/piece-amocrm` — pass (5/5); `npm run lint-dev` — 0 errors (72 предсуществующих warning в web). Smoke на dev-стенде: `/account?with=task_types` → `_embedded.task_types` массив (форма подтверждена); `/leads/tags` пагинирован (`_links.next`); `/leads/pipelines?page&limit`, `/leads/pipelines/{id}/statuses?page&limit`, `/users?page&limit`, `/leads?limit=250&order[updated_at]=desc` — все 200 (эндпоинты терпят параметры fetchAllPages/entity-дропдаунов).
+- Верификация: pass. code-review (low) по диффу — находок нет.
+- Блокеры: нет. Заметка: тип значения всех дропдаунов — number (id amo); `tagDropdown` — одиночный Dropdown, T017 при необходимости обернёт/расширит под множественный выбор.
+
