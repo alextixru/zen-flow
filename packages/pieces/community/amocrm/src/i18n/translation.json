@@ -43,5 +43,17 @@
   "None": "None",
   "JSON": "JSON",
   "Form Data": "Form Data",
-  "Raw": "Raw"
+  "Raw": "Raw",
+  "Lead Added": "Lead Added",
+  "Triggers when a new lead is created.": "Triggers when a new lead is created.",
+  "Lead Updated": "Lead Updated",
+  "Triggers when a lead is updated.": "Triggers when a lead is updated.",
+  "Lead Status Changed": "Lead Status Changed",
+  "Triggers when a lead moves to a different status or pipeline.": "Triggers when a lead moves to a different status or pipeline.",
+  "Lead Responsible User Changed": "Lead Responsible User Changed",
+  "Triggers when the responsible user of a lead changes.": "Triggers when the responsible user of a lead changes.",
+  "Lead Deleted": "Lead Deleted",
+  "Triggers when a lead is deleted.": "Triggers when a lead is deleted.",
+  "Lead Restored": "Lead Restored",
+  "Triggers when a deleted lead is restored.": "Triggers when a deleted lead is restored."
 }

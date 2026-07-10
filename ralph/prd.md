@@ -122,7 +122,7 @@
 
 ## Фаза 2 — Триггеры (пачками по сущностям, через фабрику T004)
 
-### - [ ] T006 — Триггеры lead (6 шт)
+### - [x] T006 — Триггеры lead (6 шт)
 - **spec:** Через `createAmoWebhookTrigger`: `lead_added` (events `['add_lead']`, path `leads.add`), `lead_updated` (`update_lead`, `leads.update`), `lead_status_changed` (`status_lead`, `leads.status`), `lead_responsible_changed` (`responsible_lead`, `leads.responsible`), `lead_deleted` (`delete_lead`, `leads.delete` — без GET, вернуть payload т.к. сущность удалена), `lead_restored` (`restore_lead`, `leads.restore`). entityType `leads`. sampleData — как в kommo (полный lead-объект). Все с `test()`.
 - **files:** `src/lib/triggers/lead-*.ts` (6 файлов) + index.
 - **pattern:** T004 фабрика.

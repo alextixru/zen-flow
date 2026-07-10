@@ -1,6 +1,7 @@
 import { createPiece, PieceCategory } from '@activepieces/pieces-framework';
 import { createCustomApiCallAction } from '@activepieces/pieces-common';
 import { amocrmAuth } from './lib/auth';
+import { amocrmTriggers } from './lib/triggers';
 
 // ponytail: placeholder logo, this asset does not exist on the fork's CDN yet — replace when uploaded.
 export const amocrm = createPiece({
@@ -28,5 +29,5 @@ export const amocrm = createPiece({
       },
     }),
   ],
-  triggers: [],
+  triggers: amocrmTriggers,
 });

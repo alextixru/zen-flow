@@ -15,6 +15,13 @@
 
 ## Лог
 
+### 2026-07-11 — T006: Триггеры lead (6 шт)
+- Статус: done
+- Изменения: 6 файлов через фабрику `createAmoWebhookTrigger` (T004) — `src/lib/triggers/lead-added.ts` (`add_lead`, `leads.add`), `lead-updated.ts` (`update_lead`, `leads.update`), `lead-status-changed.ts` (`status_lead`, `leads.status`), `lead-responsible-changed.ts` (`responsible_lead`, `leads.responsible`), `lead-deleted.ts` (`delete_lead`, `leads.delete`, `fetchFullRecord: false` — сущность удалена, sampleData `{id}`), `lead-restored.ts` (`restore_lead`, `leads.restore`); общий `lead-sample.ts` (полный lead-объект, переиспользуется 5 триггерами — ponytail: без 6 копий); `triggers/index.ts` (`amocrmTriggers`); `src/index.ts` (импорт + `triggers: amocrmTriggers`); i18n +12 ключей (displayName/description каждого). entityType `leads`, у всех кроме delete — дефолтный `test()` фабрики (`GET /leads?limit=5&order[updated_at]=desc`). aiMetadata у каждого. Один файл = один триггер, имена уникальны.
+- Команды: `npx turbo run lint --filter=@activepieces/piece-amocrm` — pass (5/5); `npx turbo run build --filter=@activepieces/piece-amocrm` — pass (5/5); `npm run lint-dev` — pass (30/30, 0 errors).
+- Верификация: pass. Smoke на dev-стенде (первый живой вебхук — снял допущения T004/шапки): `POST /api/v4/webhooks` с `settings:[add_lead,update_lead,status_lead,responsible_lead,delete_lead,restore_lead]` → **201**, ответ эхом вернул все 6 событий как `{<event>:1}` — **все имена событий валидны для amo v4** (спека подтверждена). `DELETE /api/v4/webhooks` по `{destination}` → **204** — lifecycle enable/disable симметричен, удаление по destination работает (webhookId не нужен, как и решено в T004). Допущение о нескольких вебхуках с разным destination: amo хранит settings per-destination (подтверждено формой ответа), конфликта между flow-триггерами нет. code-review: дифф — 6 идентичных вызовов фабрики + данные, ручная сверка (уникальность name, регистрация в index+массиве, i18n identity) — находок нет.
+- Блокеры: нет.
+
 ### 2026-07-10 — T001: Scaffold piece + auth + validate
 - Статус: done
 - Изменения: `packages/pieces/community/amocrm/` — `package.json`, `tsconfig.json`, `tsconfig.lib.json`, `.eslintrc.json`, `README.md`, `src/index.ts` (createPiece + createCustomApiCallAction, ponytail-коммент про логотип-заглушку), `src/lib/auth.ts` (CustomAuth: subdomain/zone/apiToken + validate через GET /account), `src/i18n/translation.json`. Плюс path `@activepieces/piece-amocrm` в `tsconfig.base.json` и механический `bun.lock`. Каркас был частично создан оборвавшейся прошлой итерацией (без коммита и записи) — эта итерация доверила, доверификовала и закоммитила. `project.json` не создавался: у kommo его нет, репо на turbo.
