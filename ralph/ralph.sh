@@ -50,15 +50,26 @@ sleep_if_limited() {
   return 0
 }
 
+# Гибрид моделей: V-чекпоинты и помеченные тяжёлые задачи ведёт fable, рутину — opus.
+FABLE_TASKS_RE='^(V[0-9]+|T005|T012|T023)$'
+pick_model() {
+  local task
+  task=$(grep -E '^### - \[ \] ' ralph/prd.md | grep -v 'BLOCKED' | head -1 \
+    | grep -oE '\b[TV][0-9]{3}[a-z]?\b' | head -1)
+  if [ -z "$task" ]; then echo "fable"; return; fi   # план пуст/нечитаем — финалить пусть fable
+  if echo "$task" | grep -qE "$FABLE_TASKS_RE"; then echo "fable"; else echo "opus"; fi
+}
+
 for i in $(seq 1 "$MAX"); do
   gate_on_snapshot
 
+  MODEL=$(pick_model)
   log="$LOGDIR/iter-$(printf '%02d' "$i")-$(date +%H%M%S).log"
-  echo "[$(date '+%H:%M')] итерация $i/$MAX → $log"
+  echo "[$(date '+%H:%M')] итерация $i/$MAX (model=$MODEL) → $log"
 
   # ponytail: --dangerously-skip-permissions — иначе первый же неразрешённый bash-запрос
   # молча провалит ночь; ужесточить = allowlist в .claude/settings.json и acceptEdits.
-  claude -p "$(cat ralph/PROMPT.md)" --model fable --dangerously-skip-permissions >"$log" 2>&1
+  claude -p "$(cat ralph/PROMPT.md)" --model "$MODEL" --dangerously-skip-permissions >"$log" 2>&1
 
   if sleep_if_limited "$log"; then
     continue  # итерация сгорела об лимит — повторить после сна
