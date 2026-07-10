@@ -77,7 +77,7 @@
 - **потолок (ponytail):** `Property.Dropdown` не умеет серверный поиск — на аккаунте с десятками тысяч сделок `fetchAllPages` по leads/contacts даст огромный список и медленный refresh. Ограничить `leadDropdown`/`contactDropdown`/`companyDropdown` первой страницей `limit=250` c `order[updated_at]=desc` (свежие сверху), а НЕ `fetchAllPages`. `pipeline`/`status`/`user`/`taskType`/`tag`/`lossReason` — их всегда мало, там `fetchAllPages`/одна страница ок. `ponytail:`-коммент: 250 последних; полнотекстовый выбор по id делается через `find_entity` (T019) + ручной ввод id, upgrade — searchable dropdown, если понадобится.
 - **verify:** общий.
 
-### - [ ] T004 — Фабрика webhook-триггеров + lifecycle
+### - [x] T004 — Фабрика webhook-триггеров + lifecycle
 - **spec:** `createAmoWebhookTrigger({ name, displayName, description, aiMetadata, events, payloadPath, entityType, sampleData, fetchFullRecord?, testFn?, props? })` — возвращает `createTrigger` (`TriggerStrategy.WEBHOOK`). Named-params, все именованные опции.
   - `onEnable`: `POST /webhooks { destination: context.webhookUrl, settings: events }` (`events` — массив имён событий amo).
   - `onDisable`: `DELETE /webhooks { destination: context.webhookUrl }` (НЕ хранить `webhookId` — это мёртвый код в kommo; удаление идёт по destination).

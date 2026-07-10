@@ -30,6 +30,13 @@
 - Верификация: pass. code-review (low) — находок нет. Smoke на dev-стенде: `GET /api/v4/leads?page=1&limit=1` → ключи `_embedded.leads`, `_links.next` — форма совпадает с реализацией fetchAllPages.
 - Блокеры: нет.
 
+### 2026-07-10 — T004: Фабрика webhook-триггеров + lifecycle
+- Статус: done
+- Изменения: `src/lib/common/webhooks.ts` (`createAmoWebhookTrigger` — named-params фабрика, `TriggerStrategy.WEBHOOK`: `onEnable` POST /webhooks `{destination, settings: events}`, `onDisable` DELETE /webhooks `{destination}` без хранения webhookId, `run` идёт по `payloadPath` (split '.'), маппит ВСЕ записи события, при `fetchFullRecord`(default true) GET `/{entityType}/{id}?with=contacts,companies,catalog_elements` иначе возвращает payload как есть, `test` параметризуем через `testFn` иначе дефолт GET `/{entityType}?limit=5&order[updated_at]=desc`, опциональные `props`); `src/lib/common/index.ts` (+реэкспорт webhooks). Разбор payload через `unknown` + гварды (`isRecord`/`resolveEventEntries`/`readId`), без any/as; типы в конце файла.
+- Команды: `npx turbo run lint --filter=@activepieces/piece-amocrm` — pass (5/5); `npx turbo run build --filter=@activepieces/piece-amocrm` — pass (5/5); `npm run lint-dev` — 0 errors (те же 72 предсуществующих warning в web, вне скоупа).
+- Верификация: pass. code-review (low) по файлу — находок нет. Типизация `context.auth.props` в trigger-контексте прошла tsc — auth-распаковка через `.props` корректна и для триггеров (как в props.ts). Фабрика без потребителей — живой вебхук проверится в T006.
+- Блокеры: нет. Заметки: (1) `onDisable` шлёт DELETE без guard — если вебхук уже удалён, amo может вернуть 404 и makeRequest бросит; поведение предписано спекой (удаление по destination), проверить на живом вебхуке в T006. (2) `run` использует `Promise.all` GET'ов — для не-delete событий сущность существует; delete-события идут с `fetchFullRecord: false`, GET не выполняется.
+
 ### 2026-07-10 — T003: common/props.ts — дропдауны с пагинацией
 - Статус: done
 - Изменения: `src/lib/common/props.ts` (фабрики `pipelineDropdown`/`statusDropdown` (refresher pipelineId)/`userDropdown`/`taskTypeDropdown` (GET /account?with=task_types)/`tagDropdown({entity})`/`lossReasonDropdown` (required: false, без параметров)/`leadDropdown`/`contactDropdown`/`companyDropdown` — последние три через общий `entityDropdown`, одна страница `limit=250&order[updated_at]=desc`, label `name (id)`, ponytail-коммент про потолок 250; справочники — через `fetchAllPages`; разбор ответов через unknown + гварды `toOptions`/`extractEmbedded`, без any/as), `src/lib/common/index.ts` (реэкспорт props), `src/i18n/translation.json` (+11 ключей: displayName'ы и плейсхолдеры).
