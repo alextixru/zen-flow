@@ -93,7 +93,7 @@
 
 ## Фаза 1 — Кастомные поля (самое сложное, разблокирующее)
 
-### - [ ] T005 — Динамические props кастомных полей
+### - [x] T005 — Динамические props кастомных полей
 - **spec:** Хелпер `customFieldsProperty({ entity })` на `Property.DynamicProperties` (refreshers: []): при наличии auth делает `GET /{entity}/custom_fields` (через `fetchAllPages`, `embeddedKey: 'custom_fields'`) и генерирует по одному prop на поле, маппинг типа amo → Property:
   - `text`/`textarea`/`url`/`numeric`/`monetary` → ShortText/LongText/Number,
   - `select`/`radiobutton` → StaticDropdown из `field.enums` (label `value`, value `enum_id`),
