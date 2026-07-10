@@ -9,6 +9,7 @@
 #     в выводе итерации и спим до сброса 5-часового окна.
 set -u
 cd "$(dirname "$0")/.." || exit 1
+trap 'echo; echo "[ralph] прервано пользователем"; exit 130' INT TERM
 
 MAX="${1:-25}"
 BRANCH="feature/amocrm-piece"
@@ -57,7 +58,7 @@ for i in $(seq 1 "$MAX"); do
 
   # ponytail: --dangerously-skip-permissions — иначе первый же неразрешённый bash-запрос
   # молча провалит ночь; ужесточить = allowlist в .claude/settings.json и acceptEdits.
-  claude -p "$(cat ralph/PROMPT.md)" --dangerously-skip-permissions >"$log" 2>&1
+  claude -p "$(cat ralph/PROMPT.md)" --model fable --dangerously-skip-permissions >"$log" 2>&1
 
   if sleep_if_limited "$log"; then
     continue  # итерация сгорела об лимит — повторить после сна
