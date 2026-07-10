@@ -45,6 +45,15 @@
 - Верификация: pass. code-review (low) — находок нет. Коммит 1f760572.
 - Блокеры: нет. Заметка для T012: в `run()` экшена — `fetchCustomFieldsMeta({ auth: context.auth.props, entity })` → `buildCustomFieldsValues({ fieldsMeta, values: propsValue.custom_fields ?? {} })`, ключ `custom_fields_values` добавлять только при непустом массиве.
 
+### 2026-07-11 — V001: чекпоинт-валидация блока T001–T005
+- Статус: done (фиксов кода не потребовалось)
+- Изменения: только `ralph/prd.md` (чекбокс V001) и эта запись.
+- Команды: `npx turbo run build --filter=@activepieces/piece-amocrm` — pass (5/5); `npm run lint-dev` — 0 errors (72 предсуществующих warning в web); `npm run test-unit` — engine/shared зелёные, **web#test падает: 8 тестов** в `output-table-view.test.ts` (3) и `utils-schema.test.ts` (5) — предсуществующий фейл, `git diff main -- packages/web` пуст (ветка web не трогает), чинить нельзя (вне разрешённых путей); `git status` — чисто.
+- Структура: в `src/lib/` только `auth.ts` + `common/` (actions/triggers ещё нет — регистрация тривиально консистентна); grep `: any|as [A-Z]` вне тестов — 0 совпадений; все displayName/description/placeholder из исходников присутствуют в `i18n/translation.json` (сверено списками).
+- Скоуп: piece-коммиты (t001–t005) чистые; файлы вне разрешённого списка в диффе против main (`.agents/designs/`, `.claude/settings.json`, `.claude/scheduled_tasks.lock`, `.gitignore`) — из chore(ralph)-коммитов оркестратора 792b25c3/c34c7e0e, не из итераций; `bun.lock` — механический результат t001.
+- Сверка со спеками: sonnet-верификатор (свежий контекст) прошёл T001–T005 попунктно — **все пять соответствуют**, расхождений нет; отдельно подтвердил, что flat `auth.subdomain` в `validate` (без `.props`) корректен для validate-callback (сверено с framework и coupa). code-review (low) по диффу блока: runtime-багов нет; 1 заметка — `extractEmbedded`/`isRecord` продублированы в webhooks.ts/props.ts/custom-fields.ts/client.ts; осознанно оставлено (не баг, вынос в общий модуль — рефакторинг вне чекпоинта, кандидат при росте piece).
+- Блокеры: нет. Наблюдение вне скоупа: предсуществующие 8 красных web-тестов (см. выше) — репо-долг, не связан с amocrm.
+
 ### 2026-07-10 — T003: common/props.ts — дропдауны с пагинацией
 - Статус: done
 - Изменения: `src/lib/common/props.ts` (фабрики `pipelineDropdown`/`statusDropdown` (refresher pipelineId)/`userDropdown`/`taskTypeDropdown` (GET /account?with=task_types)/`tagDropdown({entity})`/`lossReasonDropdown` (required: false, без параметров)/`leadDropdown`/`contactDropdown`/`companyDropdown` — последние три через общий `entityDropdown`, одна страница `limit=250&order[updated_at]=desc`, label `name (id)`, ponytail-коммент про потолок 250; справочники — через `fetchAllPages`; разбор ответов через unknown + гварды `toOptions`/`extractEmbedded`, без any/as), `src/lib/common/index.ts` (реэкспорт props), `src/i18n/translation.json` (+11 ключей: displayName'ы и плейсхолдеры).
