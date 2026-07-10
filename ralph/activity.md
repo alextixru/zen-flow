@@ -15,6 +15,13 @@
 
 ## Лог
 
+### 2026-07-11 — T007: Триггеры contact (4 шт)
+- Статус: done
+- Изменения: 4 триггера через `createAmoWebhookTrigger` (T004) — `contact-added.ts` (`add_contact`, `contacts.add`), `contact-updated.ts` (`update_contact`, `contacts.update`), `contact-responsible-changed.ts` (`responsible_contact`, `contacts.responsible`), `contact-deleted.ts` (`delete_contact`, `contacts.delete`, `fetchFullRecord: false`, sampleData `{id}`); общий `contact-sample.ts` (полный contact-объект, переиспользуется 3 триггерами — как lead-sample в T006); регистрация в `triggers/index.ts` (импорт + массив `amocrmTriggers`); i18n +8 ключей (displayName/description). entityType `contacts`, у add/update/responsible — дефолтный `test()` фабрики. aiMetadata у каждого. Зеркало T006, без новой логики.
+- Команды: `npx turbo run lint --filter=@activepieces/piece-amocrm` — pass (5/5); `npx turbo run build --filter=@activepieces/piece-amocrm` — pass (5/5); `npm run lint-dev` — 0 errors (72 предсуществующих warning в web, вне скоупа).
+- Верификация: pass. Дифф — 4 идентичных вызова фабрики + sample + регистрация; ручная сверка (уникальность name, регистрация в index+массиве, i18n identity, payload-пути по справочнику) — находок нет; отдельный code-review излишен для механического зеркала T006 (фабрика T004 уже провалидирована живым вебхуком в T006). Токен-чек: `git diff | grep -c eyJ0` = 0.
+- Блокеры: нет.
+
 ### 2026-07-11 — T006: Триггеры lead (6 шт)
 - Статус: done
 - Изменения: 6 файлов через фабрику `createAmoWebhookTrigger` (T004) — `src/lib/triggers/lead-added.ts` (`add_lead`, `leads.add`), `lead-updated.ts` (`update_lead`, `leads.update`), `lead-status-changed.ts` (`status_lead`, `leads.status`), `lead-responsible-changed.ts` (`responsible_lead`, `leads.responsible`), `lead-deleted.ts` (`delete_lead`, `leads.delete`, `fetchFullRecord: false` — сущность удалена, sampleData `{id}`), `lead-restored.ts` (`restore_lead`, `leads.restore`); общий `lead-sample.ts` (полный lead-объект, переиспользуется 5 триггерами — ponytail: без 6 копий); `triggers/index.ts` (`amocrmTriggers`); `src/index.ts` (импорт + `triggers: amocrmTriggers`); i18n +12 ключей (displayName/description каждого). entityType `leads`, у всех кроме delete — дефолтный `test()` фабрики (`GET /leads?limit=5&order[updated_at]=desc`). aiMetadata у каждого. Один файл = один триггер, имена уникальны.

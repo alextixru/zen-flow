@@ -128,7 +128,7 @@
 - **pattern:** T004 фабрика.
 - **verify:** общий.
 
-### - [ ] T007 — Триггеры contact (4 шт)
+### - [x] T007 — Триггеры contact (4 шт)
 - **spec:** `contact_added` (`add_contact`, `contacts.add`), `contact_updated` (`update_contact`, `contacts.update`), `contact_responsible_changed` (`responsible_contact`, `contacts.responsible`), `contact_deleted` (`delete_contact`, `contacts.delete`). entityType `contacts`.
 - **files:** `src/lib/triggers/contact-*.ts` (4) + index.
 - **verify:** общий.

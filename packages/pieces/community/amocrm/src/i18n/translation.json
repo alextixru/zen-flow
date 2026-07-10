@@ -55,5 +55,13 @@
   "Lead Deleted": "Lead Deleted",
   "Triggers when a lead is deleted.": "Triggers when a lead is deleted.",
   "Lead Restored": "Lead Restored",
-  "Triggers when a deleted lead is restored.": "Triggers when a deleted lead is restored."
+  "Triggers when a deleted lead is restored.": "Triggers when a deleted lead is restored.",
+  "Contact Added": "Contact Added",
+  "Triggers when a new contact is created.": "Triggers when a new contact is created.",
+  "Contact Updated": "Contact Updated",
+  "Triggers when a contact is updated.": "Triggers when a contact is updated.",
+  "Contact Responsible User Changed": "Contact Responsible User Changed",
+  "Triggers when the responsible user of a contact changes.": "Triggers when the responsible user of a contact changes.",
+  "Contact Deleted": "Contact Deleted",
+  "Triggers when a contact is deleted.": "Triggers when a contact is deleted."
 }
