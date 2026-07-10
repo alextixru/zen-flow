@@ -63,7 +63,7 @@
 - **markdownDescription auth:** дать инструкцию (как kommo `markdownDescription`) — где взять long-lived токен в amoCRM (Настройки → Интеграции → создать интеграцию → вкладка «Ключи и доступы» → долгоживущий токен) и что `subdomain` — часть до `.amocrm.ru`. Строки — в i18n.
 - **verify:** общий + piece появляется в сборке пакетов (`npx turbo run build --filter=@activepieces/piece-amocrm`).
 
-### - [ ] T002 — common/client.ts: makeRequest + пагинация
+### - [x] T002 — common/client.ts: makeRequest + пагинация
 - **spec:** `makeRequest({ auth, method, path, body })` — named params, строит URL из `auth.subdomain`/`auth.zone`, Bearer, `Content-Type: application/json`, оборачивает вызов в `tryCatch`, при не-2xx бросает `ActivepiecesError` с осмысленным сообщением. Плюс `fetchAllPages({ auth, path, embeddedKey, limit })` — идёт по `_links.next.href` (или `page++`) пока есть страницы, собирает `_embedded[embeddedKey]` в единый массив (иммутабельно, через reduce/concat, без мутации входного массива). Экспорт единым объектом `amoClient = { makeRequest, fetchAllPages }` (util-file rule).
 - **files:** `src/lib/common/client.ts`, `src/lib/common/index.ts` (реэкспорт).
 - **pattern:** `packages/pieces/community/kommo/src/lib/common/index.ts` (makeRequest) — улучшить пагинацией.
