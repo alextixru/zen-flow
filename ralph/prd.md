@@ -143,7 +143,7 @@
 - **files:** `src/lib/triggers/task-*.ts` (3) + index.
 - **verify:** общий.
 
-### - [ ] T010 — Триггеры note (add на lead/contact/company)
+### - [x] T010 — Триггеры note (add на lead/contact/company)
 - **spec:** `note_added` — один триггер с prop `entity` (StaticDropdown lead/contact/company) через `props`-опцию фабрики T004. Разведка `Rule/NoteLead|NoteContact|NoteCompany.js` подтвердила: во фронтенде Triggeron это ОДНА пара `entity=note`+`action=add`, отдельных событий по родительской сущности НЕТ — различие чисто контекстное. Значит наиболее вероятная реализация: подписка на общее note-событие и фильтрация по выбранной `entity` в `run`. amo webhook settings кандидаты: `note_lead`/`note_contact`/`note_company` ЛИБО единый `add_note` — **проверить на живом вебхуке в T010** (записать в activity.md фактические имена). Если раздельных нет — `events` формируется как `add_note` и в `run` фильтр по `body.<entity>s.note` / типу.
 - **payload/`run`:** `fetchFullRecord: false` НЕ подходит (примечание надо догрузить) — но `/notes` top-level нет, поэтому `run` берёт примечание из payload напрямую (payload вебхука note содержит `note_type`, `element_id`, `element_type`, `params.text`) без доп. GET. `testFn`: `GET /leads?limit=1&order[updated_at]=desc` → взять её id → `GET /leads/{id}/notes?limit=5` → `_embedded.notes` (примечания последней сделки как sample).
 - **files:** `src/lib/triggers/note-added.ts` + index.
