@@ -2,6 +2,20 @@
 
 Хронологический лог итераций. Одна запись на итерацию/задачу. Новые записи — сверху вниз в порядке выполнения.
 
+### 2026-07-11 — T029: common/events.ts — клиент Events API + курсорная механика
+- Статус: done
+- Изменения: `src/lib/common/events.ts` (`amoEvents = { fetchEvents, fetchEventTypes, advanceCursor }`: `fetchEvents` строит query через `URLSearchParams` с брекет-фильтрами, пагинация page++ до отсутствия `_links.next`/пустой страницы, жёсткий потолок `maxPages` default 5 = 500 событий, limit clamp ≤100; `fetchEventTypes` → `_embedded.events_types` → `{key,type,lang}`; `advanceCursor` — чистая функция курсора `{lastCreatedAt, lastIds[]}`, дедуп на границе секунды). Разбор ответов через `unknown` + гварды (`isRecord`/`toEvent`/`readEvents`), без any/as; типы/константы в конце файла. Колокейт `events.test.ts` (9 тестов), реэкспорт в `common/index.ts`.
+- **Живой smoke (dzenteamdev, зафиксировано):**
+  - `GET /events?limit=3` — **id = ULID-строка** (`01kx7sa7jyfhdsm4s7wsmm1t51`), `created_at` в секундах, **порядок desc** по created_at; `_embedded.events`, `_links.next` присутствует. Событие несёт `type`, `entity_id`, `entity_type`, `created_by`, `value_after`/`value_before` (массивы), `account_id`, `oauth_client_uuid`, `_embedded.entity`.
+  - `GET /events/types?language_code=ru` — embeddedKey **`events_types`** (не `types`), `_total_items` присутствует, **`_links.next` отсутствует → не пагинируется** (одна страница). **218 типов**: 102 стандартных + 116 per-field (`type: 24`, ключи вида `custom_field_788891_value_changed`, плюс общий `custom_field_value_changed`). Ключевые key: `lead_added`(1)/`lead_deleted`(7)/`lead_restored`(10)/`lead_status_changed`(14)/`lead_linked`(80)/`lead_unlinked`(84)/`contact_added`(2)/`company_added`(3).
+  - `filter[entity][]=lead&filter[entity_id][]=<id>` — работает, сужает до сущности (3 события common_note_added одной сделки).
+  - `filter[type][]=lead_status_changed&filter[type][]=lead_added` (два типа) — работает без ошибки.
+  - **`filter[created_at][from]` ВКЛЮЧИТЕЛЕН (>=)**: from = created_at последнего события → это событие вернулось. Значит секундный перехлёст курсора (`from = lastCreatedAt`) покрывается `lastIds`-дедупом — реализовано.
+  - **Percent-encoded скобки** (`filter%5Btype%5D%5B%5D=`) amo принимает — `URLSearchParams` не ломает фильтры (проверено живьём).
+- Команды: `npx vitest run .../events.test.ts` — 9/9 passed; `npx turbo run lint build --filter=@activepieces/piece-amocrm` — pass (6/6); `npm run lint-dev` — 0 errors (те же 72 предсуществующих web-warning). Токен-чек: `git diff --cached | grep -c eyJ0` = 0.
+- Верификация: pass. Code-review (самопроверка диффа) нашёл **баг в `advanceCursor`**: при неизменной граничной секунде новый курсор пересобирал `lastIds` только из `fresh`, теряя уже-эмитнутый id → на следующем поллинге старое событие в ту же секунду переэмитилось. Исправлено: старые `lastIds` переносятся при `lastCreatedAt === cursor.lastCreatedAt` (union через Set); добавлен покрывающий тест. `test-unit` не гонял целиком — корневой раннер piece-тесты не подхватывает (факт репо из T002), достаточно локального vitest.
+- Блокеры: нет.
+
 ### 2026-07-11 — V005: чекпоинт-валидация блока T022–T027
 - Статус: done (фиксов кода не потребовалось)
 - Изменения: только `ralph/prd.md` (чекбокс V005) и эта запись.

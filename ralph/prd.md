@@ -304,7 +304,7 @@
 - **Rate limit:** общий ~7 rps аккаунта. Поллинг раз в минуту с потолком страниц — незаметен; НЕ добавлять к событиям автоматическую догрузку сущностей (`Promise.all` по 100 GET при бурсте = проблема): событие уже несёт `entity_id` + `value_before/after`, полная сущность добирается отдельным шагом `find_entity` (`filter[id]`).
 - **Индустриальный паттерн блока:** «doorbell» (Microsoft Graph notification + delta pull) — push-вебхук amo будит триггер, данные берутся из `/events` по курсору. Где push-звонка нет (звонки, talks) — чистый поллинг с курсором.
 
-### - [ ] T029 — common/events.ts: клиент Events API + курсорная механика
+### - [x] T029 — common/events.ts: клиент Events API + курсорная механика
 - **spec:** `amoEvents = { fetchEvents, fetchEventTypes, advanceCursor }`.
   - `fetchEvents({ auth, from, types?, entity?, entityIds?, limit?, maxPages? })` — `GET /events` через `amoClient.makeRequest`, query через `URLSearchParams` (брекеты amo-фильтров), пагинация page++ до отсутствия `_links.next`/пустого `_embedded.events`, **жёсткий потолок `maxPages` (default 5 = 500 событий)**; 204/пустое тело → `[]`. Возврат — плоский массив событий (иммутабельно).
   - `fetchEventTypes({ auth })` — `GET /events/types?language_code=ru` → массив `{key, type, lang}` (через `fetchAllPages` если пагинируется — проверить живьём).
