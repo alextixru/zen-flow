@@ -5,11 +5,14 @@ import { createContact } from './create-contact';
 import { createLead } from './create-lead';
 import { createNote } from './create-note';
 import { createTask } from './create-task';
+import { findCatalogElements } from './find-catalog-elements';
 import { findEntity } from './find-entity';
+import { linkCatalogElement } from './link-catalog-element';
 import { linkEntities } from './link-entities';
 import { removeAllTags } from './remove-all-tags';
 import { removeTags } from './remove-tags';
 import { runSalesbot } from './run-salesbot';
+import { unlinkCatalogElement } from './unlink-catalog-element';
 import { updateCompany } from './update-company';
 import { updateContact } from './update-contact';
 import { updateLead } from './update-lead';
@@ -34,4 +37,7 @@ export const amocrmActions = [
   unlinkEntities,
   findEntity,
   runSalesbot,
+  findCatalogElements,
+  linkCatalogElement,
+  unlinkCatalogElement,
 ];

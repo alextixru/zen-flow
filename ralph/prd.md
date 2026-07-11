@@ -232,7 +232,7 @@
 ### - [x] V004 — Чекпоинт-валидация блока T017–T021
 - **spec:** общая спецификация V-задач. Блок: tags (read-modify-write!), links, search, salesbot, subscribers. Особое внимание: read-modify-write тегов не теряет чужие теги при конкурентных обновлениях (задокументировано ли ограничение), BLOCKED-пометки открытых вопросов (T020/T021) оформлены по PROMPT.md.
 
-### - [ ] T022 — catalogs: list / link element / unlink element
+### - [x] T022 — catalogs: list / link element / unlink element
 - **spec:** `find_catalog_elements`: props `catalog_id` (dropdown из `GET /catalogs`), `query`, вернуть `GET /catalogs/{id}/elements?query=` → `_embedded.elements`. `link_catalog_element`: props `lead_id`, `catalog_id`, `element_id`, `quantity`. `POST /leads/{id}/link` `[{ to_entity_id: element_id, to_entity_type: 'catalog_elements', metadata: { quantity, catalog_id } }]`. `unlink_catalog_element`: `POST /leads/{id}/unlink`.
 - **files:** `src/lib/actions/find-catalog-elements.ts`, `link-catalog-element.ts`, `unlink-catalog-element.ts` + `catalogDropdown` в props.ts + index.
 - **pattern:** Triggeron LinkCatalogElements/UnlinkCatalogElements.

@@ -110,6 +110,52 @@ export const tagDropdown = ({ entity, required }: TagDropdownParams) =>
     },
   });
 
+export const catalogDropdown = ({ required }: DropdownFactoryParams) =>
+  Property.Dropdown({
+    auth: amocrmAuth,
+    displayName: 'Catalog',
+    required,
+    refreshers: [],
+    options: async ({ auth }) => {
+      if (isNil(auth)) {
+        return disconnectedState();
+      }
+      const catalogs = await amoClient.fetchAllPages({
+        auth: auth.props,
+        path: '/catalogs',
+        embeddedKey: 'catalogs',
+      });
+      return { disabled: false, options: toOptions({ items: catalogs }) };
+    },
+  });
+
+export const catalogElementDropdown = ({ required }: DropdownFactoryParams) =>
+  Property.Dropdown({
+    auth: amocrmAuth,
+    displayName: 'Catalog Element',
+    required,
+    refreshers: ['catalog_id'],
+    options: async ({ auth, catalog_id }) => {
+      if (isNil(auth)) {
+        return disconnectedState();
+      }
+      if (typeof catalog_id !== 'number' && typeof catalog_id !== 'string') {
+        return { disabled: true, placeholder: 'Select a catalog first.', options: [] };
+      }
+      // ponytail: 250 latest elements only — no server-side search; use find_catalog_elements + manual id for the rest
+      const response = await amoClient.makeRequest({
+        auth: auth.props,
+        method: HttpMethod.GET,
+        path: `/catalogs/${catalog_id}/elements?limit=250`,
+      });
+      const items = extractEmbedded({ response, key: 'elements' });
+      return {
+        disabled: false,
+        options: toOptions({ items, labelOf: ({ item, name }) => `${name} (${item['id']})` }),
+      };
+    },
+  });
+
 export const lossReasonDropdown = () =>
   Property.Dropdown({
     auth: amocrmAuth,

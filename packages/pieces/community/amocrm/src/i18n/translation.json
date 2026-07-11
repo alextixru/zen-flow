@@ -164,5 +164,16 @@
   "Run Salesbot": "Run Salesbot",
   "Starts a salesbot on a lead, contact or company.": "Starts a salesbot on a lead, contact or company.",
   "Salesbot ID": "Salesbot ID",
-  "The id of the salesbot to run (from the Salesbot designer in amoCRM).": "The id of the salesbot to run (from the Salesbot designer in amoCRM)."
+  "The id of the salesbot to run (from the Salesbot designer in amoCRM).": "The id of the salesbot to run (from the Salesbot designer in amoCRM).",
+  "Find Catalog Elements": "Find Catalog Elements",
+  "Searches elements (products, invoices, etc.) inside an amoCRM catalog (list).": "Searches elements (products, invoices, etc.) inside an amoCRM catalog (list).",
+  "Full-text search across the catalog elements.": "Full-text search across the catalog elements.",
+  "Catalog": "Catalog",
+  "Catalog Element": "Catalog Element",
+  "Select a catalog first.": "Select a catalog first.",
+  "Link Catalog Element": "Link Catalog Element",
+  "Links a catalog element (e.g. a product) to a lead with an optional quantity.": "Links a catalog element (e.g. a product) to a lead with an optional quantity.",
+  "Quantity": "Quantity",
+  "Unlink Catalog Element": "Unlink Catalog Element",
+  "Removes the link between a catalog element (e.g. a product) and a lead.": "Removes the link between a catalog element (e.g. a product) and a lead."
 }
