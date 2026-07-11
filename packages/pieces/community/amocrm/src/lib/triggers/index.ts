@@ -8,6 +8,8 @@ import { contactDeleted } from './contact-deleted';
 import { contactResponsibleChanged } from './contact-responsible-changed';
 import { contactUpdated } from './contact-updated';
 import { customFieldChanged } from './custom-field-changed';
+import { entityTagAdded } from './entity-tag-added';
+import { entityTagDeleted } from './entity-tag-deleted';
 import { incomingCall } from './incoming-call';
 import { incomingMessage } from './incoming-message';
 import { leadEnteredStage } from './lead-entered-stage';
@@ -48,4 +50,6 @@ export const amocrmTriggers = [
   leadEnteredStage,
   incomingCall,
   outgoingCall,
+  entityTagAdded,
+  entityTagDeleted,
 ];
