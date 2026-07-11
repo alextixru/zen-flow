@@ -1,0 +1,20 @@
+export const taskSample = {
+  id: 51384302,
+  created_by: 13290567,
+  updated_by: 13290567,
+  created_at: 1748800059,
+  updated_at: 1748800060,
+  responsible_user_id: 13290567,
+  group_id: 0,
+  entity_id: 256988,
+  entity_type: 'leads',
+  duration: 0,
+  is_completed: false,
+  task_type_id: 1,
+  text: 'Call the client back',
+  result: {
+    text: '',
+  },
+  complete_till: 1748886459,
+  account_id: 34678947,
+};

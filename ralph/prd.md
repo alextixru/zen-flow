@@ -138,7 +138,7 @@
 - **files:** `src/lib/triggers/company-*.ts` (4) + index.
 - **verify:** общий.
 
-### - [ ] T009 — Триггеры task (3 шт)
+### - [x] T009 — Триггеры task (3 шт)
 - **spec:** `task_added` (`add_task`, `task.add`), `task_updated_or_completed` (`update_task`, `task.update` — в payload флаг `is_completed`), `task_deleted` (`delete_task`, `task.delete`). entityType `tasks`. Ключ payload — `task` (singular), проверить на реальном вебхуке.
 - **files:** `src/lib/triggers/task-*.ts` (3) + index.
 - **verify:** общий.

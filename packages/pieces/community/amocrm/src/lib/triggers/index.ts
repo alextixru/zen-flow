@@ -12,6 +12,9 @@ import { leadResponsibleChanged } from './lead-responsible-changed';
 import { leadRestored } from './lead-restored';
 import { leadStatusChanged } from './lead-status-changed';
 import { leadUpdated } from './lead-updated';
+import { taskAdded } from './task-added';
+import { taskDeleted } from './task-deleted';
+import { taskUpdatedOrCompleted } from './task-updated-or-completed';
 
 export const amocrmTriggers = [
   leadAdded,
@@ -28,4 +31,7 @@ export const amocrmTriggers = [
   companyUpdated,
   companyResponsibleChanged,
   companyDeleted,
+  taskAdded,
+  taskUpdatedOrCompleted,
+  taskDeleted,
 ];

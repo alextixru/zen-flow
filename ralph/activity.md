@@ -9,6 +9,13 @@
 - Верификация: pass. Дифф — 4 идентичных вызова фабрики + sample + регистрация; ручная сверка (уникальность name, регистрация в index+массиве, i18n identity, payload-пути по справочнику `companies.add/update/responsible/delete`) — находок нет; отдельный code-review излишен для механического зеркала T007 (фабрика T004 провалидирована живым вебхуком в T006). Токен-чек: `git diff | grep -c eyJ0` = 0.
 - Блокеры: нет.
 
+### 2026-07-11 — T009: Триггеры task (3 шт)
+- Статус: done
+- Изменения: 3 триггера через `createAmoWebhookTrigger` (T004) — `task-added.ts` (`add_task`, `task.add`), `task-updated-or-completed.ts` (`update_task`, `task.update`, description отсылает к флагу `is_completed`), `task-deleted.ts` (`delete_task`, `task.delete`, `fetchFullRecord: false`, sampleData `{id}`); общий `task-sample.ts` (task-объект по реальной форме dev-стенда: `entity_id`/`entity_type`/`is_completed`/`task_type_id`/`text`/`result`/`complete_till`); регистрация в `triggers/index.ts` (импорт + массив `amocrmTriggers`, +3); i18n +6 ключей (79 всего). entityType `tasks`, у add/update — дефолтный `test()` фабрики. aiMetadata у каждого. Зеркало T006–T008, без новой логики.
+- Команды: `npx turbo run lint --filter=@activepieces/piece-amocrm` — pass (5/5); `npx turbo run build --filter=@activepieces/piece-amocrm` — pass (5/5); `npm run lint-dev` — 0 errors (те же 72 предсуществующих web-warning, вне скоупа).
+- Верификация: pass. Живой вебхук на dev-стенде (снял допущение шапки про имена событий task): `POST /api/v4/webhooks` с `settings:[add_task,update_task,delete_task]` → **201**, ответ эхом вернул все три как `{add_task:1,update_task:1,delete_task:1}` — **имена событий валидны для amo v4**. `DELETE` по destination → **204**. Ключ payload `task` (singular) — из справочника шапки (не проверялся живым payload, вебхук не диспатчился). sampleData построен по реальному `GET /api/v4/tasks` (форма подтверждена). Дифф — 3 идентичных вызова фабрики + sample + регистрация; ручная сверка (уникальность name, регистрация index+массив, i18n identity, payload-пути) — находок нет; отдельный code-review излишен для механического зеркала. Токен-чек: `git diff | grep -c eyJ0` = 0.
+- Блокеры: нет.
+
 ## Формат записи
 
 ```

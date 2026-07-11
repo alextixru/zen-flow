@@ -71,5 +71,11 @@
   "Company Responsible User Changed": "Company Responsible User Changed",
   "Triggers when the responsible user of a company changes.": "Triggers when the responsible user of a company changes.",
   "Company Deleted": "Company Deleted",
-  "Triggers when a company is deleted.": "Triggers when a company is deleted."
+  "Triggers when a company is deleted.": "Triggers when a company is deleted.",
+  "Task Added": "Task Added",
+  "Triggers when a new task is created.": "Triggers when a new task is created.",
+  "Task Updated or Completed": "Task Updated or Completed",
+  "Triggers when a task is updated or marked as completed (check the is_completed flag).": "Triggers when a task is updated or marked as completed (check the is_completed flag).",
+  "Task Deleted": "Task Deleted",
+  "Triggers when a task is deleted.": "Triggers when a task is deleted."
 }
