@@ -2,6 +2,13 @@
 
 Хронологический лог итераций. Одна запись на итерацию/задачу. Новые записи — сверху вниз в порядке выполнения.
 
+### 2026-07-11 — T012: create/update lead
+- Статус: done
+- Изменения: `src/lib/actions/lead-payload.ts` (общий модуль двух action'ов: `leadPayload = { optionalProps, buildBody }` — опциональные props (price/pipelineId/statusId/responsible_user_id/tags/contact_id/company_id/custom_fields) и иммутабельная сборка тела: `spreadIfDefined` для скаляров, `_embedded.tags[{name}]`/`contacts[{id}]`/`companies[{id}]` только при непустых, `custom_fields_values` через `customFieldsUtils.fetchCustomFieldsMeta`+`buildCustomFieldsValues` (T005), meta-запрос пропускается при пустом custom_fields); `create-lead.ts` (`POST /leads` телом-массивом, возврат `_embedded.leads[0]` с guard-фолбэком на весь ответ, aiMetadata `idempotent: false`); `update-lead.ts` (`lead_id` через `leadDropdown` required + опциональный `name`, `PATCH /leads/{id}` телом-объектом, незаполненные поля не шлются); `actions/index.ts` (`amocrmActions`); регистрация в `src/index.ts` (spread перед custom api call); i18n +7 ключей (92 всего). Пайплайн custom fields T005 сошёлся без правок (типы/`.props`/ключевание по `String(field.id)` совместимы с DynamicProperties out of the box).
+- Команды: `npx turbo run lint --filter=@activepieces/piece-amocrm` — pass (5/5); `npx turbo run build --filter=@activepieces/piece-amocrm` — pass (5/5); `npm run lint-dev` — 0 errors (те же 72 предсуществующих web-warning).
+- Верификация: pass. Живой smoke на dev-стенде: `POST /api/v4/leads` телом `[{name, price, _embedded:{tags:[{name}]}}]` → 200, ответ `_embedded.leads[0]` = `{id: 38734915, request_id, _links}` — форма create-ответа и извлечение подтверждены; `PATCH /api/v4/leads/38734915` телом-объектом `{price, custom_fields_values:[{field_id: 788899, values:[{value}]}]}` → 200 `{id, updated_at}` — PATCH-семантика и формат custom_fields_values подтверждены. code-review (low) по диффу — находок нет (локальный `isRecord` — принятое в V001 дублирование). Токен-чек: `git diff --cached | grep -c eyJ0` = 0. Коммит f38a23d1.
+- Блокеры: нет. Заметка для T013/T014: `lead-payload.ts` — эталон интеграции custom fields; contact/company повторяют паттерн со своими props (не обобщать преждевременно).
+
 ### 2026-07-11 — V002: чекпоинт-валидация блока T006–T011
 - Статус: done (фиксов кода не потребовалось)
 - Изменения: только `ralph/prd.md` (чекбокс V002) и эта запись.

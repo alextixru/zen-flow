@@ -161,7 +161,7 @@
 
 ## Фаза 3 — Экшены CRM-ядра
 
-### - [ ] T012 — create/update lead
+### - [x] T012 — create/update lead
 - **spec:** Два action. `create_lead`: props `name` (required), `price`, `pipelineId`, `statusId`, `responsible_user_id`, `tags` (Array), `contact_id`/`company_id` (dropdown, для привязки), `custom_fields` (`customFieldsProperty({entity:'leads'})` из T005). `POST /leads` body-массив `[{ name, price, status_id, pipeline_id, responsible_user_id, custom_fields_values, _embedded:{ tags:[{name}|{id}], contacts:[{id}], companies:[{id}] } }]`, пустые поля не слать. `update_lead`: prop `lead_id` (dropdown, required) + те же опциональные + custom_fields; `PATCH /leads/{id}` body-объект (не массив).
 - **Интеграция custom fields (эталон для T013/T014/T015):** prop `custom_fields = customFieldsUtils.customFieldsProperty({ entity: 'leads' })`. В `run()`: `const fieldsMeta = await customFieldsUtils.fetchCustomFieldsMeta({ auth, entity: 'leads' })`, затем `const cfv = customFieldsUtils.buildCustomFieldsValues({ fieldsMeta, values: propsValue.custom_fields })`; добавить `custom_fields_values: cfv` в body ТОЛЬКО если массив непуст. Пустые скалярные props (`price`, `pipelineId` и т.д.) не слать (`spreadIfDefined`/`spreadIfNotUndefined` из `@activepieces/shared`).
 - **tags/связи:** `tags` (Array строк) → `_embedded.tags: [{name}]`; `contact_id`/`company_id` → `_embedded.contacts:[{id}]` / `_embedded.companies:[{id}]`. `create`: `POST /leads` тело — МАССИВ `[{...}]`, ответ `_embedded.leads[0]` вернуть целиком. `update`: `PATCH /leads/{id}` тело — ОБЪЕКТ (не массив); незаполненные props НЕ включать в тело (PATCH иначе затрёт поле).
