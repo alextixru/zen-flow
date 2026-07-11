@@ -38,14 +38,34 @@ gate_on_snapshot() {
   fi
 }
 
-# Отказ CLI по лимиту: "Claude AI usage limit reached|<epoch>" (или без epoch).
+# Отказ CLI по лимиту. Реальные форматы CLI, оба должны матчиться:
+#  - "You've hit your session limit · resets 2:40am (Europe/Moscow)"  (нет epoch, только часы:минуты)
+#  - "Claude AI usage limit reached|<epoch>"                          (старый формат, с epoch)
+LIMIT_MSG_RE='hit your (session|usage) limit|usage limit reached|rate.?limit'
+
+# Извлекает ближайший будущий epoch времени "H:MMam/pm" из "resets H:MMam" (macOS/BSD date).
+parse_reset_epoch() {
+  local log="$1" timestr hm today_epoch now_ts
+  timestr=$(grep -oiE 'resets[[:space:]]+[0-9]{1,2}:[0-9]{2}[[:space:]]*(am|pm)' "$log" | head -1 \
+    | grep -oiE '[0-9]{1,2}:[0-9]{2}[[:space:]]*(am|pm)')
+  [ -z "$timestr" ] && return 1
+  timestr=$(echo "$timestr" | tr -d '[:space:]' | tr '[:lower:]' '[:upper:]')
+  hm=$(date -j -f "%I:%M%p" "$timestr" "+%H:%M" 2>/dev/null) || return 1
+  now_ts=$(now)
+  today_epoch=$(date -j -f "%Y-%m-%d %H:%M" "$(date +%Y-%m-%d) $hm" "+%s" 2>/dev/null) || return 1
+  # сброс уже был сегодня (или ровно сейчас) — время относится к завтрашнему дню
+  [ "$today_epoch" -le "$now_ts" ] && today_epoch=$(( today_epoch + 86400 ))
+  echo "$today_epoch"
+}
+
 sleep_if_limited() {
   local log="$1" epoch wait
-  grep -qiE "usage limit reached|rate.?limit" "$log" || return 1
-  epoch=$(grep -oE '\|[0-9]{10}' "$log" | tr -d '|' | head -1)
+  grep -qiE "$LIMIT_MSG_RE" "$log" || return 1
+  epoch=$(parse_reset_epoch "$log")
+  [ -z "$epoch" ] && epoch=$(grep -oE '\|[0-9]{10}' "$log" | tr -d '|' | head -1)
   wait=$(( ${epoch:-$(( $(now) + 1800 ))} - $(now) + 120 ))
   [ "$wait" -lt 600 ] && wait=600
-  echo "[$(date '+%H:%M')] CLI упёрся в лимит — сплю ${wait}s"
+  echo "[$(date '+%H:%M')] CLI упёрся в лимит (\"$(grep -oiE "$LIMIT_MSG_RE" "$log" | head -1)\") — сплю ${wait}s"
   sleep "$wait"
   return 0
 }
