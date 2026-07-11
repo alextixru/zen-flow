@@ -112,3 +112,18 @@
 - Живые проверки: **виджет onSave НЕ проверен живьём** — chrome-devtools MCP в headless-итерации недоступен (подтверждено ToolSearch: «No matching deferred tools»), живой залогиненной сессии amo нет (прецедент W004/V001). Пароли не подбирались.
 - Верификация: code-review (low). Единственная находка (PLAUSIBLE, не подтверждённый дефект): `onSave` возвращает jQuery-promise — если загрузчик amo НЕ дожидается промиса от onSave, отклонённый `/install` всё равно даст закрыть модалку (ослабляет «return true только при успехе»). Это ровно то поведение, что спека помечает «проверить живьём». Реализована корректная (promise-based) ветка; при неподдержке промиса деградация мягкая — связка всё равно провижинится, а notify показывает результат. Фикс/подтверждение — на живой сессии (добор в W010/V002).
 - Блокеры: нет. Добор для V002 (или человека при живой сессии): ввести выпущенный ключ в настройках виджета dzenteamdev, «Сохранить» → строка активирована; проверить, дожидается ли amo promise от onSave (блок сохранения при 403).
+
+### 2026-07-12 — W007: POST /embed-token
+- Статус: done
+- Изменения:
+  - `bridge/src/embed-token.ts` (новый) — `registerEmbedToken(app)` (`POST /embed-token`), `validateEmbedTokenBody` (install_key непустой; account_id и user.id — положительные целые, нормализация в строку; user.name → '' если не строка), `rateLimitExceeded` (in-memory fixed window 30 req/мин на ключ, до обращения к БД → 429; `ponytail:` upgrade — реверс-прокси; защита от роста Map — clear при >10k ключей), `issueEmbedToken` (SELECT только active-связки по паре ключ+account_id → 403 на unknown/pending/revoked/чужой account; **subdomain — из строки БД, не из тела**), `splitName` (первый пробел; фолбэки 'amoCRM'/'User' по спеке). Ответ `{jwtToken, instanceUrl: FORK_URL}`.
+  - `bridge/src/jwt.ts` — добавлен опциональный claim `role` (тип `EmbedRole = 'Admin'|'Editor'|'Viewer'` — несуществующая роль роняет обмен на форке); embed-token подписывает с `role:'Editor'`, `piecesFilterType:'ALLOWED'`, `piecesTags:['ru-allowed']`.
+  - `bridge/src/index.ts` — регистрация роута; `bridge/src/embed-token.test.ts` — 13 тестов.
+- Команды (фактические результаты этой сессии):
+  - `npx tsc --noEmit` → чисто; `npx vitest run` → 3 файла, **24/24** (jwt 2 + install 9 + embed-token 13).
+  - curl-smoke (мост локально :8083, реальный signing key + активная связка W006 `3NI6Tn…`): пустое тело → **400**; unknown key → **403**; правильный ключ с чужим account_id 99999 → **403**; валидный запрос → **200**, JWT декодирован `node -e` (в файлы не писался): header RS256 kid `e82J9c…`, claims `version:v3, externalProjectId:'32453394', externalUserId:'2898108', firstName:'Алексей', lastName:'Тихонов', projectDisplayName:'dzenteamdev' (из БД), role:'Editor', piecesFilterType:'ALLOWED', piecesTags:['ru-allowed'], exp:+60min`.
+  - Rate-limit живьём: 31 быстрый запрос → 31-й **429**.
+  - Лог моста `/tmp/bridge-w007.log`: grep по jwt-префиксу/PEM-маркеру/install_key/3NI6Tn → **0** (JWT и ключ не логируются). Секрет-скан диффа → 0; `git status` без `.env*`/`data/`/`*.pem`.
+- Верификация: code-review (low) по диффу — находок нет. Осознанное решение: `normalizePositiveInt` продублирован из install.ts (6 строк) вместо экспорта оттуда — не трогать файл чужой задачи ради одного хелпера.
+- Живые проверки: стенд не требовался (эндпоинт локальный); интеграция с фронтом виджета — W010.
+- Блокеры: нет.

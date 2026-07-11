@@ -164,7 +164,7 @@
 - **files:** `bridge/scripts/issue-key.ts`, `bridge/src/{index.ts,install.ts}`, `widget/script.js`, `widget/i18n/ru.json`.
 - **verify:** tsc + vitest (валидация связки: pending→bind, повторный install идемпотентен, чужой account_id → 403); живьём: выпустить ключ, ввести в настройках виджета на dzenteamdev (мост локально + туннель), «Сохранить» → строка в БД активирована.
 
-### - [ ] W007 — POST /embed-token
+### - [x] W007 — POST /embed-token
 
 - **spec:** `POST /embed-token` `{install_key, account_id, user:{id,name}}` → сверка активной связки (ключ+account_id) → `signEmbedJwt`: `externalProjectId=String(account_id)`, `externalUserId=String(user.id)`, `firstName/lastName` из `name` (сплит по первому пробелу; пусто → 'amoCRM'/'User'), `exp` 1ч, `role:'Editor'`, `piecesFilterType:'ALLOWED'`, `piecesTags:['ru-allowed']`, `projectDisplayName=subdomain` — subdomain брать из СТРОКИ БД связки, не из тела запроса (клиент может врать). Выданный JWT не логировать. Ответ `{jwtToken, instanceUrl: FORK_URL}`. 403 на неизвестную/`revoked` связку. Примитивный rate-limit in-memory (напр. 30 req/мин на ключ) — от перебора; `ponytail:` in-memory, upgrade — на реверс-прокси.
 - **files:** `bridge/src/{index.ts,embed-token.ts}` + тест.
