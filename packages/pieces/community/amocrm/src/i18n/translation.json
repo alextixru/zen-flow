@@ -160,5 +160,9 @@
   "Descending": "Descending",
   "Ascending": "Ascending",
   "Limit": "Limit",
-  "Maximum number of records to return (max 250).": "Maximum number of records to return (max 250)."
+  "Maximum number of records to return (max 250).": "Maximum number of records to return (max 250).",
+  "Run Salesbot": "Run Salesbot",
+  "Starts a salesbot on a lead, contact or company.": "Starts a salesbot on a lead, contact or company.",
+  "Salesbot ID": "Salesbot ID",
+  "The id of the salesbot to run (from the Salesbot designer in amoCRM).": "The id of the salesbot to run (from the Salesbot designer in amoCRM)."
 }

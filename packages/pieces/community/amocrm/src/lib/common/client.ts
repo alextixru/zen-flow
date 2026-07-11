@@ -1,11 +1,12 @@
 import { HttpError, HttpMethod, httpClient } from '@activepieces/pieces-common';
 import { tryCatch } from '@activepieces/pieces-framework';
 
-async function makeRequest({ auth, method, path, body }: MakeRequestParams): Promise<unknown> {
+async function makeRequest({ auth, method, path, body, apiVersion }: MakeRequestParams): Promise<unknown> {
+  const version = apiVersion ?? 'v4';
   const { data, error } = await tryCatch(() =>
     httpClient.sendRequest({
       method,
-      url: `https://${auth.subdomain}.${auth.zone}/api/v4${path}`,
+      url: `https://${auth.subdomain}.${auth.zone}/api/${version}${path}`,
       headers: {
         Authorization: `Bearer ${auth.apiToken}`,
         'Content-Type': 'application/json',
@@ -94,6 +95,7 @@ type MakeRequestParams = {
   method: HttpMethod;
   path: string;
   body?: unknown;
+  apiVersion?: 'v2' | 'v4';
 };
 
 type FetchAllPagesParams = {

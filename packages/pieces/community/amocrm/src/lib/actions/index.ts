@@ -9,6 +9,7 @@ import { findEntity } from './find-entity';
 import { linkEntities } from './link-entities';
 import { removeAllTags } from './remove-all-tags';
 import { removeTags } from './remove-tags';
+import { runSalesbot } from './run-salesbot';
 import { updateCompany } from './update-company';
 import { updateContact } from './update-contact';
 import { updateLead } from './update-lead';
@@ -32,4 +33,5 @@ export const amocrmActions = [
   linkEntities,
   unlinkEntities,
   findEntity,
+  runSalesbot,
 ];
