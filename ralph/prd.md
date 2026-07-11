@@ -193,7 +193,7 @@
 - **files:** `src/lib/actions/create-note.ts` (+ `create-note-with-file.ts`) + index.
 - **verify:** общий.
 
-### - [ ] V003 — Чекпоинт-валидация блока T012–T016
+### - [x] V003 — Чекпоинт-валидация блока T012–T016
 - **spec:** общая спецификация V-задач. Блок: create/update lead/contact/company, tasks, notes. Особое внимание: custom_fields_values во всех create/update идут через общий `buildCustomFieldsValues` (T005), PATCH-семантика частичного обновления (незаполненные props не затирают поля), notes-типы соответствуют API.
 
 ### - [ ] T017 — tags: add / remove / remove-all
