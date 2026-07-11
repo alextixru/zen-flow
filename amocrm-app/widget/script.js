@@ -254,8 +254,53 @@ define(['jquery'], function ($) {
         });
     }
 
+    // lcard-0: amo не рисует блок сам (суффикс -0) — решаем и рендерим сами через
+    // render_template (официальный метод инстанса виджета; форма { caption, body, render }
+    // подтверждена двумя боевыми виджетами: sensei/widget/script.js, triggeron F5triggeron.js).
+    function lcardConstructorUrl(code) {
+      return location.protocol + '//' + location.host + '/settings/widgets/' + code + '/';
+    }
+
+    function bindLcardClicks(code) {
+      var store = core();
+      if (store.lcardBound) {
+        return;
+      }
+      store.lcardBound = true;
+      // Делегирование на document: render_template может пересоздать DOM блока
+      // при переходе на другую карточку, прямой bind на элемент тогда потеряется.
+      $(document).on('click', '.dzenflow-lcard-button', function () {
+        location.href = lcardConstructorUrl(code);
+      });
+    }
+
+    function renderCardBlock() {
+      var code = widgetCode();
+      if (!code || typeof self.render_template !== 'function') {
+        return;
+      }
+      bindLcardClicks(code);
+      if ($('.card-widgets__widget-' + code).length) {
+        // Блок уже отрисован для текущей карточки — повторный render_template не нужен.
+        return;
+      }
+      try {
+        self.render_template({
+          caption: { class_name: 'dzenflow-lcard-caption', html: t('widget.name', 'Автоматизации Dzen.Team') },
+          body: '',
+          render:
+            '<div class="dzenflow-lcard-block" style="padding:12px;">' +
+            '<button type="button" class="dzenflow-lcard-button" style="width:100%;padding:8px 12px;' +
+            'border:1px solid #d0d4da;border-radius:6px;background:#fff;cursor:pointer;font:inherit;">' +
+            t('lcard.button', 'Автоматизации сделки') +
+            '</button></div>'
+        });
+      } catch (e) {}
+    }
+
     this.callbacks = {
       render: function () {
+        renderCardBlock();
         return true;
       },
       init: function () {
