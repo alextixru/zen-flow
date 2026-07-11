@@ -122,5 +122,13 @@
   "Task ID": "Task ID",
   "Complete Task": "Complete Task",
   "Marks an amoCRM task as completed, with an optional result text.": "Marks an amoCRM task as completed, with an optional result text.",
-  "Result Text": "Result Text"
+  "Result Text": "Result Text",
+  "Create Note": "Create Note",
+  "Adds a note to a lead, contact or company in amoCRM.": "Adds a note to a lead, contact or company in amoCRM.",
+  "Note Type": "Note Type",
+  "Note Text": "Note Text",
+  "Common": "Common",
+  "Service Message": "Service Message",
+  "Incoming Call": "Incoming Call",
+  "Outgoing Call": "Outgoing Call"
 }
