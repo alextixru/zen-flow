@@ -180,7 +180,7 @@
 - **files:** `src/lib/actions/create-company.ts`, `update-company.ts` + index.
 - **verify:** общий.
 
-### - [ ] T015 — tasks: create / update / complete
+### - [x] T015 — tasks: create / update / complete
 - **spec:** `create_task`: props `text` (required), `task_type_id` (`taskTypeDropdown`), `entity_type` (StaticDropdown leads/contacts/companies), `entity_id` (dropdown зависит от entity_type), `responsible_user_id`, и СРОК со сдвигом — `due_offset_value` (Number) + `due_offset_unit` (StaticDropdown minutes/hours/days, ref Triggeron CreateTask), либо `due_at` (DateTime) как альтернатива; вычислить `complete_till` (unix ts = now + offset). `POST /tasks` body-массив `[{ text, complete_till, task_type_id, entity_id, entity_type, responsible_user_id }]`. `complete_task`: `task_id` (required) + `result_text`; `PATCH /tasks/{id}` `{ is_completed: true, result: { text } }`. `update_task`: `task_id` + опциональные text/complete_till/responsible.
 - **арифметика `complete_till`:** чистый хелпер `computeCompleteTill({ offsetValue, offsetUnit, dueAt })` → unix секунды. Если задан `dueAt` (DateTime, ISO) — `Math.floor(Date.parse(dueAt)/1000)`. Иначе `now + offsetValue * { minutes:60, hours:3600, days:86400 }[offsetUnit]` (в секундах). amo хранит `complete_till` в секундах. Единицы `minutes/hours/days` ← Triggeron `time_type` (`minut`/`hour`/`day`). Если ни offset, ни dueAt не заданы — дефолт «сегодня, конец дня» или now+1 день (задокументировать выбор в коде).
 - **task_types:** `task_type_id` ← `taskTypeDropdown` (T003). entity_type: `leads`/`contacts`/`companies` (amo `entity_type` в API — именно множественное); `entity_id` — dropdown с refresher на `entity_type`.
