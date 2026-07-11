@@ -1,6 +1,7 @@
 import type { FastifyInstance } from 'fastify'
 import { db } from './db.js'
 import { addAllowedEmbedOrigin } from './fork-client.js'
+import { provisionConnection } from './provision-connection.js'
 
 const SUBDOMAIN_RE = /^[a-z0-9][a-z0-9-]{0,62}$/
 
@@ -23,6 +24,19 @@ export function registerInstall(app: FastifyInstance): void {
         )
         if (!sync.ok) {
             request.log.warn({ subdomain: validated.subdomain, reason: sync.reason }, 'allowed-embed-origins не добавлен')
+        }
+        // Провижининг коннекшена только при наличии amo-токена (задан оператором через
+        // set-amo-token). Ошибка форка не валит install — повторный install дожмёт.
+        const amoToken = amoTokenOf(validated.installKey)
+        if (amoToken !== null) {
+            const provisioned = await provisionConnection({
+                accountId: validated.accountId,
+                subdomain: validated.subdomain,
+                amoToken,
+            })
+            if (!provisioned.ok) {
+                request.log.warn({ subdomain: validated.subdomain, reason: provisioned.reason }, 'amocrm-connection не создан')
+            }
         }
         return { status: 'active' }
     })
@@ -68,6 +82,14 @@ export function validateInstallBody(body: unknown): ValidatedInstall | { error: 
         return { error: 'invalid subdomain' }
     }
     return { installKey, accountId, subdomain }
+}
+
+function amoTokenOf(installKey: string): string | null {
+    const row = db
+        .prepare('SELECT amo_token AS amoToken FROM accounts WHERE install_key = ?')
+        .get(installKey) as { amoToken: string | null } | undefined
+    const token = row?.amoToken
+    return typeof token === 'string' && token !== '' ? token : null
 }
 
 function normalizeAccountId(raw: unknown): string | null {

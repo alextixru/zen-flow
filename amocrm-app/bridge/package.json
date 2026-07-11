@@ -7,6 +7,7 @@
     "start": "node --env-file=.env --import tsx src/index.ts",
     "sign-jwt": "node --env-file=.env --import tsx scripts/sign-jwt.ts",
     "issue-key": "node --env-file=.env --import tsx scripts/issue-key.ts",
+    "set-amo-token": "node --env-file=.env --import tsx scripts/set-amo-token.ts",
     "typecheck": "tsc --noEmit",
     "test": "vitest run"
   },

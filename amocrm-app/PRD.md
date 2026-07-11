@@ -177,7 +177,7 @@
 - **files:** `bridge/src/{fork-client.ts,install.ts}` + тест.
 - **verify:** живьём: `/install` с новым субдоменом → `curl -sI {FORK_URL} | grep -i content-security-policy` содержит новый origin.
 
-### - [ ] W009 — Автосоздание amocrm-connection в проекте клиента
+### - [x] W009 — Автосоздание amocrm-connection в проекте клиента
 
 - **spec:** Онбординг клиента включает его long-lived amo-токен (колонка `amo_token` в БД моста; файл БД вне git — приемлемо для MVP, `ponytail:` шифрование колонки — upgrade перед продом). Ввод токена оператором — CLI `scripts/set-amo-token.ts` (`--key <install_key>`, сам токен из env-переменной или stdin, НЕ из argv — argv виден в `ps`; токен не печатать, не логировать). После `/install` (при наличии токена): мост подписывает себе embed-JWT этого аккаунта → обменивает сам через `POST {fork}/v1/managed-authn/external-token` → полученным access-token'ом апсертит connection в проект: `POST /v1/app-connections` с `pieceName:'@activepieces/piece-amocrm'`, тип CUSTOM_AUTH, `value:{subdomain, zone:'amocrm.ru', apiToken:<amo_token>}`, `externalId:'amocrm'`, `displayName:'amoCRM'`. **Точную форму тела сверить** с `docs/embedding/predefined-connection.mdx` и контроллером app-connections (живой вызов — истина). Идемпотентность — по `externalId`.
 - **files:** `bridge/scripts/set-amo-token.ts`, `bridge/src/{fork-client.ts,provision-connection.ts}` + тест на сборку тела.

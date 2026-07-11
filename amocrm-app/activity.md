@@ -148,3 +148,23 @@
 - Верификация: code-review (low) по диффу — находок нет.
 - Решения/остатки: (1) тестовый origin `https://w008check.amocrm.ru` остался в allowedEmbedOrigins dev-платформы — эндпоинт удаления origins отсутствует (platform-update принимает multipart, JSON дал 400); безвредно для dev, чистка руками через UI при желании; (2) фиксация для V002: «онбординг с нуля» теперь включает выпуск `FORK_API_KEY` при пересоздании платформы; (3) отклонение от спеки PRD (`origins` → `allowedEmbedOrigins`) — истина в коде форка, зафиксировано выше.
 - Блокеры: нет.
+
+### 2026-07-12 — W009: Автосоздание amocrm-connection в проекте клиента
+- Статус: done (включая полную живую проверку на dzenteamdev)
+- Форма тела сверена с кодом форка (истина): app-connections POST требует `value:{type:'CUSTOM_AUTH', props:{...}}` (обёртка `props`, НЕ плоский `value:{subdomain,...}` как в спеке PRD — `UpsertCustomAuthRequest`); `projectId` в теле обязателен по схеме, но проект берётся из токена принципала (`request.projectId`). Обмен — `POST /api/v1/managed-authn/external-token {externalAccessToken}` → `{token, projectId}` (`AuthenticationResponse`). pieceName `@activepieces/piece-amocrm`, auth props amocrm-piece: `{subdomain, zone, apiToken}` (`piece/src/lib/auth.ts`).
+- Изменения:
+  - `bridge/scripts/set-amo-token.ts` (новый) — CLI `--key <install_key>`, токен из env `AMO_TOKEN` или stdin (НЕ из argv — виден в ps), не печатается/не логируется; `UPDATE accounts SET amo_token`; `changes===0` → exit 1. Скрипт `set-amo-token` в package.json.
+  - `bridge/src/fork-client.ts` — `exchangeExternalToken({externalAccessToken})` (POST managed-authn, валидирует `token`/`projectId` строками → иначе `no project session`) и `upsertAmocrmConnection({token,projectId,subdomain,apiToken})` (POST app-connections Bearer session-token, тело CUSTOM_AUTH, таймаут 10с). Оба возвращают `{ok}`/reason без секретов.
+  - `bridge/src/provision-connection.ts` (новый) — `provisionConnection({accountId,subdomain,amoToken})`: подписывает Admin-JWT СИСТЕМНОГО юзера `bridge-provisioner` (не реального embed-юзера — чтобы не менять его роль) → exchange → upsert. Идемпотентность — externalId `amocrm` на форке. amo-токен в reason не попадает.
+  - `bridge/src/install.ts` — после origin-sync читает `amo_token` из БД (`amoTokenOf`), при наличии зовёт `provisionConnection`; ошибка форка НЕ валит install (200 + warn-лог `{subdomain, reason}`, повторный install дожмёт).
+  - `bridge/src/provision-connection.test.ts` (новый, 3 теста): exchange+upsert с проверкой URL/тела/Admin-claim/Bearer; остановка на ошибке exchange без upsert; ошибка upsert.
+- Команды (фактические результаты): `npx tsc --noEmit` → чисто; `npx vitest run` → 5 файлов, **32/32** (jwt 2 + install 9 + embed-token 13 + fork-client 5 + provision 3).
+- Живые проверки (стенд был жив; мост перезапущен на новый код, лог `/tmp/bridge-w009.log`):
+  - `issue-key` → ключ `XmE-Kc…`; `set-amo-token` с `AMO_TOKEN` из `.env.dev` (len 1082, argv чист) → `amo_token set`; строка БД `dzenteamdev|32453394|active|tok=1`.
+  - `POST /install {account_id:32453394, subdomain:dzenteamdev}` → **200 active**; лог — БЕЗ warning `amocrm-connection не создан` (provision ок).
+  - Независимая проверка на форке (подписал verify-JWT, обменял → session-token → `GET /api/v1/app-connections?projectId=ZjyaVGGW…`): connection `externalId:'amocrm', displayName:'amoCRM', piece:'@activepieces/piece-amocrm', status:'ACTIVE'` — **зелёный, токен провалидирован форком против amo-аккаунта** (verify задачи пройден без ручного ввода токена).
+  - Идемпотентность: повторный `/install` тем же ключом → 200, amocrm-connections count = **1** (upsert по externalId).
+  - Секрет-гигиена лога `/tmp/bridge-w009.log`: скан `eyJ…`/PEM/install-ключ → **0**; amo-токен (первые 20 симв) в логе → **0**.
+- Верификация: code-review (low) по диффу — находок нет.
+- Секрет-скан диффа (`eyJ…`/PEM) → **0**; `git status` без `.env*`/`data/`/`*.pem` (только untracked `activity-assets/` — как в V001).
+- Блокеры: нет.
