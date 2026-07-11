@@ -338,7 +338,7 @@
 - **files:** `src/lib/triggers/custom-field-changed.ts` + index.
 - **verify:** общий + живой e2e на стенде: включить-подобный replay — изменить поле через `PATCH /leads/{id}`, убедиться `GET /events?filter[type]=custom_field_{ID}_value_changed` отдаёт событие с корректными value_before/after (форму записать в sampleData с реального события).
 
-### - [ ] T033 — Триггеры sale_field_changed + lead_entered_stage (doorbell)
+### - [x] T033 — Триггеры sale_field_changed + lead_entered_stage (doorbell)
 - **spec:** два триггера через T031.
   - `budget_changed`: `webhookEvents: ['update_lead']`, `eventTypes: ['sale_field_changed']`. Без props. Выход — событие (value_before/after = старый/новый бюджет).
   - `lead_entered_stage`: `webhookEvents: ['status_lead']`, `eventTypes: ['lead_status_changed']`, props `pipelineId` (`pipelineDropdown`) + `statusId` (`statusDropdown`, refresher pipelineId) — оба required; `filterEvent`: событие проходит, если `value_after[].lead_status.id === statusId` (форма `value_after` для смены статуса: `[{ lead_status: { id, pipeline_id } }]` — сверить с реального события). Отличие от вебхучного `lead_status_changed` (T006): срабатывает только на вход В ВЫБРАННЫЙ статус + отдаёт `value_before` (откуда пришла) — описать в description обоих триггеров перекрёстно.

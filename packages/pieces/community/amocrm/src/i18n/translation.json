@@ -200,5 +200,9 @@
   "Triggers when a specific custom field value changes on a lead, contact or company. Emits the change event with value_before/value_after. Fetch the full entity with the Find Entity action (filter by id). Warning: pairing this with an action that updates the same field will loop the flow.": "Triggers when a specific custom field value changes on a lead, contact or company. Emits the change event with value_before/value_after. Fetch the full entity with the Find Entity action (filter by id). Warning: pairing this with an action that updates the same field will loop the flow.",
   "Custom Field": "Custom Field",
   "Which entity type the custom field belongs to.": "Which entity type the custom field belongs to.",
-  "The custom field to watch for value changes.": "The custom field to watch for value changes."
+  "The custom field to watch for value changes.": "The custom field to watch for value changes.",
+  "Budget Changed": "Budget Changed",
+  "Triggers when a lead budget (sale) changes. Emits the amo event with value_before/value_after holding the old and new amount.": "Triggers when a lead budget (sale) changes. Emits the amo event with value_before/value_after holding the old and new amount.",
+  "Lead Entered Stage": "Lead Entered Stage",
+  "Triggers only when a lead enters the selected pipeline stage, emitting the amo event with value_before (previous status) and value_after (new status). Unlike Lead Status Changed, which fires on any status move and returns the full lead, this fires only for the chosen status and gives you where the lead came from.": "Triggers only when a lead enters the selected pipeline stage, emitting the amo event with value_before (previous status) and value_after (new status). Unlike Lead Status Changed, which fires on any status move and returns the full lead, this fires only for the chosen status and gives you where the lead came from."
 }

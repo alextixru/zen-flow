@@ -1,3 +1,4 @@
+import { budgetChanged } from './budget-changed';
 import { companyAdded } from './company-added';
 import { companyDeleted } from './company-deleted';
 import { companyResponsibleChanged } from './company-responsible-changed';
@@ -8,6 +9,7 @@ import { contactResponsibleChanged } from './contact-responsible-changed';
 import { contactUpdated } from './contact-updated';
 import { customFieldChanged } from './custom-field-changed';
 import { incomingMessage } from './incoming-message';
+import { leadEnteredStage } from './lead-entered-stage';
 import { leadAdded } from './lead-added';
 import { leadDeleted } from './lead-deleted';
 import { leadResponsibleChanged } from './lead-responsible-changed';
@@ -40,4 +42,6 @@ export const amocrmTriggers = [
   noteAdded,
   incomingMessage,
   customFieldChanged,
+  budgetChanged,
+  leadEnteredStage,
 ];
