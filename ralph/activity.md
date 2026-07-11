@@ -2,6 +2,14 @@
 
 Хронологический лог итераций. Одна запись на итерацию/задачу. Новые записи — сверху вниз в порядке выполнения.
 
+### 2026-07-11 — V002: чекпоинт-валидация блока T006–T011
+- Статус: done (фиксов кода не потребовалось)
+- Изменения: только `ralph/prd.md` (чекбокс V002) и эта запись.
+- Команды: `npx turbo run build --filter=@activepieces/piece-amocrm` — pass (exit 0); `npm run lint-dev` — 0 errors (те же 72 предсуществующих web-warning); `npm run test-unit` — engine/shared зелёные, **web#test падает: те же 8 предсуществующих тестов** (`output-table-view.test.ts` + `utils-schema.test.ts`), что зафиксированы в V001 — ветка `packages/web` не трогает, вне разрешённых путей; `git status` — чисто.
+- Структура: 19 триггеров, дублей `name` нет; grep `: any|as [A-Z]` вне тестов — 0; регистрация симметрична (19 файлов = 19 импортов = 19 в `amocrmTriggers` = `triggers:` в `src/index.ts`); все user-facing строки триггеров есть в `i18n/translation.json` identity-ключами (сверено скриптом; `aiMetadata.description` в i18n не входит — сверено с паттерном kommo). Скоуп: дифф блока a79ca08d..HEAD — только `packages/pieces/community/amocrm/` и `ralph/`.
+- Сверка со спеками: sonnet-верификатор (свежий контекст) прошёл T006–T011 попунктно — **все шесть соответствуют**; lifecycle симметричен (POST/DELETE по destination, без webhookId), payload-пути по справочнику (`leads.*`, `contacts.*`, `companies.*`, singular `task.*`, `note_*` per-entity, `message.add`), delete-триггеры с `fetchFullRecord: false`, sampleData/test()/aiMetadata у всех, фабрика T004 у всех кроме спек-санкционированного standalone note-added. code-review (low) по диффу блока — находок нет. Отмеченные верификатором не-блокеры: (1) дубль гвардов webhooks.ts↔note-added.ts — уже зафиксирован в T010 как осознанный; (2) `test()` note-added обобщён на выбранную entity вместо буквального `/leads` из спеки — улучшение, не баг; (3) `payloadPath: 'message.add'` T011 остаётся непроверенным живым payload (задокументировано в T011).
+- Блокеры: нет.
+
 ### 2026-07-11 — T011: Триггер входящего сообщения (chats/talks)
 - Статус: done
 - Изменения: `src/lib/triggers/incoming-message.ts` (триггер `incoming_message` через фабрику `createAmoWebhookTrigger` T004: `events:['add_message']`, `payloadPath:'message.add'`, `entityType:'talks'`, `fetchFullRecord:false` — сообщения нельзя догрузить по id, возвращаем payload как есть; sampleData — форма amoJo-сообщения `{id(uuid),chat_id,talk_id,contact_id,entity_id,entity_type,text,type,origin,created_at}`; description/aiMetadata предупреждают про требование подключённого канала amoJo); регистрация в `triggers/index.ts` (импорт + массив, +1 = 19 триггеров); i18n +2 ключа (displayName/description, 85 всего).
