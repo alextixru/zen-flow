@@ -169,7 +169,7 @@
 - **pattern:** kommo `create-new-lead.ts` + custom fields из T005.
 - **verify:** общий + lint/tsc (ручной прогон через custom api call не требуется). Это ПЕРВЫЙ потребитель T005 — если пайплайн custom fields не сходится (типы/`.props`/ключевание), чинить здесь. Задача тяжёлая, но механическая: делай ОБА action целиком (update_lead зеркалит create_lead). Не дроби через BLOCKED — BLOCKED в этом цикле означает «пропустить до человека», а не «доделать позже»; помечай BLOCKED только при реальном непреодолимом блокере (см. PROMPT.md), не из-за объёма.
 
-### - [ ] T013 — create/update contact
+### - [x] T013 — create/update contact
 - **spec:** `create_contact`: `name`, `first_name`, `last_name`, `responsible_user_id`, `tags`, `custom_fields` (`entity:'contacts'`) — телефон/email через multitext. `POST /contacts` body-массив. `update_contact`: `contact_id` + опциональные, `PATCH /contacts/{id}`.
 - **files:** `src/lib/actions/create-contact.ts`, `update-contact.ts` + index.
 - **pattern:** kommo create/update contact + T005.
