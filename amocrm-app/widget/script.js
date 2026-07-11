@@ -31,6 +31,8 @@ define(['jquery'], function ($) {
       return self.params && self.params.widget_code;
     }
 
+    // W002-проба: внешний https-iframe в work-area — измерение поведения CSP amo
+    // и размеров области. В W003 src меняется на embed-SDK форка (configure()).
     function renderStub() {
       var code = widgetCode();
       if (!code) {
@@ -40,15 +42,21 @@ define(['jquery'], function ($) {
       if (!area) {
         return;
       }
+      var top = area.getBoundingClientRect().top;
+      var height = Math.max(400, Math.round(window.innerHeight - top - 16));
       area.innerHTML =
-        '<div style="padding:24px;font-family:inherit;">' +
-        '<h2 style="margin:0 0 8px;font-size:18px;">' +
+        '<div style="padding:16px 24px 8px;font-family:inherit;">' +
+        '<h2 style="margin:0 0 4px;font-size:18px;">' +
         t('advanced.title', 'Автоматизации Dzen.Team') +
         '</h2>' +
         '<p style="margin:0;color:#7a8290;">' +
         t('advanced.stub', 'Раздел в разработке.') +
         '</p>' +
-        '</div>';
+        '</div>' +
+        '<iframe id="dzenflow-frame-' + code +
+        '" src="https://example.com/" ' +
+        'style="display:block;width:100%;height:' + height +
+        'px;border:0;" referrerpolicy="no-referrer"></iframe>';
     }
 
     this.callbacks = {
