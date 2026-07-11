@@ -62,3 +62,25 @@
 - Причина: headless-итерации `claude -p` не получают chrome-devtools MCP; фолбэк `agent-browser` поднимает headless Chrome с одноразовым temp-профилем (невидим человеку + не залогинен в форк/amo). Для задачи, чья суть — «прокликать глазами человека» в залогиненном билдере, автономный путь непригоден. ~3 мин на итерацию уходили на бесполезный подъём браузера.
 - Что НЕ проверено живьём (добрать вручную или на V001): дропдауны (pipeline→status refresher, users, task types), DynamicProperties кастом-полей (select/multiselect/date/checkbox/multitext), `test()` триггеров, регистрация вебхука при включении flow, сквозное срабатывание `lead_added → create_task` на dzenteamdev. Piece верифицировался API-скриптами в ralph-цикле (T001–V007) — код рабочий; неизвестна только UI-поверхность в билдере.
 - Решение по браузеру для будущих UI-задач (W010/W011/W019 + живые шаги V-чекпоинтов): поднять ПЕРСИСТЕНТНЫЙ видимый Chrome с залогиненным профилем на фиксированном CDP-порту, промпт → «подключайся через --cdp N, не спавнь свой». До этого браузерные verify-шаги помечаются «непроверено живьём» (не блокеры).
+
+### 2026-07-12 — V001: Чекпоинт PoC (W001–W004)
+- Статус: done (браузерная часть живого сценария — не выполнена по внешней причине, см. блокеры)
+- Изменения: только PRD.md (чекбокс V001) и activity.md — фиксов кода не потребовалось.
+- Команды (всё гонялось в этой итерации, фактические результаты):
+  - `npx tsc --noEmit` (bridge) → чисто. `npx vitest run` → «No test files found» — норма, тесты появляются в W005.
+  - Виджет: `node --check script.js` → OK; grep-линтер `console|alert|confirm|prompt` → 0; JSON manifest+ru.json парсятся.
+  - Секрет-скан блока: `git diff feature/amocrm-piece --unified=0 | grep -cE 'eyJ0|BEGIN (RSA )?PRIVATE KEY'` → 1, но это ЛОЖНОЕ срабатывание — строка PROMPT.md, цитирующая сам grep-паттерн. Точный скан `git log -p feature/amocrm-piece..HEAD -- amocrm-app | grep -cE 'eyJ[A-Za-z0-9_-]{20,}|BEGIN (RSA )?PRIVATE KEY'` → **0**; DEV_EMBED_JWT в закоммиченном script.js пуст. `.env*`/`data/`/`*.pem` в git отсутствуют.
+  - Дифф блока — только `amocrm-app/**`; корневой `.gitignore` менялся лишь в 4790efb2 (orchestration kit оркестратора, до W001): добавлены игноры `amocrm-app/logs/`, `bridge/data/`, `*.pem` — защитная секрет-гигиена, принято.
+  - `git status`: чисто, кроме untracked `activity-assets/` (скриншоты-доказательства W002/W003 — вне разрешённых путей коммита, оставлены untracked; решение о судьбе — оркестратору).
+- Живые проверки (стенд был жив, не пересоздавался):
+  - `localhost:8080/api/v1/flags` → 200; `https://amoai-dev.dzen.team/__router-health` → «router-ok»; `/api/v1/flags` через туннель → 200.
+  - CSP туннеля: `content-security-policy: frame-ancestors 'self' https://dzenteamdev.amocrm.ru` — origin на месте.
+  - Embed SDK: `GET /embed/0.13.0.js` → 200, 25797 байт.
+  - Handshake сквозь API: свежий JWT (`npm run sign-jwt`, 972 байта) → `POST /api/v1/managed-authn/external-token` → 200: тот же user `rgz5wM41rjRjkCPMDHiOo` и project `ZjyaVGGWIwHs2IZ7qvNyu`, что в W003 — повторный обмен идемпотентен. ВНИМАНИЕ: рабочий путь — `/api/v1/...`; `/v1/...` через туннель отдаёт SPA-HTML (фронт), это грабля для W005+ (fork-client моста должен ходить на `/api/v1`).
+  - Flows проекта: `GET /api/v1/flows?projectId=ZjyaVGGW…` → **0 flows** — flow из W004 не существует (согласуется с отложенным UI-QA W004).
+- Верификация:
+  - Субагент-верификатор (sonnet, свежие глаза) по спекам W001–W003 и диффам: расхождений НЕТ по всем 7 пунктам (manifest, script.js, i18n, секреты, .gitignore, границы, claims v3). Отмечено: `env.example` вместо `.env.example` — обоснованное отступление (pre-commit хук режет `.env*`), уже задокументировано в W003.
+  - code-review (low) по накопленному диффу feature/amocrm-piece..HEAD (amocrm-app/) → (none).
+- Блокеры/доборы (не блокируют чекпоинт, внешняя причина):
+  - **Сессия amo в браузере разлогинена**: chrome-devtools MCP в сессии недоступен, найден его headless Chrome на CDP :9333 (профиль chrome-devtools-mcp) — подключение через agent-browser сработало, но `dzenteamdev.amocrm.ru/settings/widgets/dealguard/` отдаёт форму логина. Пароли не подбирались (правило). Браузерная часть сценария (iframe конструктора глазами) НЕ повторена в этой итерации — опирается на живое подтверждение W003 (скрин w003-embed-advanced.png) + сегодняшний API-handshake.
+  - Добор для человека/следующей возможности: перелогинить сессию в Chrome-профиле; UI-QA W004 (дропдауны, DynamicProperties, включение flow `lead_added → create_task`) — по-прежнему ожидает ручной проверки, flow в проекте отсутствует.
