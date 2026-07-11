@@ -20,6 +20,7 @@ import { updateContact } from './update-contact';
 import { updateLead } from './update-lead';
 import { unlinkEntities } from './unlink-entities';
 import { updateTask } from './update-task';
+import { waitForCustomerReply } from './wait-for-customer-reply';
 import { waitForTaskCompleted } from './wait-for-task-completed';
 
 export const amocrmActions = [
@@ -34,6 +35,7 @@ export const amocrmActions = [
   updateTask,
   completeTask,
   waitForTaskCompleted,
+  waitForCustomerReply,
   createNote,
   addTags,
   removeTags,
