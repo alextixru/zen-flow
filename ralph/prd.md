@@ -271,7 +271,7 @@
 - **files:** правки `src/lib/common/props.ts`, опц. `src/lib/actions/send-webhook.ts`.
 - **verify:** общий.
 
-### - [ ] T026 — P2: ожидание выполнения задачи (waitpoint)
+### - [x] T026 — P2: ожидание выполнения задачи (waitpoint)
 - **spec:** action `wait_for_task_completed`: создаёт задачу (как T015) с `complete_till`, затем `context.run.pause({ pauseMetadata: { type: WEBHOOK, response: {} } })` и генерирует resume URL; резюм происходит при вебхуке `update_task` c `is_completed=true`. Реализовать через `context.generateResumeUrl()` + подписку: при enable подписать вебхук task_completed на resume URL. Если полный резюм-цикл в одном action недостижим (нужен trigger-side) — реализовать пару: action создаёт задачу + помечает store, trigger `task_completed` резюмит. Спроектировать минимально; при сложности — `ponytail:` и блокер.
 - **files:** `src/lib/actions/wait-for-task-completed.ts`.
 - **pattern:** платформенные waitpoints (`ctx.run.pause`, `generateResumeUrl`).
