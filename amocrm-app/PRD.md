@@ -151,7 +151,7 @@
 
 ## Фаза 1 — MVP: managed-конструктор внутри amo (этап 1 PLAN)
 
-### - [ ] W005 — Каркас моста
+### - [x] W005 — Каркас моста
 
 - **spec:** Fastify-приложение: `src/config.ts` (env: `PORT`, `FORK_URL`, `SIGNING_KEY_PATH`, `SIGNING_KEY_ID`, `DB_PATH`, `BRIDGE_PUBLIC_URL`; отсутствие обязательной переменной — падение на старте с внятным сообщением, не в рантайме), `src/db.ts` (better-sqlite3, файл `data/bridge.db`; таблица `accounts`: `install_key` PK, `account_id`, `subdomain`, `amo_token` NULL, `status` pending|active|revoked, `created_at`), `src/jwt.ts` — `signEmbedJwt({ accountId, subdomain, user, piecesTags })` (перенос логики из `scripts/sign-jwt.ts` W003; claims по справочнику), регистрация `@fastify/cors` по конвенции моста (regex amocrm.ru), `GET /health`. Запуск `npm start` (tsx или сборка tsc — выбрать простейшее).
 - **files:** `amocrm-app/bridge/src/{index.ts,config.ts,db.ts,jwt.ts,jwt.test.ts}`, `package.json`.
