@@ -358,7 +358,7 @@
 - **files:** `src/lib/triggers/incoming-call.ts`, `outgoing-call.ts` + index.
 - **verify:** общий. Живая проверка формы payload события звонка — насколько позволит стенд (телефонии может не быть → sampleData best-guess по докам с пометкой «непроверено живьём» в activity.md, задачу НЕ блокировать).
 
-### - [ ] T036 — Триггеры тегов: entity_tag_added / entity_tag_deleted
+### - [x] T036 — Триггеры тегов: entity_tag_added / entity_tag_deleted
 - **spec:** два триггера: `eventTypes: ['entity_tag_added']` / `['entity_tag_deleted']`. **Механизм — по результату smoke T031:** если смена тегов будит `update_{entity}` — doorbell-фабрика (webhookEvents по выбранной entity); иначе — poll-фабрика. Props: `entity` (StaticDropdown leads/contacts/companies, default leads; для poll — фильтр по `entity_type` в `filterEvent`), опц. `tag_name` (ShortText — фильтр в `filterEvent` по имени тега из `value_after`/`value_before`, форму снять с реального события). Задокументировать выбранный механизм в activity.md со ссылкой на smoke T031.
 - **files:** `src/lib/triggers/entity-tag-added.ts`, `entity-tag-deleted.ts` + index.
 - **verify:** общий + живой replay: добавить/снять тег на стенде → событие с формой value_after/before (sampleData — с реального).

@@ -377,3 +377,17 @@
 - Команды: `npx turbo run lint build --filter=@activepieces/piece-amocrm` — pass (6/6); `npm run lint-dev` — 30/30, 0 errors (72 предсуществующих web-warning вне скоупа); `npx vitest run src/lib/common/events.test.ts` — 9/9 (трогал poll-фабрику, курсор не менялся); токен-чек `git diff --cached | grep -c eyJ0` = 0; `git status` — только 5 разрешённых файлов.
 - Верификация: pass. code-review (low) по диффу — находок нет (механическая композиция poll-фабрики T030 + filterEvent-паттерн T031; matchesManager дублируется в 2 файлах намеренно — file-per-trigger). Коммит 502cb5f7 (subject lowercase t035 — commitlint отверг T035 uppercase).
 - Блокеры: нет.
+
+### 2026-07-11 — T036: Триггеры тегов entity_tag_added / entity_tag_deleted (doorbell)
+- Статус: done
+- Механизм: **doorbell-фабрика** (createAmoDoorbellTrigger, T031). Обоснование — smoke T031 подтвердил, что смена тегов будит `update_lead` (вебхук пришёл на добавление тега), а тип `entity_tag_added` индексируется в ленте `/events` за секунды. Poll-фолбэк не нужен.
+- Изменения: `src/lib/triggers/entity-tag-added.ts` (`webhookEventsFromProps` по entity, `eventTypes:['entity_tag_added']`, `filterEvent`); `entity-tag-deleted.ts` (симметрично, `['entity_tag_deleted']`); общий хелпер `src/lib/common/entity-tag.ts` (`entityTagUtils`: entityProperty StaticDropdown leads/contacts/companies default leads, tagNameProperty ShortText optional, webhookEvent map, matchesEntityAndTag); регистрация обоих в `triggers/index.ts`; `src/i18n/translation.json` (+7 identity-ключей: 2 displayName + 2 description + entity/tagName описания + 'Tag Name').
+- Живой replay на стенде dzenteamdev (сделка 36632537) — обе формы сняты с реальных событий (в sampleData именно они):
+  - `entity_tag_added`: PATCH `_embedded.tags:[{name:'t036-added'}]` → 200; через ~8с событие `value_after:[{tag:{name:'t036-added'}}]`, `value_before:[]`, id ULID `01kx8a71hh...`, `entity_type:'lead'`, `created_by:0`.
+  - `entity_tag_deleted`: read-modify-write тегов (получил текущие, убрал t036-added, PATCH) → 200; событие `value_before:[{tag:{name:'t036-added'}}]`, `value_after:[]`, id `01kx8a7nbg...`. Тег в ленте несёт только `name` (без id).
+- code-review (low) по диффу — 2 находки:
+  1. **CONFIRMED, ИСПРАВЛЕНО:** filterEvent игнорировал выбранную entity — doorbell тянет `entity_tag_added` по всей ленте без entity-фильтра (фабрика не entity-scoped), подписка на contacts могла выдать событие тега лида из того же окна. Фикс: `matchesEntityAndTag` дополнительно гейтит по `event.entity_type` (map leads→lead/contacts→contact/companies→company). Оба триггера передают entity в filterEvent.
+  2. **PLAUSIBLE, не чинил:** ENTITY_WEBHOOK_EVENT дублирует такую же карту в custom-field-changed.ts — две маленькие карты в разных файлах, выделение общего модуля ради 3 строк не оправдано (совпадает с file-per-trigger дублированием T033/T035).
+- Команды: `npx turbo run lint build --filter=@activepieces/piece-amocrm` — pass (6/6, после снятия unused-import и после фикса находки 1); `npm run lint-dev` — 30/30, 0 errors (72 предсуществующих web-warning вне скоупа); токен-чек `git diff | grep -c eyJ0` = 0; `git status` — только 5 разрешённых файлов. Юнит-тест не добавлял — filterEvent-логика следует конвенции соседних триггеров (T033/T035 тоже без тестов), формы проверены живым replay, курсор покрыт events.test.ts.
+- Верификация: pass. Коммит 48683a9a.
+- Блокеры: нет.
