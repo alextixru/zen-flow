@@ -323,7 +323,7 @@
 - **pattern:** webhook-фабрика T004 (`common/webhooks.ts`) — та же форма опций/гвардов; `TriggerStrategy.POLLING` — см. `packages/pieces/community/freshservice/src/lib/triggers/updated-ticket.ts` (форма триггера, НЕ его pollingHelper).
 - **verify:** общий (фабрика без потребителя проверяется с T035/T037; типы без any/as).
 
-### - [ ] T031 — Doorbell-фабрика createAmoDoorbellTrigger + живая проверка покрытия
+### - [x] T031 — Doorbell-фабрика createAmoDoorbellTrigger + живая проверка покрытия
 - **spec:** `createAmoDoorbellTrigger({ name, displayName, description, aiMetadata, webhookEvents, eventTypes | eventTypesFromProps?, entity?, props?, filterEvent?, sampleData })` → `createTrigger` с `TriggerStrategy.WEBHOOK`. Паттерн «notification + delta pull»: вебхук amo — только будильник, данные — из `/events`.
   - `onEnable`: `POST /webhooks { destination, settings: webhookEvents }` (реюз механики T004) + `store.put('cursor', { lastCreatedAt: nowSeconds, lastIds: [] })`.
   - `onDisable`: `DELETE /webhooks { destination }` + `store.delete('cursor')`.
