@@ -230,5 +230,12 @@
   "Event Occurred": "Event Occurred",
   "Advanced trigger for any amoCRM events feed entry (entity linked/unlinked, merged, invoice paid, chat opened/closed, and more). Polls the feed once a minute, so expect up to a minute of delay. For fields, statuses or tags use the dedicated triggers.": "Advanced trigger for any amoCRM events feed entry (entity linked/unlinked, merged, invoice paid, chat opened/closed, and more). Polls the feed once a minute, so expect up to a minute of delay. For fields, statuses or tags use the dedicated triggers.",
   "One or more feed event types to listen for.": "One or more feed event types to listen for.",
-  "Restrict to events on a single entity type.": "Restrict to events on a single entity type."
+  "Restrict to events on a single entity type.": "Restrict to events on a single entity type.",
+  "Check Interval (minutes)": "Check Interval (minutes)",
+  "How often to re-check while waiting. Minimum 1 minute.": "How often to re-check while waiting. Minimum 1 minute.",
+  "Timeout (hours)": "Timeout (hours)",
+  "Give up after this many hours and continue the flow with timed_out = true.": "Give up after this many hours and continue the flow with timed_out = true.",
+  "Watched Entity Type": "Watched Entity Type",
+  "Optional. Wait only for a reply on a specific lead or contact. Leave empty to resume on the first incoming message anywhere in the account.": "Optional. Wait only for a reply on a specific lead or contact. Leave empty to resume on the first incoming message anywhere in the account.",
+  "Watched Entity": "Watched Entity"
 }

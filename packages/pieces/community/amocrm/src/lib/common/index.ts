@@ -6,4 +6,5 @@ export * from './events-polling';
 export * from './props';
 export * from './tags';
 export * from './task-time';
+export * from './wait-cycle';
 export * from './webhooks';
