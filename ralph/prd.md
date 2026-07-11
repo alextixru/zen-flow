@@ -223,13 +223,13 @@
 - **pattern:** Triggeron SalesbotRun/SalesbotStop, F5 salesbot.start_bp.
 - **verify:** общий.
 
-### - [ ] T021 — subscribe / unsubscribe user
+### - [ ] T021 — subscribe / unsubscribe user — BLOCKED: нет публичного endpoint подписчиков в amo v4 (/subscriptions read-only lead-only, /subscribers 404, PATCH _embedded.subscribers игнорируется)
 - **spec:** `subscribe_user` / `unsubscribe_user`: props `entity_type`, `entity_id`, `user_id`. Endpoint амо для подписчиков — уточнить (`POST /{entity}/{id}/subscribers`?). **Открытый вопрос:** если публичного endpoint нет, реализовать через доступный механизм или пометить задачу `BLOCKED` (см. PROMPT.md) и перейти дальше.
 - **files:** `src/lib/actions/subscribe-user.ts`, `unsubscribe-user.ts` + index.
 - **pattern:** Triggeron EntitySubscribe.
 - **verify:** общий.
 
-### - [ ] V004 — Чекпоинт-валидация блока T017–T021
+### - [x] V004 — Чекпоинт-валидация блока T017–T021
 - **spec:** общая спецификация V-задач. Блок: tags (read-modify-write!), links, search, salesbot, subscribers. Особое внимание: read-modify-write тегов не теряет чужие теги при конкурентных обновлениях (задокументировано ли ограничение), BLOCKED-пометки открытых вопросов (T020/T021) оформлены по PROMPT.md.
 
 ### - [ ] T022 — catalogs: list / link element / unlink element

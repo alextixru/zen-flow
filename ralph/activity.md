@@ -2,6 +2,25 @@
 
 Хронологический лог итераций. Одна запись на итерацию/задачу. Новые записи — сверху вниз в порядке выполнения.
 
+### 2026-07-11 — T021 BLOCKED + V004: чекпоинт-валидация блока T017–T021
+- Статус: T021 → BLOCKED; V004 → done (фиксов кода не потребовалось).
+
+**T021 (subscribe / unsubscribe user) — BLOCKED: у amoCRM v4 нет публичного endpoint подписчиков.**
+- Живая разведка на dev-стенде (lead 38653627, user 2794642) до кода:
+  - `GET /api/v4/leads/38653627/subscribers` → **404** (detail дропает `/api/v4` — эндпоинта нет); `POST` туда же → 404.
+  - `GET /api/v4/leads/38653627/subscriptions` → **204** (пусто), но `POST` → **405** `allow: GET` — эндпоинт read-only; на `contacts`/`companies` его вовсе нет (404).
+  - `PATCH /api/v4/leads/38653627 {_embedded:{subscribers:[{user_id}]}}` → **200**, но ключ молча проигнорирован (повторный GET /subscriptions по-прежнему 204) — записать подписчика через PATCH сущности нельзя.
+  - Кандидаты `followers`/`subscription` → 404.
+- Вывод: виджет Triggeron EntitySubscribe работает через внутренние AJAX-эндпоинты amo (сессионная авторизация + CSRF), недоступные публичной OAuth/long-lived-интеграции. Публичного write-механизма нет → по escape-hatch спеки и PROMPT.md задача помечена `BLOCKED` в prd.md, файлы-огрызки не создавались.
+
+**V004 (чекпоинт T017–T021):**
+- Полные проверки репо: `npx turbo run build --filter=@activepieces/piece-amocrm` — pass (5/5); `npm run lint-dev` — 0 errors (те же 72 предсуществующих web-warning, вне скоупа); `npm run test-unit` — `@activepieces/shared` 430/430, engine зелёный, **web#test падает: 8 тестов** (`output-table-view.test.ts` 3 + `utils-schema.test.ts` 5) — предсуществующий репо-долг (зафиксирован ещё в V001), `packages/web` ветка не трогает (`git diff main -- packages/web` пуст), чинить нельзя (вне разрешённых путей); локальный `npx vitest run` в piece — **4 файла / 25 тестов passed** (client/task-time/tags/custom-fields). `git status` — чисто (только prd.md/activity.md этой итерации).
+- Структура: скоуп-проверка `git diff main --stat` — изменения только в `packages/pieces/community/amocrm/`, `ralph/`, `tsconfig.base.json` (T001) — чисто; grep `: any|as [A-Z]` по src без тестов — 0 совпадений; T021 не оставила огрызков (нет `subscri*` в src, не в index).
+- Сверка со спеками (свежий sonnet-верификатор, независимый контекст): T017–T020 — **все СООТВЕТСТВУЮТ**, блокирующих расхождений нет. Подтверждено попунктно: T017 tags — гонка read-modify-write задокументирована `ponytail:` в tags.ts, mergeTags сохраняет чужие теги по id + дедуп новых по name; T018 link/unlink — POST /{entity}/{id}/link|unlink body-массив; T019 find — потолок «один filter-пара» задокументирован ponytail, 204→[]; T020 salesbot — run на /api/v2, stop не публикован (нет endpoint, escape-hatch). i18n displayName/description identity-mapped. T021 BLOCKED оформлен по PROMPT.md. Единственная заметка верификатора (не баг): T017 tags-prop — только Array строк, без отдельного tagDropdown-выбора существующих (осознанное упрощение, задокументировано в activity T017; merge/remove матчат id по String — функционально работает). code-review: каждая задача блока (T017–T020) прошла ревью в своей итерации + свежий верификатор пере-проверил корректность; скилл code-review по чистому рабочему дереву добавить нечего.
+- Токен-чек: `git diff | grep -c eyJ0` = 0.
+- Фиксы: не потребовались (весь блок зелёный по спеке/паттернам). Коммит только документационный (prd.md чекбоксы + эта запись).
+- Блокеры: T021 (см. выше) — единственный BLOCKED блока, оформлен корректно. Наблюдение вне скоупа: предсуществующие 8 красных web-тестов — репо-долг, не связан с amocrm.
+
 ### 2026-07-11 — T020: salesbot run / stop
 - Статус: done (реализован `run_salesbot`; `stop_salesbot` не публикован — у amoCRM нет публичного endpoint, escape-hatch спеки)
 - Изменения: `src/lib/actions/run-salesbot.ts` (`run_salesbot`: props `bot_id` Number required — GET-списка ботов у amo нет (см. ниже), `entity_type` StaticDropdown leads/contacts/companies, `entity_id` через `linkedEntityDropdown` refresher `entity_type`; `POST /api/v2/salesbot/run` телом-массивом `[{bot_id, entity_id, entity_type:<число>}]`, где entity_type маппится string→код (`contacts:1, leads:2, companies:3`) через локальную const `ENTITY_TYPE_CODE`; aiMetadata idempotent:false; без any/as); `src/lib/common/client.ts` (добавлен optional named-param `apiVersion?: 'v2'|'v4'` в `makeRequest`, default `'v4'` — salesbot живёт на `/api/v2`, все прежние вызовы неизменны); регистрация в `actions/index.ts` (+runSalesbot = 17 actions); i18n +4 identity-ключа (Run Salesbot + description, Salesbot ID + description; Entity Type/Entity уже были).
