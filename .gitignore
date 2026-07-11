@@ -105,3 +105,8 @@ deploy/terraform/**/.terraform.lock.hcl
 deploy/terraform/**/terraform.tfvars
 deploy/terraform/**/terraform-*.tfvars
 ralph/logs/
+
+# amocrm-app widget cycle
+amocrm-app/logs/
+amocrm-app/bridge/data/
+*.pem
