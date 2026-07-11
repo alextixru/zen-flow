@@ -14,6 +14,9 @@ export const amocrm = createPiece({
   authors: [],
   actions: [
     ...amocrmActions,
+    // ponytail: no dedicated send_webhook action — this custom api call (amoCRM-scoped) plus the
+    // generic HTTP piece already cover arbitrary method/URL/headers/body calls; add one only if a
+    // concrete amoCRM webhook shape needs pre-baked wiring.
     createCustomApiCallAction({
       auth: amocrmAuth,
       baseUrl: (auth) => {
