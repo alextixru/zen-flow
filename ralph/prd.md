@@ -282,7 +282,7 @@
 - **files:** `src/lib/actions/wait-for-customer-reply.ts`.
 - **verify:** общий. **Зависимость:** T011, Chats API scope.
 
-### - [ ] V005 — Чекпоинт-валидация блока T022–T027
+### - [x] V005 — Чекпоинт-валидация блока T022–T027
 - **spec:** общая спецификация V-задач. Блок: catalogs, каскад responsible, copy lead, полировка, waitpoint-механики. Особое внимание: waitpoint-экшены (T026/T027) корректно используют `ctx.run.pause`/resume и не ломают сборку при недоступном Chats API; каскад responsible не делает N+1 по связанным сущностям без нужды.
 
 ### - [ ] T028 — Финальный прогон: i18n, локали, lint-sweep, sampleData
