@@ -191,5 +191,7 @@
   "Also Change in Linked Closed Leads": "Also Change in Linked Closed Leads",
   "Also Change in Open Tasks": "Also Change in Open Tasks",
   "Also Change in Parent Entity": "Also Change in Parent Entity",
-  "For a lead — its main contact; for a contact — its company.": "For a lead — its main contact; for a contact — its company."
+  "For a lead — its main contact; for a contact — its company.": "For a lead — its main contact; for a contact — its company.",
+  "Wait for Task Completed": "Wait for Task Completed",
+  "Creates a task in amoCRM and pauses the flow until that task is marked completed.": "Creates a task in amoCRM and pauses the flow until that task is marked completed."
 }
