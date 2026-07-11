@@ -277,7 +277,7 @@
 - **pattern:** платформенные waitpoints (`ctx.run.pause`, `generateResumeUrl`).
 - **verify:** общий.
 
-### - [ ] T027 — P2: ожидание ответа клиента
+### - [x] T027 — P2: ожидание ответа клиента
 - **spec:** По аналогии с T026, но резюм по входящему сообщению (T011 incoming_message). Зависит от доступности Chats API. Если недоступно — реализовать каркас + блокер.
 - **files:** `src/lib/actions/wait-for-customer-reply.ts`.
 - **verify:** общий. **Зависимость:** T011, Chats API scope.
