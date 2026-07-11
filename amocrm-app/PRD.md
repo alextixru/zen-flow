@@ -137,7 +137,7 @@
 - **verify:** живьём: `curl -sI {туннель} | grep -i content-security-policy` содержит `https://dzenteamdev.amocrm.ru` (allowedEmbedOrigins применился); конструктор открылся внутри advanced_settings на dzenteamdev; в форке автосоздан Project `32453394` и managed-юзер; reload страницы amo → повторный `configure()` отрабатывает, iframe не задваивается. В activity: точные env-переменные, URL туннеля, все грабли.
 - **escape:** SSH-туннель не поднимается (нет доступа к host `ai`, занят remote-порт 9090 чужим процессом, который нельзя убить) → зафиксировать точную ошибку ssh в activity → ` — BLOCKED` (ядро PoC; cloudflared НЕ альтернатива — заблокирован).
 
-### - [ ] W004 — UI-QA piece amoCRM в билдере (этап 0 п.4)
+### - [x] W004 — UI-QA piece amoCRM в билдере (этап 0 п.4)
 
 - **spec:** На поднятом превью-стенде прокликать piece amocrm глазами человека (до сих пор он тестировался только API-скриптами): создать connection на long-lived токене dzenteamdev; собрать flow `lead_added → create_task`; проверить: дропдауны (pipeline → status refresher, users, task types), DynamicProperties кастомных полей (все типы: select/multiselect/date/checkbox/multitext), `test()` триггеров отдаёт sample, включение flow регистрирует вебхук, живое срабатывание (создать сделку на стенде → задача создана). Все найденные UI-баги piece — нумерованным списком в activity с шагами воспроизведения. Чинить piece ЗДЕСЬ нельзя (дорожка ralph); критичный для MVP баг — пометить в activity как блокер-кандидат для W010.
 - **files:** только `amocrm-app/activity.md`.
