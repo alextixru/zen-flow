@@ -198,7 +198,7 @@
 - **pattern:** механика правой панели — `research/amo-surfaces.md` §1 (lcard).
 - **verify:** живьём: карточка сделки dzenteamdev показывает блок, клик открывает конструктор.
 
-### - [ ] W012 — ALLOWED-каталог pieces
+### - [x] W012 — ALLOWED-каталог pieces
 
 - **spec:** Проставить тег `ru-allowed` на платформе всем pieces ALLOWED-списка (`research/pieces-ru-audit.md`, раздел «Черновой ALLOWED-список»: 45 community + 27 core; `openai`/`claude` НЕ тегировать — требуют прокси, конфликт с zero-setup; `deepseek` тегировать). Механика тегирования — **выяснить по коду и живьём**: `pieceTagService` (EE), admin-эндпоинты тегов pieces, UI Platform Admin. Скрипт `bridge/scripts/tag-pieces.ts`: логин под platform-admin (`POST /v1/authentication/sign-in`; креды — `FORK_ADMIN_EMAIL`/`FORK_ADMIN_PASSWORD` из `bridge/.env`, пароль — в памяти `local-preview-setup`, в скрипт/git не зашивать) → идемпотентно проставить тег по массиву имён (массив — в скрипте, это конфиг, не секрет). JWT моста уже шлёт `piecesFilterType:'ALLOWED'` + `['ru-allowed']` (W007).
 - **files:** `bridge/scripts/tag-pieces.ts`.

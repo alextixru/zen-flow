@@ -6,6 +6,7 @@ import { afterEach, beforeAll, describe, expect, it, vi } from 'vitest'
 
 let db: typeof import('./db.js').db
 let addAllowedEmbedOrigin: typeof import('./fork-client.js').addAllowedEmbedOrigin
+let setPieceTags: typeof import('./fork-client.js').setPieceTags
 let registerInstall: typeof import('./install.js').registerInstall
 
 function seedPending(installKey: string): void {
@@ -32,7 +33,7 @@ beforeAll(async () => {
     process.env.FORK_API_KEY = 'sk-test'
 
     ;({ db } = await import('./db.js'))
-    ;({ addAllowedEmbedOrigin } = await import('./fork-client.js'))
+    ;({ addAllowedEmbedOrigin, setPieceTags } = await import('./fork-client.js'))
     ;({ registerInstall } = await import('./install.js'))
 })
 
@@ -64,6 +65,36 @@ describe('addAllowedEmbedOrigin', () => {
     it('reports network error when fetch throws', async () => {
         vi.stubGlobal('fetch', vi.fn().mockRejectedValue(new Error('boom')))
         expect(await addAllowedEmbedOrigin({ subdomain: 'acme' })).toEqual({ ok: false, reason: 'network error' })
+    })
+})
+
+describe('setPieceTags', () => {
+    it('POSTs piece names + tag to the fork with the service api key', async () => {
+        const fetchMock = vi.fn().mockResolvedValue(new Response('{}', { status: 201 }))
+        vi.stubGlobal('fetch', fetchMock)
+
+        const result = await setPieceTags({ pieceNames: ['@activepieces/piece-amocrm', '@activepieces/piece-http'], tag: 'ru-allowed' })
+
+        expect(result).toEqual({ ok: true })
+        expect(fetchMock).toHaveBeenCalledOnce()
+        const [url, init] = fetchMock.mock.calls[0] as [string, RequestInit]
+        expect(url).toBe('https://fork.test/api/v1/tags/pieces')
+        expect(init.method).toBe('POST')
+        expect((init.headers as Record<string, string>).authorization).toBe('Bearer sk-test')
+        expect(JSON.parse(init.body as string)).toEqual({
+            piecesName: ['@activepieces/piece-amocrm', '@activepieces/piece-http'],
+            tags: ['ru-allowed'],
+        })
+    })
+
+    it('reports http status on a non-ok response', async () => {
+        vi.stubGlobal('fetch', vi.fn().mockResolvedValue(new Response('{}', { status: 402 })))
+        expect(await setPieceTags({ pieceNames: ['@activepieces/piece-amocrm'], tag: 'ru-allowed' })).toEqual({ ok: false, reason: 'http 402' })
+    })
+
+    it('reports network error when fetch throws', async () => {
+        vi.stubGlobal('fetch', vi.fn().mockRejectedValue(new Error('boom')))
+        expect(await setPieceTags({ pieceNames: ['@activepieces/piece-amocrm'], tag: 'ru-allowed' })).toEqual({ ok: false, reason: 'network error' })
     })
 })
 

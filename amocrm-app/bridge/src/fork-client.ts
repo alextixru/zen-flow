@@ -80,6 +80,31 @@ export async function upsertAmocrmConnection({ token, projectId, subdomain, apiT
     }
 }
 
+// Тегирование pieces для JWT-фильтра piecesFilterType:'ALLOWED'+piecesTags (см. jwt.ts).
+// SERVICE-принципал (platform API key) проходит platformAdminOnly на этом эндпоинте
+// без юзерской сессии — POST полностью заменяет набор тегов piece'а, повторный вызов безопасен.
+export async function setPieceTags({ pieceNames, tag }: SetPieceTagsParams): Promise<ForkCallResult> {
+    try {
+        const response = await fetch(`${config.forkUrl}/api/v1/tags/pieces`, {
+            method: 'POST',
+            headers: {
+                'content-type': 'application/json',
+                authorization: `Bearer ${config.forkApiKey}`,
+            },
+            body: JSON.stringify({ piecesName: pieceNames, tags: [tag] }),
+            signal: AbortSignal.timeout(10_000),
+        })
+        if (!response.ok) {
+            return { ok: false, reason: `http ${response.status}` }
+        }
+        return { ok: true }
+    }
+    catch {
+        return { ok: false, reason: 'network error' }
+    }
+}
+
 export type ForkCallResult = { ok: true } | { ok: false, reason: string }
 export type ExchangeResult = { ok: true, token: string, projectId: string } | { ok: false, reason: string }
 export type UpsertConnectionParams = { token: string, projectId: string, subdomain: string, apiToken: string }
+export type SetPieceTagsParams = { pieceNames: string[], tag: string }
