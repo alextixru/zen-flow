@@ -196,6 +196,7 @@
   "Creates a task in amoCRM and pauses the flow until that task is marked completed.": "Creates a task in amoCRM and pauses the flow until that task is marked completed.",
   "Wait for Customer Reply": "Wait for Customer Reply",
   "Pauses the flow until a new incoming chat message is received in amoCRM.": "Pauses the flow until a new incoming chat message is received in amoCRM.",
+  "Created By": "Created By",
   "Custom Field Changed": "Custom Field Changed",
   "Triggers when a specific custom field value changes on a lead, contact or company. Emits the change event with value_before/value_after. Fetch the full entity with the Find Entity action (filter by id). Warning: pairing this with an action that updates the same field will loop the flow.": "Triggers when a specific custom field value changes on a lead, contact or company. Emits the change event with value_before/value_after. Fetch the full entity with the Find Entity action (filter by id). Warning: pairing this with an action that updates the same field will loop the flow.",
   "Custom Field": "Custom Field",

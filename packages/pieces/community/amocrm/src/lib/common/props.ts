@@ -45,10 +45,10 @@ export const statusDropdown = ({ required }: DropdownFactoryParams) =>
     },
   });
 
-export const userDropdown = ({ required }: DropdownFactoryParams) =>
+export const userDropdown = ({ required, displayName = 'Responsible User' }: UserDropdownParams) =>
   Property.Dropdown({
     auth: amocrmAuth,
-    displayName: 'Responsible User',
+    displayName,
     required,
     refreshers: [],
     options: async ({ auth }) => {
@@ -202,7 +202,12 @@ function entityByTypeDropdown({ displayName, required, typeProp }: EntityByTypeD
       if (isNil(auth)) {
         return disconnectedState();
       }
-      if (entityType !== 'leads' && entityType !== 'contacts' && entityType !== 'companies') {
+      if (
+        entityType !== 'leads' &&
+        entityType !== 'contacts' &&
+        entityType !== 'companies' &&
+        entityType !== 'tasks'
+      ) {
         return { disabled: true, placeholder: 'Select an entity type first.', options: [] };
       }
       return {
@@ -256,7 +261,12 @@ function toOptions({ items, labelOf }: ToOptionsParams): DropdownOption<number>[
     if (!isRecord(item) || typeof item['id'] !== 'number') {
       return [];
     }
-    const name = typeof item['name'] === 'string' ? item['name'] : String(item['id']);
+    const name =
+      typeof item['name'] === 'string'
+        ? item['name']
+        : typeof item['text'] === 'string'
+          ? item['text']
+          : String(item['id']);
     return [{ label: labelOf ? labelOf({ item, name }) : name, value: item['id'] }];
   });
 }
@@ -302,7 +312,12 @@ type LinkedEntityDropdownParams = {
 
 type FetchEntityOptionsParams = {
   auth: AmocrmAuthProps;
-  entity: 'leads' | 'contacts' | 'companies';
+  entity: 'leads' | 'contacts' | 'companies' | 'tasks';
+};
+
+type UserDropdownParams = {
+  required: boolean;
+  displayName?: string;
 };
 
 type ToOptionsParams = {

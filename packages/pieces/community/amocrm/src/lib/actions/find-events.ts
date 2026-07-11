@@ -46,7 +46,7 @@ export const findEvents = createAction({
         };
       },
     }),
-    created_by: userDropdown({ required: false }),
+    created_by: userDropdown({ required: false, displayName: 'Created By' }),
     from: Property.DateTime({
       displayName: 'From',
       description: 'Only events created at or after this moment.',

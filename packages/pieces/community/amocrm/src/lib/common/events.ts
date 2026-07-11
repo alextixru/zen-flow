@@ -1,6 +1,14 @@
 import { HttpMethod } from '@activepieces/pieces-common';
 import { AmocrmAuthProps, amoClient } from './client';
 
+// ponytail: own cursor instead of pieces-common pollingHelper — its TIMEBASED
+// strategy loses a second event landing in the same second and LAST_ITEM dedups
+// by a single id; advanceCursor is simpler and unit-testable.
+// Known ceiling: /events is DESC-only (order[created_at]=asc is ignored, checked
+// live), so a burst larger than maxPages*limit between two polls permanently
+// drops the oldest part of the burst once the cursor advances. Unreachable in
+// practice on a ~7 rps account (>500 events/minute); upgrade only if amo ships
+// ASC ordering.
 async function fetchEvents({
   auth,
   from,
