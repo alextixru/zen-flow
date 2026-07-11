@@ -285,7 +285,7 @@
 ### - [x] V005 — Чекпоинт-валидация блока T022–T027
 - **spec:** общая спецификация V-задач. Блок: catalogs, каскад responsible, copy lead, полировка, waitpoint-механики. Особое внимание: waitpoint-экшены (T026/T027) корректно используют `ctx.run.pause`/resume и не ломают сборку при недоступном Chats API; каскад responsible не делает N+1 по связанным сущностям без нужды.
 
-### - [ ] T028 — Финальный прогон: i18n, локали, lint-sweep, sampleData
+### - [x] T028 — Финальный прогон: i18n, локали, lint-sweep, sampleData
 - **spec:** Проверить, что все `displayName`/`description` присутствуют в `src/i18n/translation.json` (identity). Заполнить недостающие `sampleData` у триггеров. Прогнать `npm run lint-dev` по всему репо и устранить остатки. Проверить, что piece корректно грузится (нет дублей `name` у actions/triggers, все зарегистрированы в index). Обновить `README.md` piece.
 - **files:** `src/i18n/translation.json`, точечные правки.
 - **verify:** `npm run lint-dev` чисто + сборка piece.

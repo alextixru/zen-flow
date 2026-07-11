@@ -266,3 +266,18 @@
 - Верификация: pass. code-review (low) по диффу — находок нет.
 - Блокеры: нет. Заметка: тип значения всех дропдаунов — number (id amo); `tagDropdown` — одиночный Dropdown, T017 при необходимости обернёт/расширит под множественный выбор.
 
+
+### 2026-07-11 — T028: финальный прогон — i18n, lint-sweep, sampleData, README
+- Статус: done
+- Изменения: только `packages/pieces/community/amocrm/README.md` — заменён scaffold-заглушка (3 строки) на полноценный README (auth long-lived token + где взять, список всех триггеров и экшенов, упоминание custom fields, build). Код piece не менялся — аудит показал, что всё уже консистентно.
+- Аудит (скриптовые проверки, факты):
+  - **Регистрация actions:** 24 файла экшенов (excl helpers/tests/index) ↔ 24 импорта в `actions/index.ts` ↔ 24 записи в массиве `amocrmActions` — совпадают 1:1.
+  - **Регистрация triggers:** 19 файлов триггеров (excl `-sample`/index) ↔ 19 импортов в `triggers/index.ts` — совпадают.
+  - **Дубли name:** `grep -oE "name: '..'" | sort | uniq -d` по actions+triggers — пусто (дублей нет).
+  - **sampleData:** все 19 триггеров содержат `sampleData` (по одному на файл) — 19/19 OK.
+  - **i18n identity:** Python-скан всех `displayName`/`description`/`placeholder` строк исходников (с вырезанным блоком `aiMetadata`) против 197 ключей `translation.json` — 0 UI-facing missing. Все ключи identity-mapped (key==value, non-identity = []). Замечание: `aiMetadata.description` (43 длинных строки) НЕ в i18n — это корректно: aiMetadata AI-facing, не UI-переводимая (паттерн kommo/airtable), спека i18n-правила targets только displayName/description.
+- Команды: `npx turbo run lint build --filter=@activepieces/piece-amocrm` — pass (6/6 tasks, lint+build); `npm run lint-dev` — exit 0, 30/30 tasks, 0 errors. Токен-чек: `git diff | grep -c eyJ0` = 0. `git status` — только README.md изменён.
+- Верификация: pass. Изменение docs-only (README), рантайм-поверхности нет — verify-скилл неприменим. Аудит зелёный по всем 5 пунктам спеки T028.
+- Блокеры: нет. План закрыт: все T-задачи `[x]`, единственная незакрытая — T021 (BLOCKED: нет публичного endpoint подписчиков в amo v4, зафиксировано в V004).
+
+<promise>COMPLETE</promise>
