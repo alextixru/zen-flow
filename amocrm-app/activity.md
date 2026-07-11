@@ -127,3 +127,24 @@
 - Верификация: code-review (low) по диффу — находок нет. Осознанное решение: `normalizePositiveInt` продублирован из install.ts (6 строк) вместо экспорта оттуда — не трогать файл чужой задачи ради одного хелпера.
 - Живые проверки: стенд не требовался (эндпоинт локальный); интеграция с фронтом виджета — W010.
 - Блокеры: нет.
+
+### 2026-07-12 — W008: Автодобавление origin клиента в allowedEmbedOrigins
+- Статус: done (включая живую проверку CSP)
+- Разбор SERVICE-аутентификации (по коду форка, подтверждено живьём): `POST /v1/embed-subdomain/allowed-embed-origins` защищён `securityAccess.publicPlatform([PrincipalType.SERVICE])`; SERVICE-принципал = platform API key `sk-…` (`authenticate.ts`: `Bearer sk-` → `apiKeyService.getByValue`), выпускается `POST /v1/api-keys {displayName}` под platform-админом (EE-модуль, флаг `plan.apiKeysEnabled` — на нашей платформе true). **Форма тела — `{allowedEmbedOrigins:[...]}`, НЕ `{origins:[...]}` как в спеке PRD** (сверено с `AddAllowedEmbedOriginsRequestBody` в shared); origin валидируется как точный URL.origin, мерж на форке без дублей.
+- Изменения:
+  - `bridge/src/fork-client.ts` (новый) — `addAllowedEmbedOrigin({subdomain})`: POST на `{FORK_URL}/api/v1/embed-subdomain/allowed-embed-origins` c `Bearer FORK_API_KEY`, таймаут 10с; возвращает `{ok:true}` | `{ok:false, reason:'http NNN'|'network error'}` (reason без секретов).
+  - `bridge/src/install.ts` — после успешной привязки хэндлер зовёт fork-client; ошибка форка НЕ валит install (ответ 200 в любом случае), результат пишется в колонку `origin_synced` (0 → ручной/автодобор: повторный install дожимает), при отказе — warn-лог `{subdomain, reason}`.
+  - `bridge/src/db.ts` — колонка `origin_synced INTEGER NOT NULL DEFAULT 0` + guarded ALTER для БД, созданных до W008.
+  - `bridge/src/config.ts` — обязательный env `FORK_API_KEY`; `env.example` — описание выпуска ключа; `bridge/src/fork-client.test.ts` (новый, 5 тестов: URL/заголовок/тело запроса, http-отказ, network-отказ, wiring `/install`: успех → origin_synced=1, отказ форка → 200 + origin_synced=0); в jwt/install/embed-token тестах добавлен `FORK_API_KEY=sk-test` в env-сетап.
+- Команды (фактические результаты): `npx tsc --noEmit` → чисто; `npx vitest run` → 4 файла, **29/29** (jwt 2 + install 9 + embed-token 13 + fork-client 5).
+- Живые проверки (стенд был жив, не пересоздавался):
+  - Выпуск ключа: sign-in `main@dzen.team` → `POST /v1/api-keys` → **201**, id `yODDMuuFdx340lbBq1w3E`, префикс `sk-FW9…` → записан в `bridge/.env` (`FORK_API_KEY`), temp-файл удалён.
+  - Мост перезапущен (`npm start`, лог `/tmp/bridge-w008.log`), `/health` → 200.
+  - Новый ключ (`U18-xu…`) + `POST /install {account_id:11111111, subdomain:'w008check'}` → **200**, строка БД `active|origin_synced=1`.
+  - CSP форка ДО: `frame-ancestors 'self' https://dzenteamdev.amocrm.ru`; ПОСЛЕ (через ~3 мин — **у форка LRU-кэш CSP-заголовка с TTL 3 мин**, `embed-security.ts`): `frame-ancestors 'self' https://dzenteamdev.amocrm.ru https://w008check.amocrm.ru` — verify задачи пройден.
+  - Идемпотентность: повторный `/install` → 200, в списке origins `w008check` ровно 1 раз (мерж без дублей подтверждён ответом SERVICE-эндпоинта).
+  - Добор старой связки W006: повторный `/install` для `dzenteamdev` → `origin_synced` 0→1 (обе связки в БД = 1).
+  - Лог моста: grep по префиксу api-ключа, jwt-маркеру, PEM-маркеру, install-ключу → **0**; секрет-скан диффа → **0**; `git status` без `.env*`/`data/`/`*.pem`.
+- Верификация: code-review (low) по диффу — находок нет.
+- Решения/остатки: (1) тестовый origin `https://w008check.amocrm.ru` остался в allowedEmbedOrigins dev-платформы — эндпоинт удаления origins отсутствует (platform-update принимает multipart, JSON дал 400); безвредно для dev, чистка руками через UI при желании; (2) фиксация для V002: «онбординг с нуля» теперь включает выпуск `FORK_API_KEY` при пересоздании платформы; (3) отклонение от спеки PRD (`origins` → `allowedEmbedOrigins`) — истина в коде форка, зафиксировано выше.
+- Блокеры: нет.

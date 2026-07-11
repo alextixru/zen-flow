@@ -170,7 +170,7 @@
 - **files:** `bridge/src/{index.ts,embed-token.ts}` + тест.
 - **verify:** tsc + vitest (успех, 403 unknown/revoked, лимит); curl-smoke: выданный JWT декодируется с ожидаемыми claims (`node -e` разбор, сам токен в файлы не писать).
 
-### - [ ] W008 — Автодобавление origin клиента в allowedEmbedOrigins
+### - [x] W008 — Автодобавление origin клиента в allowedEmbedOrigins
 
 - **spec:** При успешном `/install` мост вызывает форк `POST /v1/embed-subdomain/allowed-embed-origins` `{origins:['https://<subdomain>.amocrm.ru']}` — эндпоинт для SERVICE-принципала, мержит без дублей (повторный install безопасен). **Живая проверка обязательна (неснятый вопрос):** чем аутентифицируется SERVICE-принципал на нашем EE-инстансе — разобрать по коду (`securityAccess.publicPlatform([PrincipalType.SERVICE])`, EE-модуль api-keys, выпуск platform API key в UI) и подтвердить живым вызовом. Ключ — в `bridge/.env` (`FORK_API_KEY`). Ошибка вызова форка НЕ валит install: связка сохраняется, факт «origin не добавлен» пишется в лог/строку БД для ручного добора.
 - **escape:** если SERVICE-ключ на нашей сборке не выпускается — origin добавляется руками в UI платформы при онбординге (managed-модель позволяет), задача помечается ` — BLOCKED: <причина>` только в части автоматизации, ручная процедура описывается в activity.

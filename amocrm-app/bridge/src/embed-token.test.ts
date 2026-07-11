@@ -43,6 +43,7 @@ beforeAll(async () => {
     process.env.BRIDGE_PUBLIC_URL = 'https://fork.test/bridge'
     process.env.SIGNING_KEY_PATH = keyPath
     process.env.SIGNING_KEY_ID = 'test-kid'
+    process.env.FORK_API_KEY = 'sk-test'
     process.env.DB_PATH = join(dir, 'bridge.db')
 
     ;({ db } = await import('./db.js'))

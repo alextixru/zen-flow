@@ -1,5 +1,6 @@
 import type { FastifyInstance } from 'fastify'
 import { db } from './db.js'
+import { addAllowedEmbedOrigin } from './fork-client.js'
 
 const SUBDOMAIN_RE = /^[a-z0-9][a-z0-9-]{0,62}$/
 
@@ -12,6 +13,16 @@ export function registerInstall(app: FastifyInstance): void {
         const result = installAccount(validated)
         if (!result.ok) {
             return reply.code(403).send({ error: 'install rejected' })
+        }
+        // Ошибка форка не валит install: связка сохранена, origin_synced=0 остаётся
+        // в БД для ручного добора; повторный install дожмёт (мерж на форке без дублей).
+        const sync = await addAllowedEmbedOrigin({ subdomain: validated.subdomain })
+        db.prepare('UPDATE accounts SET origin_synced = ? WHERE install_key = ?').run(
+            sync.ok ? 1 : 0,
+            validated.installKey,
+        )
+        if (!sync.ok) {
+            request.log.warn({ subdomain: validated.subdomain, reason: sync.reason }, 'allowed-embed-origins не добавлен')
         }
         return { status: 'active' }
     })
