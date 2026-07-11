@@ -217,7 +217,7 @@
 - **pattern:** kommo find-lead/find-contact + Triggeron SearchEntity (`search_entity`/`search_fields[]`/`search_type` and|or/`search_sort`).
 - **verify:** общий.
 
-### - [ ] T020 — salesbot: run / stop
+### - [x] T020 — salesbot: run / stop (stop: у amoCRM нет публичного endpoint — см. activity)
 - **spec:** `run_salesbot`: props `bot_id` (Number/dropdown если есть `GET /salesbot`), `entity_type`, `entity_id`. `POST /salesbot/run` body-массив `[{ bot_id, entity_id, entity_type }]`. `stop_salesbot`: `POST /salesbot/stop` аналогично (проверить точный endpoint amo; если стоп идёт иначе — реализовать доступное, блокер в activity).
 - **files:** `src/lib/actions/run-salesbot.ts`, `stop-salesbot.ts` + index.
 - **pattern:** Triggeron SalesbotRun/SalesbotStop, F5 salesbot.start_bp.
