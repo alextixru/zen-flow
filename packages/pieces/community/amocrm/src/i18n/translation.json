@@ -136,5 +136,14 @@
   "Remove Tags": "Remove Tags",
   "Removes the specified tags from a lead, contact or company, keeping the rest.": "Removes the specified tags from a lead, contact or company, keeping the rest.",
   "Remove All Tags": "Remove All Tags",
-  "Removes every tag from a lead, contact or company.": "Removes every tag from a lead, contact or company."
+  "Removes every tag from a lead, contact or company.": "Removes every tag from a lead, contact or company.",
+  "Link Entities": "Link Entities",
+  "Links two entities together, e.g. attaches a contact or company to a lead.": "Links two entities together, e.g. attaches a contact or company to a lead.",
+  "Unlink Entities": "Unlink Entities",
+  "Removes a link between two entities, e.g. detaches a contact or company from a lead.": "Removes a link between two entities, e.g. detaches a contact or company from a lead.",
+  "Entity Type": "Entity Type",
+  "Link To Entity Type": "Link To Entity Type",
+  "Link To Entity": "Link To Entity",
+  "Unlink From Entity Type": "Unlink From Entity Type",
+  "Unlink From Entity": "Unlink From Entity"
 }

@@ -5,11 +5,13 @@ import { createContact } from './create-contact';
 import { createLead } from './create-lead';
 import { createNote } from './create-note';
 import { createTask } from './create-task';
+import { linkEntities } from './link-entities';
 import { removeAllTags } from './remove-all-tags';
 import { removeTags } from './remove-tags';
 import { updateCompany } from './update-company';
 import { updateContact } from './update-contact';
 import { updateLead } from './update-lead';
+import { unlinkEntities } from './unlink-entities';
 import { updateTask } from './update-task';
 
 export const amocrmActions = [
@@ -26,4 +28,6 @@ export const amocrmActions = [
   addTags,
   removeTags,
   removeAllTags,
+  linkEntities,
+  unlinkEntities,
 ];

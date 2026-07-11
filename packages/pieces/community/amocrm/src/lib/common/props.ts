@@ -139,24 +139,33 @@ export const companyDropdown = ({ required }: DropdownFactoryParams) =>
   entityDropdown({ entity: 'companies', displayName: 'Company', required });
 
 export const taskEntityDropdown = ({ required }: DropdownFactoryParams) =>
-  Property.Dropdown({
+  entityByTypeDropdown({ displayName: 'Linked Entity', required, typeProp: 'entity_type' });
+
+export const linkedEntityDropdown = ({ required, displayName, typeProp }: LinkedEntityDropdownParams) =>
+  entityByTypeDropdown({ displayName, required, typeProp });
+
+function entityByTypeDropdown({ displayName, required, typeProp }: EntityByTypeDropdownParams) {
+  return Property.Dropdown({
     auth: amocrmAuth,
-    displayName: 'Linked Entity',
+    displayName,
     required,
-    refreshers: ['entity_type'],
-    options: async ({ auth, entity_type }) => {
+    refreshers: [typeProp],
+    options: async (propsValue) => {
+      const auth = propsValue['auth'];
+      const entityType = propsValue[typeProp];
       if (isNil(auth)) {
         return disconnectedState();
       }
-      if (entity_type !== 'leads' && entity_type !== 'contacts' && entity_type !== 'companies') {
+      if (entityType !== 'leads' && entityType !== 'contacts' && entityType !== 'companies') {
         return { disabled: true, placeholder: 'Select an entity type first.', options: [] };
       }
       return {
         disabled: false,
-        options: await fetchEntityOptions({ auth: auth.props, entity: entity_type }),
+        options: await fetchEntityOptions({ auth: auth.props, entity: entityType }),
       };
     },
   });
+}
 
 function entityDropdown({ entity, displayName, required }: EntityDropdownParams) {
   return Property.Dropdown({
@@ -231,6 +240,18 @@ type EntityDropdownParams = {
   entity: 'leads' | 'contacts' | 'companies';
   displayName: string;
   required: boolean;
+};
+
+type EntityByTypeDropdownParams = {
+  displayName: string;
+  required: boolean;
+  typeProp: string;
+};
+
+type LinkedEntityDropdownParams = {
+  displayName: string;
+  required: boolean;
+  typeProp: string;
 };
 
 type FetchEntityOptionsParams = {
