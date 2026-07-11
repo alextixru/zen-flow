@@ -255,7 +255,7 @@
 - **pattern:** Triggeron ChangeResponsible (6 чекбоксов + `rand`), Sensei responsible.
 - **verify:** общий. Тяжёлая, но механическая задача — реализуй все ветви каскада в одной итерации (делегируй однотипные ветви Sonnet-агенту по этой спеке). Не дроби через BLOCKED из-за объёма: BLOCKED = «пропустить до человека». Если конкретная ветвь упирается в недоступный эндпоинт/скоуп — реализуй остальные, а недоступную помечай в activity.md как непроверенную (не блокируя всю задачу).
 
-### - [ ] T024 — copy / clone lead
+### - [x] T024 — copy / clone lead
 - **spec:** `copy_lead`: props `source_lead_id` (required), `copy_notes` (Checkbox), `copy_tasks` (Checkbox), `new_name` (optional override), `target_pipeline_id`/`target_status_id` (optional). `GET /leads/{id}?with=contacts,companies,catalog_elements` → сформировать новый POST /leads с теми же name/price/custom_fields/tags/связями; при `copy_notes` — `GET /leads/{id}/notes` и создать их на новой сделке; при `copy_tasks` — аналогично. Вернуть новый lead (save_id).
 - **тонкости:** копировать `custom_fields_values` из источника напрямую (они уже в формате API — переиспользовать, не пересобирать). `target_status_id` по умолчанию — статус источника, НО не копировать в системный статус «Неразобранное»/unsorted (в Triggeron CopyLead он явно скипается): если целевой статус не задан и источник в unsorted — класть в первый нормальный статус целевой воронки. Связи (`_embedded.contacts/companies`) переносить по id. `copy_notes`/`copy_tasks` — доп. GET+POST на новую сделку (это N доп. запросов, ок для одиночного копирования).
 - **files:** `src/lib/actions/copy-lead.ts` + index.

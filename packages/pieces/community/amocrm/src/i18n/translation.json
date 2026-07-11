@@ -1,5 +1,10 @@
 {
   "amoCRM": "amoCRM",
+  "Copy Lead": "Copy Lead",
+  "Clones an existing lead with its fields, tags and links, optionally copying its notes and tasks.": "Clones an existing lead with its fields, tags and links, optionally copying its notes and tasks.",
+  "New Lead Name": "New Lead Name",
+  "Copy Notes": "Copy Notes",
+  "Copy Tasks": "Copy Tasks",
   "CRM automation for amoCRM: leads, contacts, companies, tasks and more.": "CRM automation for amoCRM: leads, contacts, companies, tasks and more.",
   "Connection": "Connection",
   "\nTo generate a long-lived token:\n\n1. In amoCRM, go to **Settings -> Integrations**.\n2. Create a private integration (or open an existing one).\n3. Open the **Keys and access** tab and copy the long-lived token.\n\nYour **Subdomain** is the part before `.amocrm.ru` in your account URL (e.g. `mycompany` for `mycompany.amocrm.ru`).\n": "\nTo generate a long-lived token:\n\n1. In amoCRM, go to **Settings -> Integrations**.\n2. Create a private integration (or open an existing one).\n3. Open the **Keys and access** tab and copy the long-lived token.\n\nYour **Subdomain** is the part before `.amocrm.ru` in your account URL (e.g. `mycompany` for `mycompany.amocrm.ru`).\n",

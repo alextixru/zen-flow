@@ -1,6 +1,7 @@
 import { addTags } from './add-tags';
 import { changeResponsible } from './change-responsible';
 import { completeTask } from './complete-task';
+import { copyLead } from './copy-lead';
 import { createCompany } from './create-company';
 import { createContact } from './create-contact';
 import { createLead } from './create-lead';
@@ -23,6 +24,7 @@ import { updateTask } from './update-task';
 export const amocrmActions = [
   createLead,
   updateLead,
+  copyLead,
   createContact,
   updateContact,
   createCompany,
