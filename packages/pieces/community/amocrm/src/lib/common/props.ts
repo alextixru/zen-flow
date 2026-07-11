@@ -1,7 +1,7 @@
 import { HttpMethod } from '@activepieces/pieces-common';
 import { DropdownOption, Property, isNil } from '@activepieces/pieces-framework';
 import { amocrmAuth } from '../auth';
-import { amoClient } from './client';
+import { AmocrmAuthProps, amoClient } from './client';
 
 export const pipelineDropdown = ({ required }: DropdownFactoryParams) =>
   Property.Dropdown({
@@ -138,6 +138,26 @@ export const contactDropdown = ({ required }: DropdownFactoryParams) =>
 export const companyDropdown = ({ required }: DropdownFactoryParams) =>
   entityDropdown({ entity: 'companies', displayName: 'Company', required });
 
+export const taskEntityDropdown = ({ required }: DropdownFactoryParams) =>
+  Property.Dropdown({
+    auth: amocrmAuth,
+    displayName: 'Linked Entity',
+    required,
+    refreshers: ['entity_type'],
+    options: async ({ auth, entity_type }) => {
+      if (isNil(auth)) {
+        return disconnectedState();
+      }
+      if (entity_type !== 'leads' && entity_type !== 'contacts' && entity_type !== 'companies') {
+        return { disabled: true, placeholder: 'Select an entity type first.', options: [] };
+      }
+      return {
+        disabled: false,
+        options: await fetchEntityOptions({ auth: auth.props, entity: entity_type }),
+      };
+    },
+  });
+
 function entityDropdown({ entity, displayName, required }: EntityDropdownParams) {
   return Property.Dropdown({
     auth: amocrmAuth,
@@ -148,23 +168,24 @@ function entityDropdown({ entity, displayName, required }: EntityDropdownParams)
       if (isNil(auth)) {
         return disconnectedState();
       }
-      // ponytail: 250 latest entities only — Property.Dropdown has no server-side search;
-      // pick older records by id via find_entity + manual input, upgrade is a searchable dropdown
-      const response = await amoClient.makeRequest({
-        auth: auth.props,
-        method: HttpMethod.GET,
-        path: `/${entity}?limit=250&order[updated_at]=desc`,
-      });
-      const items = extractEmbedded({ response, key: entity });
       return {
         disabled: false,
-        options: toOptions({
-          items,
-          labelOf: ({ item, name }) => `${name} (${item['id']})`,
-        }),
+        options: await fetchEntityOptions({ auth: auth.props, entity }),
       };
     },
   });
+}
+
+// ponytail: 250 latest entities only — Property.Dropdown has no server-side search;
+// pick older records by id via find_entity + manual input, upgrade is a searchable dropdown
+async function fetchEntityOptions({ auth, entity }: FetchEntityOptionsParams) {
+  const response = await amoClient.makeRequest({
+    auth,
+    method: HttpMethod.GET,
+    path: `/${entity}?limit=250&order[updated_at]=desc`,
+  });
+  const items = extractEmbedded({ response, key: entity });
+  return toOptions({ items, labelOf: ({ item, name }) => `${name} (${item['id']})` });
 }
 
 function disconnectedState() {
@@ -210,6 +231,11 @@ type EntityDropdownParams = {
   entity: 'leads' | 'contacts' | 'companies';
   displayName: string;
   required: boolean;
+};
+
+type FetchEntityOptionsParams = {
+  auth: AmocrmAuthProps;
+  entity: 'leads' | 'contacts' | 'companies';
 };
 
 type ToOptionsParams = {
