@@ -9,6 +9,7 @@ import { createNote } from './create-note';
 import { createTask } from './create-task';
 import { findCatalogElements } from './find-catalog-elements';
 import { findEntity } from './find-entity';
+import { findEvents } from './find-events';
 import { linkCatalogElement } from './link-catalog-element';
 import { linkEntities } from './link-entities';
 import { removeAllTags } from './remove-all-tags';
@@ -43,6 +44,7 @@ export const amocrmActions = [
   linkEntities,
   unlinkEntities,
   findEntity,
+  findEvents,
   changeResponsible,
   runSalesbot,
   findCatalogElements,

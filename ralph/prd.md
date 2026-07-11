@@ -345,7 +345,7 @@
 - **files:** `src/lib/triggers/budget-changed.ts`, `lead-entered-stage.ts` + index.
 - **verify:** общий + живой replay: смена статуса/бюджета на стенде → событие в `/events` с ожидаемыми value_before/after (sampleData — с реального события).
 
-### - [ ] T034 — Action find_events (история изменений сущности)
+### - [x] T034 — Action find_events (история изменений сущности)
 - **spec:** `find_events`: props `entity_type` (StaticDropdown leads/contacts/companies/tasks + опция «любая», optional), `entity_id` (`linkedEntityDropdown` refresher entity_type, optional), `event_types` (`Property.MultiSelectDropdown`, options из `fetchEventTypes` — label локализованный `lang`, value `key`; per-field типы включать в options можно, но при выборе per-field типа он должен быть ЕДИНСТВЕННЫМ — валидировать в `run` с читаемой ошибкой), `created_by` (`userDropdown`, optional), `from`/`to` (DateTime, optional), `limit` (Number, default 50, потолок 100). `GET /events` через `amoEvents.fetchEvents`, вернуть массив событий как есть (204 → `[]`). `aiMetadata`: «Audit history: who changed what and when on a CRM entity» — это AI-tool первого класса, `idempotent: true`.
 - **files:** `src/lib/actions/find-events.ts` + index.
 - **verify:** общий + живой smoke: запрос истории реальной сделки стенда с фильтром по типу и по created_by — форма ответа совпадает с извлечением.

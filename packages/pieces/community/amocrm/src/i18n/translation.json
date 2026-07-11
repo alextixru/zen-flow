@@ -204,5 +204,16 @@
   "Budget Changed": "Budget Changed",
   "Triggers when a lead budget (sale) changes. Emits the amo event with value_before/value_after holding the old and new amount.": "Triggers when a lead budget (sale) changes. Emits the amo event with value_before/value_after holding the old and new amount.",
   "Lead Entered Stage": "Lead Entered Stage",
-  "Triggers only when a lead enters the selected pipeline stage, emitting the amo event with value_before (previous status) and value_after (new status). Unlike Lead Status Changed, which fires on any status move and returns the full lead, this fires only for the chosen status and gives you where the lead came from.": "Triggers only when a lead enters the selected pipeline stage, emitting the amo event with value_before (previous status) and value_after (new status). Unlike Lead Status Changed, which fires on any status move and returns the full lead, this fires only for the chosen status and gives you where the lead came from."
+  "Triggers only when a lead enters the selected pipeline stage, emitting the amo event with value_before (previous status) and value_after (new status). Unlike Lead Status Changed, which fires on any status move and returns the full lead, this fires only for the chosen status and gives you where the lead came from.": "Triggers only when a lead enters the selected pipeline stage, emitting the amo event with value_before (previous status) and value_after (new status). Unlike Lead Status Changed, which fires on any status move and returns the full lead, this fires only for the chosen status and gives you where the lead came from.",
+  "Find Events": "Find Events",
+  "Fetches the change history (events) of amoCRM entities, optionally filtered by entity, event type, author and date range.": "Fetches the change history (events) of amoCRM entities, optionally filtered by entity, event type, author and date range.",
+  "Event Types": "Event Types",
+  "Restrict to specific event types. A per-field custom field type must be selected on its own.": "Restrict to specific event types. A per-field custom field type must be selected on its own.",
+  "From": "From",
+  "Only events created at or after this moment.": "Only events created at or after this moment.",
+  "To": "To",
+  "Only events created at or before this moment.": "Only events created at or before this moment.",
+  "Maximum number of events to return (max 100).": "Maximum number of events to return (max 100).",
+  "Any": "Any",
+  "Task": "Task"
 }
