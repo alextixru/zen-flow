@@ -205,7 +205,7 @@
 - **verify:** живьём: embedded-клиент в билдере видит `amocrm`/`telegram-bot`/`deepseek`/`google-sheets`, НЕ видит `notion`/`slack`/`stripe`/`openai`; полный размер каталога зафиксировать в activity.
 - **escape:** если тегирование доступно только через UI — проставить руками, скрипт свести к проверке (GET-сверка тегов), пометить в activity.
 
-### - [ ] W013 — Белый бэкдор + хостинг статики виджета
+### - [x] W013 — Белый бэкдор + хостинг статики виджета
 
 - **spec:** Разнести виджет: `script.js` (идёт в zip) — тонкий AMD-загрузчик, который вычисляет `basePath = localStorage['dzenflow_public_path'] || '<BRIDGE_PUBLIC_URL>/static/widget'` и грузит оттуда `widget-app.js` (вся логика W006/W010/W011 переезжает туда) + `widget-app.css`. Мост: `GET /static/widget/*` раздаёт `bridge/static/widget/` (Fastify static или ручной sendFile — простейшее), заголовки `Cache-Control: no-cache` (итерации важнее кэша, `ponytail:` versioned URLs — upgrade). Загрузчик передаёт в app контекст (`widget_code`, settings, callbacks amo).
 - **files:** `widget/script.js` (loader), `bridge/static/widget/{widget-app.js,widget-app.css}` (перенос), `bridge/src/index.ts`.

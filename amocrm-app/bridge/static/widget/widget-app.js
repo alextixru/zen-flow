@@ -1,0 +1,308 @@
+// Логика виджета Dzen.Team — живёт на статике за белым бэкдором (W013):
+// тонкий загрузчик в zip тянет этот файл, поэтому правку выкатываем без нового
+// zip и bump version. Файл НЕ использует define() (в requirejs amo это дало бы
+// «Mismatched anonymous define») — регистрирует фабрику в window.__dzenflow.
+(function () {
+  window.__dzenflow = window.__dzenflow || {};
+
+  var EMBED_SDK_VERSION = '0.13.0';
+
+  // Мост Dzen.Team (тот же SSH-туннель, путь /bridge). instanceUrl конструктора
+  // отдаёт сам мост в ответе /embed-token.
+  var BRIDGE_URL = 'https://amoai-dev.dzen.team/bridge';
+
+  // Фабрика на каждый вызов amo-коллбека: amo пересоздаёт инстанс виджета на
+  // каждый SPA-переход, поэтому self приходит свежий. Персистентное состояние
+  // (booted, sdkLoading, lcardBound) живёт в синглтоне core, не в замыкании.
+  window.__dzenflow.createApp = function (self, $) {
+    function core() {
+      var store = window.__dzenflow;
+      store.core = store.core || { booted: false };
+      return store.core;
+    }
+
+    function t(key, fallback) {
+      try {
+        var value = self.i18n(key);
+        return typeof value === 'string' && value ? value : fallback;
+      } catch (e) {
+        return fallback;
+      }
+    }
+
+    function widgetCode() {
+      try {
+        var settings = self.get_settings();
+        if (settings && settings.widget_code) {
+          return settings.widget_code;
+        }
+      } catch (e) {}
+      return self.params && self.params.widget_code;
+    }
+
+    function amoConstant(name) {
+      try {
+        return (window.AMOCRM && AMOCRM.constant && AMOCRM.constant(name)) || null;
+      } catch (e) {
+        return null;
+      }
+    }
+
+    // У amo нет документированного API уведомлений — feature-detect, любой сбой
+    // гасим: надёжный сигнал успеха/ошибки для amo — resolve/reject Deferred в onSave.
+    function notify(text) {
+      try {
+        var n = window.AMOCRM && AMOCRM.notifications;
+        if (n && typeof n.show_message === 'function') {
+          n.show_message({ header: t('widget.name', 'Автоматизации Dzen.Team'), text: text });
+        }
+      } catch (e) {}
+    }
+
+    function installKey() {
+      var settings = self.get_settings ? self.get_settings() : null;
+      return settings && settings.install_key ? String(settings.install_key).replace(/^\s+|\s+$/g, '') : '';
+    }
+
+    function submitInstall() {
+      var key = installKey();
+      // Поле необязательное — пустой ключ сохраняем как есть, клиент введёт позже.
+      if (!key) {
+        return true;
+      }
+      var account = amoConstant('account');
+      var user = amoConstant('user');
+      if (!account || !account.id) {
+        notify(t('install.neterror', 'Не удалось связаться с сервером Dzen.Team.'));
+        return false;
+      }
+      var dfd = $.Deferred();
+      fetch(BRIDGE_URL + '/install', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          install_key: key,
+          account_id: account.id,
+          subdomain: account.subdomain,
+          user: user ? { id: user.id, name: user.name } : null
+        })
+      })
+        .then(function (res) {
+          if (res.ok) {
+            notify(t('install.ok', 'Интеграция Dzen.Team подключена.'));
+            dfd.resolve();
+          } else {
+            notify(t('install.rejected', 'Ключ установки недействителен.'));
+            dfd.reject();
+          }
+        })
+        .catch(function () {
+          notify(t('install.neterror', 'Не удалось связаться с сервером Dzen.Team.'));
+          dfd.reject();
+        });
+      return dfd.promise();
+    }
+
+    // SDK — UMD-бандл, а в amo глобально живёт RequireJS: тег <script> уводит
+    // UMD в ветку define.amd, фабрика не исполняется («Mismatched anonymous
+    // define») и window.activepieces не появляется. Поэтому грузим текстом
+    // (CORS у форка открыт) и исполняем с заслонённым define — UMD падает в
+    // ветку присвоения глобалов.
+    function loadEmbedSdk(baseUrl, done) {
+      if (window.activepieces) {
+        done(true);
+        return;
+      }
+      var store = core();
+      if (store.sdkLoading) {
+        store.sdkLoading.push(done);
+        return;
+      }
+      store.sdkLoading = [done];
+      function finish(ok) {
+        var waiters = store.sdkLoading || [];
+        store.sdkLoading = null;
+        for (var i = 0; i < waiters.length; i++) {
+          waiters[i](ok);
+        }
+      }
+      fetch(baseUrl + '/embed/' + EMBED_SDK_VERSION + '.js')
+        .then(function (res) {
+          if (!res.ok) {
+            throw new Error('embed sdk http ' + res.status);
+          }
+          return res.text();
+        })
+        .then(function (code) {
+          new Function('define', 'exports', 'module', code)(undefined, undefined, undefined);
+          finish(!!window.activepieces);
+        })
+        .catch(function () {
+          finish(false);
+        });
+    }
+
+    function renderMessage(area, text) {
+      area.innerHTML =
+        '<div class="dzenflow-msg">' +
+        '<h2>' + t('advanced.title', 'Автоматизации Dzen.Team') + '</h2>' +
+        '<p>' + text + '</p>' +
+        '</div>';
+    }
+
+    // amo рисует тёмную тему добавлением класса на body/html. Точный класс не
+    // подтверждён живьём (headless без сессии) — эвристика по 'night'/'dark',
+    // дефолт light. ponytail: уточнить селектор при первой живой проверке.
+    function detectStylingMode() {
+      try {
+        var cls =
+          ((document.body && document.body.className) || '') +
+          ' ' +
+          (document.documentElement.className || '');
+        if (/(theme[-_]?night|\bnight\b|\bdark\b)/i.test(cls)) {
+          return 'dark';
+        }
+      } catch (e) {}
+      return 'light';
+    }
+
+    function mountEmbed(area, code, instanceUrl, jwtToken) {
+      var top = area.getBoundingClientRect().top;
+      var height = Math.max(400, Math.round(window.innerHeight - top - 16));
+      var containerId = 'dzenflow-embed-' + code;
+      // Повторный вызов advancedSettings (SPA-переходы) пересоздаёт контейнер —
+      // старый iframe уходит вместе с innerHTML, задвоения нет. Высота считается
+      // от места блока — остаётся инлайн; остальное стайлится классом из CSS.
+      area.innerHTML =
+        '<div id="' + containerId + '" class="dzenflow-embed" style="height:' + height + 'px;"></div>';
+      loadEmbedSdk(instanceUrl, function (ok) {
+        if (!ok) {
+          renderMessage(area, t('advanced.unavailable', 'Сервис временно недоступен.'));
+          return;
+        }
+        window.activepieces
+          .configure({
+            instanceUrl: instanceUrl,
+            jwtToken: jwtToken,
+            embedding: {
+              containerId: containerId,
+              locale: 'ru',
+              styling: { mode: detectStylingMode() },
+              dashboard: { hideSidebar: true, hideFlowsPageNavbar: false },
+              hideFolders: true,
+              hideTables: true,
+              hideGlobalSearch: true,
+              builder: { homeButtonIcon: 'back' }
+            }
+          })
+          .catch(function () {
+            renderMessage(area, t('advanced.unavailable', 'Сервис временно недоступен.'));
+          });
+      });
+    }
+
+    function renderEmbed() {
+      var code = widgetCode();
+      if (!code) {
+        return;
+      }
+      var area = document.getElementById('work-area-' + code);
+      if (!area) {
+        return;
+      }
+      var key = installKey();
+      if (!key) {
+        renderMessage(area, t('advanced.no_key', 'Введите ключ установки в настройках интеграции (кнопка «Настроить») и сохраните.'));
+        return;
+      }
+      var account = amoConstant('account');
+      var user = amoConstant('user');
+      if (!account || !account.id) {
+        renderMessage(area, t('advanced.unavailable', 'Сервис временно недоступен.'));
+        return;
+      }
+      fetch(BRIDGE_URL + '/embed-token', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          install_key: key,
+          account_id: account.id,
+          user: user ? { id: user.id, name: user.name } : null
+        })
+      })
+        .then(function (res) {
+          if (res.status === 403) {
+            renderMessage(area, t('advanced.invalid_key', 'Ключ установки недействителен. Обратитесь в поддержку Dzen.Team.'));
+            return null;
+          }
+          if (!res.ok) {
+            renderMessage(area, t('advanced.unavailable', 'Сервис временно недоступен.'));
+            return null;
+          }
+          return res.json();
+        })
+        .then(function (data) {
+          if (data === null) {
+            return;
+          }
+          if (!data || !data.jwtToken || !data.instanceUrl) {
+            renderMessage(area, t('advanced.unavailable', 'Сервис временно недоступен.'));
+            return;
+          }
+          mountEmbed(area, code, data.instanceUrl, data.jwtToken);
+        })
+        .catch(function () {
+          renderMessage(area, t('advanced.unavailable', 'Сервис временно недоступен.'));
+        });
+    }
+
+    // lcard-0: amo не рисует блок сам (суффикс -0) — решаем и рендерим сами через
+    // render_template (официальный метод инстанса виджета; форма { caption, body, render }
+    // подтверждена двумя боевыми виджетами: sensei/widget/script.js, triggeron F5triggeron.js).
+    function lcardConstructorUrl(code) {
+      return location.protocol + '//' + location.host + '/settings/widgets/' + code + '/';
+    }
+
+    function bindLcardClicks(code) {
+      var store = core();
+      if (store.lcardBound) {
+        return;
+      }
+      store.lcardBound = true;
+      // Делегирование на document: render_template может пересоздать DOM блока
+      // при переходе на другую карточку, прямой bind на элемент тогда потеряется.
+      $(document).on('click', '.dzenflow-lcard-button', function () {
+        location.href = lcardConstructorUrl(code);
+      });
+    }
+
+    function renderCardBlock() {
+      var code = widgetCode();
+      if (!code || typeof self.render_template !== 'function') {
+        return;
+      }
+      bindLcardClicks(code);
+      if ($('.card-widgets__widget-' + code).length) {
+        // Блок уже отрисован для текущей карточки — повторный render_template не нужен.
+        return;
+      }
+      try {
+        self.render_template({
+          caption: { class_name: 'dzenflow-lcard-caption', html: t('widget.name', 'Автоматизации Dzen.Team') },
+          body: '',
+          render:
+            '<div class="dzenflow-lcard-block">' +
+            '<button type="button" class="dzenflow-lcard-button">' +
+            t('lcard.button', 'Автоматизации сделки') +
+            '</button></div>'
+        });
+      } catch (e) {}
+    }
+
+    return {
+      submitInstall: submitInstall,
+      renderEmbed: renderEmbed,
+      renderCardBlock: renderCardBlock
+    };
+  };
+})();
