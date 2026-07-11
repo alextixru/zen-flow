@@ -363,7 +363,7 @@
 - **files:** `src/lib/triggers/entity-tag-added.ts`, `entity-tag-deleted.ts` + index.
 - **verify:** общий + живой replay: добавить/снять тег на стенде → событие с формой value_after/before (sampleData — с реального).
 
-### - [ ] T037 — Универсальный триггер event_occurred
+### - [x] T037 — Универсальный триггер event_occurred
 - **spec:** `event_occurred` через poll-фабрику T030 — «хвост» каталога одним файлом (entity_linked/unlinked, entity_merged, invoice_paid, nps_rate_added, talk_created/closed, intent_identified, ai_result, robot_replied, transaction_added, …). Props: `event_types` (`Property.MultiSelectDropdown`, required, options из `fetchEventTypes`, **per-field типы (type 24) ИСКЛЮЧИТЬ из options** — для них есть T032; `ponytail:`-коммент), опц. `entity` StaticDropdown — фильтр в `filterEvent`. Description: «продвинутый триггер на любое событие ленты amoCRM; для полей/статусов/тегов используйте специализированные триггеры».
 - **files:** `src/lib/triggers/event-occurred.ts` + index.
 - **verify:** общий + живой smoke test(): мультиселект из 2-3 типов отдаёт реальные события стенда.

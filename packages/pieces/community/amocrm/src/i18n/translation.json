@@ -226,5 +226,9 @@
   "Triggers when a tag is removed from a lead, contact or company. Optionally filter by tag name. Emits the amo event with value_before holding the removed tag.": "Triggers when a tag is removed from a lead, contact or company. Optionally filter by tag name. Emits the amo event with value_before holding the removed tag.",
   "Which entity type to watch for tag changes.": "Which entity type to watch for tag changes.",
   "Tag Name": "Tag Name",
-  "Only fire for this exact tag name. Leave empty to fire for any tag.": "Only fire for this exact tag name. Leave empty to fire for any tag."
+  "Only fire for this exact tag name. Leave empty to fire for any tag.": "Only fire for this exact tag name. Leave empty to fire for any tag.",
+  "Event Occurred": "Event Occurred",
+  "Advanced trigger for any amoCRM events feed entry (entity linked/unlinked, merged, invoice paid, chat opened/closed, and more). Polls the feed once a minute, so expect up to a minute of delay. For fields, statuses or tags use the dedicated triggers.": "Advanced trigger for any amoCRM events feed entry (entity linked/unlinked, merged, invoice paid, chat opened/closed, and more). Polls the feed once a minute, so expect up to a minute of delay. For fields, statuses or tags use the dedicated triggers.",
+  "One or more feed event types to listen for.": "One or more feed event types to listen for.",
+  "Restrict to events on a single entity type.": "Restrict to events on a single entity type."
 }

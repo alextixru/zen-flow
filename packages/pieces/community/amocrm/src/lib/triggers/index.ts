@@ -10,6 +10,7 @@ import { contactUpdated } from './contact-updated';
 import { customFieldChanged } from './custom-field-changed';
 import { entityTagAdded } from './entity-tag-added';
 import { entityTagDeleted } from './entity-tag-deleted';
+import { eventOccurred } from './event-occurred';
 import { incomingCall } from './incoming-call';
 import { incomingMessage } from './incoming-message';
 import { leadEnteredStage } from './lead-entered-stage';
@@ -52,4 +53,5 @@ export const amocrmTriggers = [
   outgoingCall,
   entityTagAdded,
   entityTagDeleted,
+  eventOccurred,
 ];
