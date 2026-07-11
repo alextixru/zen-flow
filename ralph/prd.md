@@ -266,7 +266,7 @@
 
 ## Фаза 5 — Дропдауны-полировка + P2-механики
 
-### - [ ] T025 — Полировка дропдаунов и generic webhook действие
+### - [x] T025 — Полировка дропдаунов и generic webhook действие
 - **spec:** Пройтись по всем дропдаунам: добавить `refreshers` где нужно (statusDropdown зависит от pipelineId; entity_id зависит от entity_type в action'ах — через `Property.Dropdown` с refresher на выбранный тип). Убедиться, что `entity_id`-дропдауны в T015/T017/T018/T023 корректно рефрешатся по `entity_type`. Добавить action `send_webhook` (метод/URL/headers/body) — тонкая обёртка, если custom api call не покрывает нужный кейс (иначе пропустить с пометкой: HTTP piece + custom api call покрывают; `ponytail:`).
 - **files:** правки `src/lib/common/props.ts`, опц. `src/lib/actions/send-webhook.ts`.
 - **verify:** общий.
