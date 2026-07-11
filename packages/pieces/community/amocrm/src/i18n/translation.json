@@ -130,5 +130,11 @@
   "Common": "Common",
   "Service Message": "Service Message",
   "Incoming Call": "Incoming Call",
-  "Outgoing Call": "Outgoing Call"
+  "Outgoing Call": "Outgoing Call",
+  "Add Tags": "Add Tags",
+  "Adds tags to a lead, contact or company without removing existing ones.": "Adds tags to a lead, contact or company without removing existing ones.",
+  "Remove Tags": "Remove Tags",
+  "Removes the specified tags from a lead, contact or company, keeping the rest.": "Removes the specified tags from a lead, contact or company, keeping the rest.",
+  "Remove All Tags": "Remove All Tags",
+  "Removes every tag from a lead, contact or company.": "Removes every tag from a lead, contact or company."
 }
