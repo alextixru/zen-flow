@@ -188,7 +188,7 @@
 - **pattern:** kommo (нет task action — писать с нуля по API). Опции срока — Triggeron CreateTask (`task_time`+`time_type`).
 - **verify:** общий + тест `computeCompleteTill`: offset в минутах/часах/днях и явный `dueAt` дают ожидаемые секунды (мокнуть `now`).
 
-### - [ ] T016 — notes: create common / system / с файлом
+### - [x] T016 — notes: create common / system / с файлом
 - **spec:** `create_note`: props `entity_type` (leads/contacts/companies), `entity_id`, `note_type` (StaticDropdown: `common`, `service_message`(системное), `call_in`, `call_out`), `text` (required для common/service). `POST /{entity_type}/{id}/notes` body-массив `[{ note_type, params: { text } }]`. Отдельный `create_note_with_file`: prop `file` (`Property.File`), сначала загрузка через amo Files API (`POST /api/v4/files` — session upload), затем note типа `attachment` с `file_uuid`. Если Files API сложен/недоступен — реализовать common/system сейчас, файл вынести подпунктом с `ponytail:`-комментарием и блокером.
 - **files:** `src/lib/actions/create-note.ts` (+ `create-note-with-file.ts`) + index.
 - **verify:** общий.
