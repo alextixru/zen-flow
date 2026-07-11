@@ -333,7 +333,7 @@
 - **files:** `src/lib/common/events-doorbell.ts`, реэкспорт.
 - **verify:** общий. Чистая логика курсора уже покрыта тестом T029 — новый тест не нужен, если run() не содержит новой чистой арифметики.
 
-### - [ ] T032 — Триггер custom_field_changed (per-field, doorbell)
+### - [x] T032 — Триггер custom_field_changed (per-field, doorbell)
 - **spec:** `custom_field_changed` через doorbell-фабрику T031. Props: `entity` (StaticDropdown leads/contacts/companies, default leads) + `field_id` (`Property.Dropdown`, refresher `['entity']`, options из `customFieldsUtils.fetchCustomFieldsMeta({ auth: auth.props, entity })` — label `field.name`, value `field.id`). `webhookEvents` по entity: `update_lead`/`update_contact`/`update_company`. `eventTypes: ['custom_field_' + field_id + '_value_changed']` (динамически из props — фабрика должна поддерживать `eventTypesFromProps`). Выход — событие целиком (`value_before`/`value_after` — главная ценность). `ponytail:`-коммент про эксклюзивность per-field фильтра (один триггер = одно поле = свой запрос). В description: предупреждение о цикле «этот триггер + action, меняющий то же поле, зациклит flow» и что полная сущность добирается шагом `find_entity` по `filter[id]`.
 - **files:** `src/lib/triggers/custom-field-changed.ts` + index.
 - **verify:** общий + живой e2e на стенде: включить-подобный replay — изменить поле через `PATCH /leads/{id}`, убедиться `GET /events?filter[type]=custom_field_{ID}_value_changed` отдаёт событие с корректными value_before/after (форму записать в sampleData с реального события).

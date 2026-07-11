@@ -6,6 +6,7 @@ import { contactAdded } from './contact-added';
 import { contactDeleted } from './contact-deleted';
 import { contactResponsibleChanged } from './contact-responsible-changed';
 import { contactUpdated } from './contact-updated';
+import { customFieldChanged } from './custom-field-changed';
 import { incomingMessage } from './incoming-message';
 import { leadAdded } from './lead-added';
 import { leadDeleted } from './lead-deleted';
@@ -38,4 +39,5 @@ export const amocrmTriggers = [
   taskDeleted,
   noteAdded,
   incomingMessage,
+  customFieldChanged,
 ];

@@ -15,6 +15,7 @@ export const createAmoDoorbellTrigger = ({
   description,
   aiMetadata,
   webhookEvents,
+  webhookEventsFromProps,
   eventTypes,
   eventTypesFromProps,
   entity,
@@ -37,7 +38,14 @@ export const createAmoDoorbellTrigger = ({
         auth,
         method: HttpMethod.POST,
         path: '/webhooks',
-        body: { destination: context.webhookUrl, settings: webhookEvents },
+        body: {
+          destination: context.webhookUrl,
+          settings: resolveWebhookEvents({
+            webhookEvents,
+            webhookEventsFromProps,
+            propsValue: context.propsValue,
+          }),
+        },
       });
       await context.store.put<AmoEventCursor>(CURSOR_KEY, initialCursor());
     },
@@ -90,6 +98,21 @@ export const createAmoDoorbellTrigger = ({
     },
   });
 
+function resolveWebhookEvents({
+  webhookEvents,
+  webhookEventsFromProps,
+  propsValue,
+}: {
+  webhookEvents?: string[];
+  webhookEventsFromProps?: (propsValue: StaticPropsValue<InputPropertyMap>) => string[];
+  propsValue: StaticPropsValue<InputPropertyMap>;
+}): string[] {
+  if (webhookEventsFromProps) {
+    return webhookEventsFromProps(propsValue);
+  }
+  return webhookEvents ?? [];
+}
+
 function resolveTypes({
   eventTypes,
   eventTypesFromProps,
@@ -121,7 +144,8 @@ type CreateAmoDoorbellTriggerParams = {
   displayName: string;
   description: string;
   aiMetadata: { description: string };
-  webhookEvents: string[];
+  webhookEvents?: string[];
+  webhookEventsFromProps?: (propsValue: StaticPropsValue<InputPropertyMap>) => string[];
   eventTypes?: string[];
   eventTypesFromProps?: (propsValue: StaticPropsValue<InputPropertyMap>) => string[];
   entity?: string;
