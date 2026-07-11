@@ -1,5 +1,6 @@
 import { createPiece, PieceCategory } from '@activepieces/pieces-framework';
 import { createCustomApiCallAction } from '@activepieces/pieces-common';
+import { amocrmActions } from './lib/actions';
 import { amocrmAuth } from './lib/auth';
 import { amocrmTriggers } from './lib/triggers';
 
@@ -12,6 +13,7 @@ export const amocrm = createPiece({
   categories: [PieceCategory.SALES_AND_CRM, PieceCategory.COMMUNICATION],
   authors: [],
   actions: [
+    ...amocrmActions,
     createCustomApiCallAction({
       auth: amocrmAuth,
       baseUrl: (auth) => {

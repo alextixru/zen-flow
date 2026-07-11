@@ -82,6 +82,13 @@
   "Triggers when a note is added to a lead, contact or company.": "Triggers when a note is added to a lead, contact or company.",
   "Entity": "Entity",
   "Which entity type to watch for new notes.": "Which entity type to watch for new notes.",
+  "Create Lead": "Create Lead",
+  "Creates a new lead in amoCRM.": "Creates a new lead in amoCRM.",
+  "Update Lead": "Update Lead",
+  "Updates an existing lead in amoCRM. Only the provided fields are changed.": "Updates an existing lead in amoCRM. Only the provided fields are changed.",
+  "Lead Name": "Lead Name",
+  "Price": "Price",
+  "Tags": "Tags",
   "Incoming Message": "Incoming Message",
   "Triggers when a new chat message is received. Requires a connected chat channel (amoJo/talks); the messaging scope must be enabled on the account.": "Triggers when a new chat message is received. Requires a connected chat channel (amoJo/talks); the messaging scope must be enabled on the account."
 }
