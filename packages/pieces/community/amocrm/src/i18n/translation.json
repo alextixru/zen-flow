@@ -81,5 +81,7 @@
   "Note Added": "Note Added",
   "Triggers when a note is added to a lead, contact or company.": "Triggers when a note is added to a lead, contact or company.",
   "Entity": "Entity",
-  "Which entity type to watch for new notes.": "Which entity type to watch for new notes."
+  "Which entity type to watch for new notes.": "Which entity type to watch for new notes.",
+  "Incoming Message": "Incoming Message",
+  "Triggers when a new chat message is received. Requires a connected chat channel (amoJo/talks); the messaging scope must be enabled on the account.": "Triggers when a new chat message is received. Requires a connected chat channel (amoJo/talks); the messaging scope must be enabled on the account."
 }

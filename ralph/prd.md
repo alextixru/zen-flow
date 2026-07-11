@@ -149,7 +149,7 @@
 - **files:** `src/lib/triggers/note-added.ts` + index.
 - **verify:** общий. **Открытый вопрос (в activity.md):** точные имена note-событий в webhook settings amo — если недоступны на тестовом аккаунте, реализовать по best-guess `add_note`, пометить непроверенным, НЕ блокировать (lint/build проходят).
 
-### - [ ] T011 — Триггер входящего сообщения (chats/talks)
+### - [x] T011 — Триггер входящего сообщения (chats/talks)
 - **spec:** `incoming_message` — подписка на события чатов amoJo/talks. Реализовать по паттерну фабрики; событие `message` (или `add_talk`). **Зависимость:** требует scope Chats API и подключённого канала — задача помечает это в description и, если API недоступно на тестовом аккаунте, оставляет реализацию + отметку `[x]` при успешном lint (без live-проверки вебхука), с пометкой блокера в activity.md.
 - **files:** `src/lib/triggers/incoming-message.ts` + index.
 - **verify:** общий. **Блокер-кандидат:** scope/канал amoJo.
