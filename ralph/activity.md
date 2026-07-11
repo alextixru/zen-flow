@@ -2,6 +2,13 @@
 
 Хронологический лог итераций. Одна запись на итерацию/задачу. Новые записи — сверху вниз в порядке выполнения.
 
+### 2026-07-11 — T018: link / unlink entities
+- Статус: done
+- Изменения: `src/lib/actions/link-entities.ts` (`link_entities`: props `entity_type`/`entity_id`/`to_entity_type`/`to_entity_id`, `POST /{entity_type}/{id}/link` body-массив `[{to_entity_id, to_entity_type}]`), `unlink-entities.ts` (`unlink_entities`: то же тело, `POST .../unlink`); регистрация в `actions/index.ts` (импорт + массив). В `common/props.ts` обобщил `taskEntityDropdown` во внутреннюю фабрику `entityByTypeDropdown({displayName, required, typeProp})` и экспортировал `linkedEntityDropdown` — оба `entity_id`/`to_entity_id` рефрешатся каждый по своему type-props (`entity_type`/`to_entity_type`); `taskEntityDropdown` теперь делегирует туда (поведение прежнее: refresher `entity_type`, displayName `Linked Entity`). entity_type — локальный StaticDropdown lead/contact/company в каждом action (разные displayName). i18n +9 ключей (2 displayName + 2 description + 5 prop-лейблов; `Entity` уже был). aiMetadata idempotent у обоих.
+- Команды: `npx turbo run lint --filter=@activepieces/piece-amocrm` — pass (5/5); `npx turbo run build --filter=@activepieces/piece-amocrm` — pass (5/5); `npm run lint-dev` — 0 errors (30/30). Юнит-теста нет: чистой логики action не содержит (спека теста не требует). Токен-чек: `git diff | grep -c eyJ0` = 0.
+- Верификация: pass. Живой smoke на dev-стенде (lead 36632537 + contact 43290948): `POST /leads/{id}/link` `[{to_entity_id, to_entity_type:contacts}]` → **200**, ответ `_embedded.links:[{to_entity_id, to_entity_type, metadata:null}]` — форма тела подтверждена; `POST /leads/{id}/unlink` тем же телом → **204**. Спека совпадает 1:1. code-review: дифф механический (пара action по паттерну T017 + безопасный рефактор дропдауна); обобщение `taskEntityDropdown` не меняет поведение существующих потребителей (add/remove/remove-all-tags, tasks) — refresher и displayName те же, подтверждено lint+build; находок нет.
+- Блокеры: нет. Заметки: (1) `entityTypeProperty` (StaticDropdown lead/contact/company) продублирован в обоих action-файлах — осознанно (разные displayName, самодостаточные ~13 строк; вынос — кандидат для T025-полировки, не сейчас). (2) `to_entity_id`/`entity_id`-дропдауны уже рефрешатся по своим type-props — T025 в части link-рефрешеров закрыт этой задачей.
+
 ### 2026-07-11 — V003: чекпоинт-валидация блока T012–T016
 - Статус: done (фиксов кода не потребовалось)
 - Изменения: только `ralph/prd.md` (чекбокс V003) и эта запись.

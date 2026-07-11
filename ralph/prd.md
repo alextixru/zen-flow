@@ -204,7 +204,7 @@
 - **pattern:** Triggeron ChangeTags (`action_type` только `add`/`delete`, режима replace нет — наш `remove_all_tags` это наше расширение через PATCH `tags:[]`). `unique` из `@activepieces/shared`.
 - **verify:** общий + тест слияния: add дедуплицирует, remove убирает только указанные, чужие теги сохраняются.
 
-### - [ ] T018 — link / unlink entities
+### - [x] T018 — link / unlink entities
 - **spec:** `link_entities`: props `entity_type` (leads/contacts/companies), `entity_id`, `to_entity_type`, `to_entity_id`. `POST /{entity_type}/{id}/link` body-массив `[{ to_entity_id, to_entity_type }]`. `unlink_entities`: `POST /{entity_type}/{id}/unlink` тем же телом.
 - **files:** `src/lib/actions/link-entities.ts`, `unlink-entities.ts` + index.
 - **pattern:** Triggeron LinkEntity/UnlinkEntity, F5 amoEntityLink.
