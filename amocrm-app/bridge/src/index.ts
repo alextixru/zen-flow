@@ -2,6 +2,7 @@ import cors from '@fastify/cors'
 import Fastify from 'fastify'
 import { config } from './config.js'
 import './db.js'
+import { registerInstall } from './install.js'
 
 const ALLOWED_ORIGIN = /^https:\/\/[a-z0-9][a-z0-9-]*\.amocrm\.ru$/
 
@@ -18,6 +19,8 @@ await app.register(cors, {
 })
 
 app.get('/health', async () => ({ status: 'ok' }))
+
+registerInstall(app)
 
 app.listen({ port: config.port, host: '0.0.0.0' }).catch((error: unknown) => {
     app.log.error(error)

@@ -158,7 +158,7 @@
 - **pattern:** claims — справочник + `research/embed-sdk.md` §3.2.
 - **verify:** tsc + vitest (`jwt.test.ts`: заголовок kid, обязательные claims v3, exp ≈ 1ч); `curl /health` → 200.
 
-### - [ ] W006 — Install-flow: выпуск ключей + POST /install
+### - [x] W006 — Install-flow: выпуск ключей + POST /install
 
 - **spec:** CLI `scripts/issue-key.ts`: генерит ключ (32 байта base64url), пишет строку `pending` в БД, печатает ключ (единственный вывод — в stdout, не в файлы). `POST /install` `{install_key, account_id, subdomain, user}`: валидация входа ДО логики — `subdomain` матчит `^[a-z0-9][a-z0-9-]{0,62}$`, `account_id` — положительное целое, иначе 400 (subdomain дальше уходит в CSP-список форка W008 — порча origin-списка недопустима); ключ существует и (`pending` ИЛИ уже привязан к этому же `account_id`) → привязать/подтвердить (идемпотентно), иначе 403. Виджет: `onSave()` читает `install_key` из `this.get_settings()` + `AMOCRM.constant('account')` → POST на мост; успех/ошибка — уведомление пользователю в модалке настроек; `return true` только при успехе (amo не даст сохранить при false — проверить это поведение живьём). URL моста зашит константой в `script.js` (dev-переопределение придёт с белым бэкдором W013).
 - **files:** `bridge/scripts/issue-key.ts`, `bridge/src/{index.ts,install.ts}`, `widget/script.js`, `widget/i18n/ru.json`.

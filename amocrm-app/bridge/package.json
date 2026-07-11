@@ -6,6 +6,7 @@
   "scripts": {
     "start": "node --env-file=.env --import tsx src/index.ts",
     "sign-jwt": "node --env-file=.env --import tsx scripts/sign-jwt.ts",
+    "issue-key": "node --env-file=.env --import tsx scripts/issue-key.ts",
     "typecheck": "tsc --noEmit",
     "test": "vitest run"
   },
