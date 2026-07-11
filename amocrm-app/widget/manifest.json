@@ -1,0 +1,27 @@
+{
+  "widget": {
+    "name": "widget.name",
+    "description": "widget.description",
+    "short_description": "widget.short_description",
+    "version": "0.1.1",
+    "interface_version": 2,
+    "init_once": false,
+    "locale": ["ru"],
+    "installation": true,
+    "support": {
+      "link": "https://dzen.team",
+      "email": "support@dzen.team"
+    }
+  },
+  "locations": ["settings", "advanced_settings", "lcard-0"],
+  "settings": {
+    "install_key": {
+      "name": "settings.install_key",
+      "type": "text",
+      "required": false
+    }
+  },
+  "advanced": {
+    "title": "advanced.title"
+  }
+}
