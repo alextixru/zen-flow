@@ -31,9 +31,63 @@ define(['jquery'], function ($) {
       return self.params && self.params.widget_code;
     }
 
-    // W002-проба: внешний https-iframe в work-area — измерение поведения CSP amo
-    // и размеров области. В W003 src меняется на embed-SDK форка (configure()).
-    function renderStub() {
+    // PoC W003: конструктор форка через embed-SDK. JWT подписывается вручную
+    // (bridge/scripts/sign-jwt.ts) и подставляется в DEV_EMBED_JWT перед
+    // инжектом/сборкой — в git живёт пустым. С W007 токен придёт с моста.
+    var FORK_URL = 'https://amoai-dev.dzen.team';
+    var EMBED_SDK_VERSION = '0.13.0';
+    var DEV_EMBED_JWT = '';
+
+    // SDK — UMD-бандл, а в amo глобально живёт RequireJS: тег <script> уводит
+    // UMD в ветку define.amd, фабрика не исполняется («Mismatched anonymous
+    // define») и window.activepieces не появляется. Поэтому грузим текстом
+    // (CORS у форка открыт) и исполняем с заслонённым define — UMD падает в
+    // ветку присвоения глобалов.
+    function loadEmbedSdk(done) {
+      if (window.activepieces) {
+        done(true);
+        return;
+      }
+      var store = core();
+      if (store.sdkLoading) {
+        store.sdkLoading.push(done);
+        return;
+      }
+      store.sdkLoading = [done];
+      function finish(ok) {
+        var waiters = store.sdkLoading || [];
+        store.sdkLoading = null;
+        for (var i = 0; i < waiters.length; i++) {
+          waiters[i](ok);
+        }
+      }
+      fetch(FORK_URL + '/embed/' + EMBED_SDK_VERSION + '.js')
+        .then(function (res) {
+          if (!res.ok) {
+            throw new Error('embed sdk http ' + res.status);
+          }
+          return res.text();
+        })
+        .then(function (code) {
+          new Function('define', 'exports', 'module', code)(undefined, undefined, undefined);
+          finish(!!window.activepieces);
+        })
+        .catch(function () {
+          finish(false);
+        });
+    }
+
+    function renderMessage(area, text) {
+      area.innerHTML =
+        '<div style="padding:16px 24px 8px;font-family:inherit;">' +
+        '<h2 style="margin:0 0 4px;font-size:18px;">' +
+        t('advanced.title', 'Автоматизации Dzen.Team') +
+        '</h2>' +
+        '<p style="margin:0;color:#7a8290;">' + text + '</p>' +
+        '</div>';
+    }
+
+    function renderEmbed() {
       var code = widgetCode();
       if (!code) {
         return;
@@ -42,21 +96,38 @@ define(['jquery'], function ($) {
       if (!area) {
         return;
       }
+      if (!DEV_EMBED_JWT) {
+        renderMessage(area, t('advanced.stub', 'Раздел в разработке.'));
+        return;
+      }
       var top = area.getBoundingClientRect().top;
       var height = Math.max(400, Math.round(window.innerHeight - top - 16));
+      var containerId = 'dzenflow-embed-' + code;
+      // Повторный вызов advancedSettings (SPA-переходы) пересоздаёт контейнер —
+      // старый iframe уходит вместе с innerHTML, задвоения нет.
+      // SDK не стилизует основной iframe — растягиваем его на контейнер сами.
       area.innerHTML =
-        '<div style="padding:16px 24px 8px;font-family:inherit;">' +
-        '<h2 style="margin:0 0 4px;font-size:18px;">' +
-        t('advanced.title', 'Автоматизации Dzen.Team') +
-        '</h2>' +
-        '<p style="margin:0;color:#7a8290;">' +
-        t('advanced.stub', 'Раздел в разработке.') +
-        '</p>' +
-        '</div>' +
-        '<iframe id="dzenflow-frame-' + code +
-        '" src="https://example.com/" ' +
-        'style="display:block;width:100%;height:' + height +
-        'px;border:0;" referrerpolicy="no-referrer"></iframe>';
+        '<style>#' + containerId + ' iframe{width:100%;height:100%;border:0;display:block;}</style>' +
+        '<div id="' + containerId + '" style="width:100%;height:' + height + 'px;"></div>';
+      loadEmbedSdk(function (ok) {
+        if (!ok) {
+          renderMessage(area, t('advanced.error', 'Не удалось загрузить конструктор.'));
+          return;
+        }
+        window.activepieces
+          .configure({
+            instanceUrl: FORK_URL,
+            jwtToken: DEV_EMBED_JWT,
+            embedding: {
+              containerId: containerId,
+              locale: 'ru',
+              dashboard: { hideSidebar: true }
+            }
+          })
+          .catch(function () {
+            renderMessage(area, t('advanced.error', 'Не удалось загрузить конструктор.'));
+          });
+      });
     }
 
     this.callbacks = {
@@ -81,7 +152,7 @@ define(['jquery'], function ($) {
         return true;
       },
       advancedSettings: function () {
-        renderStub();
+        renderEmbed();
         return true;
       },
       destroy: function () {},
