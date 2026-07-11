@@ -184,7 +184,7 @@
 - **pattern:** `docs/embedding/predefined-connection.mdx`; `research/embed-sdk.md` §2 (`connect`, externalId-семантика).
 - **verify:** живьём: после install в проекте клиента есть валидный connection (открыть в embedded-UI, статус зелёный); flow с amocrm-триггером активируется без ручного ввода токена.
 
-### - [ ] W010 — Виджет v1: страница «Автоматизации» (advanced_settings)
+### - [x] W010 — Виджет v1: страница «Автоматизации» (advanced_settings)
 
 - **spec:** Собрать боевой `advancedSettings()`: (1) `install_key` из настроек отсутствует → плашка «Введите ключ установки в настройках интеграции» со ссылкой на модалку; (2) ключ есть → POST `/embed-token` на мост → `configure({ instanceUrl, jwtToken, embedding: { containerId, locale:'ru', styling:{ mode: <детект тёмной темы amo — подобрать живьём (класс на body/html); дефолт light> }, dashboard:{hideSidebar:true, hideFlowsPageNavbar:false}, hideFolders:true, hideTables:true, hideGlobalSearch:true, builder:{ homeButtonIcon:'back' } } })`; (3) мост вернул 403 → плашка «ключ недействителен, обратитесь в поддержку»; (4) повторный вызов `advancedSettings()` (переходы по amo туда-обратно) → очистить контейнер перед новым `configure()`, iframe не задваивается; (5) сетевая ошибка моста / недоступный форк / не загрузился embed-скрипт → плашка «сервис временно недоступен» (ключ в i18n), без необработанных promise rejection в консоли. Высота iframe — по замерам W002. Версию embed-скрипта зашить (0.13.0), грузить с `FORK_URL`.
 - **files:** `widget/script.js`, `widget/i18n/ru.json`.

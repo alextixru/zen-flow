@@ -31,15 +31,11 @@ define(['jquery'], function ($) {
       return self.params && self.params.widget_code;
     }
 
-    // PoC W003: конструктор форка через embed-SDK. JWT подписывается вручную
-    // (bridge/scripts/sign-jwt.ts) и подставляется в DEV_EMBED_JWT перед
-    // инжектом/сборкой — в git живёт пустым. С W007 токен придёт с моста.
-    var FORK_URL = 'https://amoai-dev.dzen.team';
     var EMBED_SDK_VERSION = '0.13.0';
-    var DEV_EMBED_JWT = '';
 
     // Мост Dzen.Team (тот же SSH-туннель, путь /bridge). Dev-переопределение
-    // придёт с белым бэкдором (W013); пока зашито константой.
+    // придёт с белым бэкдором (W013); пока зашито константой. instanceUrl
+    // конструктора отдаёт сам мост в ответе /embed-token.
     var BRIDGE_URL = 'https://amoai-dev.dzen.team/bridge';
 
     function amoConstant(name) {
@@ -106,7 +102,7 @@ define(['jquery'], function ($) {
     // define») и window.activepieces не появляется. Поэтому грузим текстом
     // (CORS у форка открыт) и исполняем с заслонённым define — UMD падает в
     // ветку присвоения глобалов.
-    function loadEmbedSdk(done) {
+    function loadEmbedSdk(baseUrl, done) {
       if (window.activepieces) {
         done(true);
         return;
@@ -124,7 +120,7 @@ define(['jquery'], function ($) {
           waiters[i](ok);
         }
       }
-      fetch(FORK_URL + '/embed/' + EMBED_SDK_VERSION + '.js')
+      fetch(baseUrl + '/embed/' + EMBED_SDK_VERSION + '.js')
         .then(function (res) {
           if (!res.ok) {
             throw new Error('embed sdk http ' + res.status);
@@ -150,19 +146,23 @@ define(['jquery'], function ($) {
         '</div>';
     }
 
-    function renderEmbed() {
-      var code = widgetCode();
-      if (!code) {
-        return;
-      }
-      var area = document.getElementById('work-area-' + code);
-      if (!area) {
-        return;
-      }
-      if (!DEV_EMBED_JWT) {
-        renderMessage(area, t('advanced.stub', 'Раздел в разработке.'));
-        return;
-      }
+    // amo рисует тёмную тему добавлением класса на body/html. Точный класс не
+    // подтверждён живьём (headless без сессии) — эвристика по 'night'/'dark',
+    // дефолт light. ponytail: уточнить селектор при первой живой проверке.
+    function detectStylingMode() {
+      try {
+        var cls =
+          ((document.body && document.body.className) || '') +
+          ' ' +
+          (document.documentElement.className || '');
+        if (/(theme[-_]?night|\bnight\b|\bdark\b)/i.test(cls)) {
+          return 'dark';
+        }
+      } catch (e) {}
+      return 'light';
+    }
+
+    function mountEmbed(area, code, instanceUrl, jwtToken) {
       var top = area.getBoundingClientRect().top;
       var height = Math.max(400, Math.round(window.innerHeight - top - 16));
       var containerId = 'dzenflow-embed-' + code;
@@ -172,25 +172,86 @@ define(['jquery'], function ($) {
       area.innerHTML =
         '<style>#' + containerId + ' iframe{width:100%;height:100%;border:0;display:block;}</style>' +
         '<div id="' + containerId + '" style="width:100%;height:' + height + 'px;"></div>';
-      loadEmbedSdk(function (ok) {
+      loadEmbedSdk(instanceUrl, function (ok) {
         if (!ok) {
-          renderMessage(area, t('advanced.error', 'Не удалось загрузить конструктор.'));
+          renderMessage(area, t('advanced.unavailable', 'Сервис временно недоступен.'));
           return;
         }
         window.activepieces
           .configure({
-            instanceUrl: FORK_URL,
-            jwtToken: DEV_EMBED_JWT,
+            instanceUrl: instanceUrl,
+            jwtToken: jwtToken,
             embedding: {
               containerId: containerId,
               locale: 'ru',
-              dashboard: { hideSidebar: true }
+              styling: { mode: detectStylingMode() },
+              dashboard: { hideSidebar: true, hideFlowsPageNavbar: false },
+              hideFolders: true,
+              hideTables: true,
+              hideGlobalSearch: true,
+              builder: { homeButtonIcon: 'back' }
             }
           })
           .catch(function () {
-            renderMessage(area, t('advanced.error', 'Не удалось загрузить конструктор.'));
+            renderMessage(area, t('advanced.unavailable', 'Сервис временно недоступен.'));
           });
       });
+    }
+
+    function renderEmbed() {
+      var code = widgetCode();
+      if (!code) {
+        return;
+      }
+      var area = document.getElementById('work-area-' + code);
+      if (!area) {
+        return;
+      }
+      var settings = self.get_settings ? self.get_settings() : null;
+      var key = settings && settings.install_key ? String(settings.install_key).replace(/^\s+|\s+$/g, '') : '';
+      if (!key) {
+        renderMessage(area, t('advanced.no_key', 'Введите ключ установки в настройках интеграции (кнопка «Настроить») и сохраните.'));
+        return;
+      }
+      var account = amoConstant('account');
+      var user = amoConstant('user');
+      if (!account || !account.id) {
+        renderMessage(area, t('advanced.unavailable', 'Сервис временно недоступен.'));
+        return;
+      }
+      fetch(BRIDGE_URL + '/embed-token', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          install_key: key,
+          account_id: account.id,
+          user: user ? { id: user.id, name: user.name } : null
+        })
+      })
+        .then(function (res) {
+          if (res.status === 403) {
+            renderMessage(area, t('advanced.invalid_key', 'Ключ установки недействителен. Обратитесь в поддержку Dzen.Team.'));
+            return null;
+          }
+          if (!res.ok) {
+            renderMessage(area, t('advanced.unavailable', 'Сервис временно недоступен.'));
+            return null;
+          }
+          return res.json();
+        })
+        .then(function (data) {
+          if (data === null) {
+            return;
+          }
+          if (!data || !data.jwtToken || !data.instanceUrl) {
+            renderMessage(area, t('advanced.unavailable', 'Сервис временно недоступен.'));
+            return;
+          }
+          mountEmbed(area, code, data.instanceUrl, data.jwtToken);
+        })
+        .catch(function () {
+          renderMessage(area, t('advanced.unavailable', 'Сервис временно недоступен.'));
+        });
     }
 
     this.callbacks = {
