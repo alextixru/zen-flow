@@ -373,7 +373,7 @@
 - **files:** только `ralph/activity.md` (+ чекбокс).
 - **verify:** сам прогон и есть верификация; `git status` чист от временных правок.
 
-### - [ ] T039 — Апгрейд wait-экшенов на poll-цикл (УСЛОВНАЯ: только если T038 подтвердил ре-паузу)
+### - [x] T039 — Апгрейд wait-экшенов на poll-цикл (УСЛОВНАЯ: только если T038 подтвердил ре-паузу)
 - **spec:** если T038 = «работает»: перевести `wait_for_task_completed` и `wait_for_customer_reply` с account-wide вебхук-резюма на DELAY-цикл: BEGIN — создать задачу (T026) / зафиксировать контекст (T027), `createWaitpoint({ type: 'DELAY', resumeDateTime: now + interval })`, store `{ taskId | контекст, cursor }`; RESUME — проверить через `amoEvents.fetchEvents` (`task_completed` + `filter[entity_id]={taskId}` / `incoming_chat_message` + фильтр по контакту/сделке из события): выполнено → вернуть результат; нет → новый DELAY-waitpoint (интервал: prop `check_interval_minutes`, default 5, потолок общего ожидания — prop `timeout_hours`, default 24, по истечении вернуть `{ timed_out: true }`). Вебхук-подписку и её лимит ~100 это устраняет; account-wide-резюм «на первое событие в аккаунте» — тоже (точный per-task/per-contact). Старую вебхук-механику удалить, `ponytail:`-комменты обновить. Если T038 = «не работает»/BLOCKED — пометить задачу ` — BLOCKED: ре-пауза не подтверждена (T038)` и НЕ трогать рабочие экшены.
 - **files:** `src/lib/actions/wait-for-task-completed.ts`, `wait-for-customer-reply.ts`.
 - **verify:** общий + живой прогон обоих flow на локальном стенде (пауза → ре-паузы → резюм по факту события; таймаут — сокращённым интервалом). Это P2-качество: без живого прогона чекбокс не ставить (partial по правилам PROMPT.md).
