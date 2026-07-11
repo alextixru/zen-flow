@@ -96,6 +96,11 @@
   "Contact Name": "Contact Name",
   "First Name": "First Name",
   "Last Name": "Last Name",
+  "Create Company": "Create Company",
+  "Creates a new company in amoCRM.": "Creates a new company in amoCRM.",
+  "Update Company": "Update Company",
+  "Updates an existing company in amoCRM. Only the provided fields are changed.": "Updates an existing company in amoCRM. Only the provided fields are changed.",
+  "Company Name": "Company Name",
   "Incoming Message": "Incoming Message",
   "Triggers when a new chat message is received. Requires a connected chat channel (amoJo/talks); the messaging scope must be enabled on the account.": "Triggers when a new chat message is received. Requires a connected chat channel (amoJo/talks); the messaging scope must be enabled on the account."
 }
