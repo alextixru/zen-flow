@@ -175,7 +175,7 @@
 - **pattern:** kommo create/update contact + T005.
 - **verify:** общий.
 
-### - [ ] T014 — create/update company
+### - [x] T014 — create/update company
 - **spec:** `create_company`: `name`, `responsible_user_id`, `tags`, `custom_fields` (`entity:'companies'`). `POST /companies` массив. `update_company`: `company_id` + `PATCH /companies/{id}`.
 - **files:** `src/lib/actions/create-company.ts`, `update-company.ts` + index.
 - **verify:** общий.
