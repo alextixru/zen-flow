@@ -89,6 +89,13 @@
   "Lead Name": "Lead Name",
   "Price": "Price",
   "Tags": "Tags",
+  "Create Contact": "Create Contact",
+  "Creates a new contact in amoCRM.": "Creates a new contact in amoCRM.",
+  "Update Contact": "Update Contact",
+  "Updates an existing contact in amoCRM. Only the provided fields are changed.": "Updates an existing contact in amoCRM. Only the provided fields are changed.",
+  "Contact Name": "Contact Name",
+  "First Name": "First Name",
+  "Last Name": "Last Name",
   "Incoming Message": "Incoming Message",
   "Triggers when a new chat message is received. Requires a connected chat channel (amoJo/talks); the messaging scope must be enabled on the account.": "Triggers when a new chat message is received. Requires a connected chat channel (amoJo/talks); the messaging scope must be enabled on the account."
 }
