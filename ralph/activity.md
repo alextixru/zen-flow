@@ -2,6 +2,13 @@
 
 Хронологический лог итераций. Одна запись на итерацию/задачу. Новые записи — сверху вниз в порядке выполнения.
 
+### 2026-07-11 — T008: Триггеры company (4 шт)
+- Статус: done
+- Изменения: 4 триггера через `createAmoWebhookTrigger` (T004) — `company-added.ts` (`add_company`, `companies.add`), `company-updated.ts` (`update_company`, `companies.update`), `company-responsible-changed.ts` (`responsible_company`, `companies.responsible`), `company-deleted.ts` (`delete_company`, `companies.delete`, `fetchFullRecord: false`, sampleData `{id}`); общий `company-sample.ts` (полный company-объект, переиспользуется 3 триггерами — как lead/contact-sample); регистрация в `triggers/index.ts` (импорт + массив `amocrmTriggers`, +4); i18n +8 ключей (displayName/description). entityType `companies`, у add/update/responsible — дефолтный `test()` фабрики. aiMetadata у каждого. Прямое зеркало T007, без новой логики.
+- Команды: `npx turbo run lint --filter=@activepieces/piece-amocrm` — pass (5/5); `npx turbo run build --filter=@activepieces/piece-amocrm` — pass (5/5); `npm run lint-dev` — 0 errors (72 предсуществующих warning в web, вне скоупа).
+- Верификация: pass. Дифф — 4 идентичных вызова фабрики + sample + регистрация; ручная сверка (уникальность name, регистрация в index+массиве, i18n identity, payload-пути по справочнику `companies.add/update/responsible/delete`) — находок нет; отдельный code-review излишен для механического зеркала T007 (фабрика T004 провалидирована живым вебхуком в T006). Токен-чек: `git diff | grep -c eyJ0` = 0.
+- Блокеры: нет.
+
 ## Формат записи
 
 ```

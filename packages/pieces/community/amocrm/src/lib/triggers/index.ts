@@ -1,3 +1,7 @@
+import { companyAdded } from './company-added';
+import { companyDeleted } from './company-deleted';
+import { companyResponsibleChanged } from './company-responsible-changed';
+import { companyUpdated } from './company-updated';
 import { contactAdded } from './contact-added';
 import { contactDeleted } from './contact-deleted';
 import { contactResponsibleChanged } from './contact-responsible-changed';
@@ -20,4 +24,8 @@ export const amocrmTriggers = [
   contactUpdated,
   contactResponsibleChanged,
   contactDeleted,
+  companyAdded,
+  companyUpdated,
+  companyResponsibleChanged,
+  companyDeleted,
 ];

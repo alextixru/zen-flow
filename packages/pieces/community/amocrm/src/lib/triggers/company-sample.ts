@@ -1,0 +1,19 @@
+export const companySample = {
+  id: 11812379,
+  name: 'Acme Inc.',
+  responsible_user_id: 13290567,
+  group_id: 0,
+  created_by: 13290567,
+  updated_by: 13290567,
+  created_at: 1748800059,
+  updated_at: 1748800060,
+  is_deleted: false,
+  closest_task_at: null,
+  custom_fields_values: null,
+  account_id: 34678947,
+  _embedded: {
+    tags: [],
+    contacts: [],
+    leads: [],
+  },
+};

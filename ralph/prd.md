@@ -133,7 +133,7 @@
 - **files:** `src/lib/triggers/contact-*.ts` (4) + index.
 - **verify:** общий.
 
-### - [ ] T008 — Триггеры company (4 шт)
+### - [x] T008 — Триггеры company (4 шт)
 - **spec:** `company_added` (`add_company`, `companies.add`), `company_updated` (`update_company`, `companies.update`), `company_responsible_changed` (`responsible_company`, `companies.responsible`), `company_deleted` (`delete_company`, `companies.delete`). entityType `companies`.
 - **files:** `src/lib/triggers/company-*.ts` (4) + index.
 - **verify:** общий.

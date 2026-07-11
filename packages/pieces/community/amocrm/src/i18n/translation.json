@@ -63,5 +63,13 @@
   "Contact Responsible User Changed": "Contact Responsible User Changed",
   "Triggers when the responsible user of a contact changes.": "Triggers when the responsible user of a contact changes.",
   "Contact Deleted": "Contact Deleted",
-  "Triggers when a contact is deleted.": "Triggers when a contact is deleted."
+  "Triggers when a contact is deleted.": "Triggers when a contact is deleted.",
+  "Company Added": "Company Added",
+  "Triggers when a new company is created.": "Triggers when a new company is created.",
+  "Company Updated": "Company Updated",
+  "Triggers when a company is updated.": "Triggers when a company is updated.",
+  "Company Responsible User Changed": "Company Responsible User Changed",
+  "Triggers when the responsible user of a company changes.": "Triggers when the responsible user of a company changes.",
+  "Company Deleted": "Company Deleted",
+  "Triggers when a company is deleted.": "Triggers when a company is deleted."
 }
