@@ -210,7 +210,7 @@
 - **pattern:** Triggeron LinkEntity/UnlinkEntity, F5 amoEntityLink.
 - **verify:** общий.
 
-### - [ ] T019 — search / find entity
+### - [x] T019 — search / find entity
 - **spec:** `find_entity`: props `entity_type` (leads/contacts/companies), `query` (ShortText, полнотекст amo `query=`), опциональные `filter_field`/`filter_value` (один `filter[<field>]=<value>`), `sort` (StaticDropdown: `updated_at`/`created_at`, опц. `order` asc/desc → amo `order[<field>]=<dir>`), `limit` (default 50, max 250). `GET /{entity_type}?query=...&filter[<field>]=...&order[...]=...&limit=&with=contacts,companies` → вернуть массив `_embedded[entity_type]` (Router добьёт ветвление finded/not-found; amo отдаёт 204/пустой `_embedded` при отсутствии — вернуть `[]`, не падать). Отдельные тонкие `find_lead`/`find_contact`/`find_company` не нужны — один action с dropdown сущности (ponytail: не плодить 3 копии).
 - **Потолок (осознанное упрощение vs Triggeron SearchEntity):** референс поддерживает N фильтров + AND/OR-комбинацию + выбор поля сортировки из полного списка. Мы даём ОДИН фильтр без AND/OR. Причина: сложные условия на платформе добираются несколькими шагами find + Router/фильтрами; полноценный конструктор условий — over-engineering для ночного цикла. `ponytail:`-коммент: один filter-пара; мульти-условия — через несколько шагов + Router, upgrade при спросе. **Синтаксис amo filter не тривиален** (кастомные поля — `filter[custom_fields_values][<field_id>][]=`, статусы — `filter[statuses][0][pipeline_id]=`): в MVP поддержать простые верхнеуровневые поля (`filter[name]`, `filter[responsible_user_id]`, `filter[id]`), в description честно указать, что фильтр по кастом-полям — вне этого action (использовать `query`).
 - **files:** `src/lib/actions/find-entity.ts` + index.

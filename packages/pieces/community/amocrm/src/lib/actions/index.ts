@@ -5,6 +5,7 @@ import { createContact } from './create-contact';
 import { createLead } from './create-lead';
 import { createNote } from './create-note';
 import { createTask } from './create-task';
+import { findEntity } from './find-entity';
 import { linkEntities } from './link-entities';
 import { removeAllTags } from './remove-all-tags';
 import { removeTags } from './remove-tags';
@@ -30,4 +31,5 @@ export const amocrmActions = [
   removeAllTags,
   linkEntities,
   unlinkEntities,
+  findEntity,
 ];

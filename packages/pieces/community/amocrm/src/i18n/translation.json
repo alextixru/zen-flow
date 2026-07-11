@@ -145,5 +145,20 @@
   "Link To Entity Type": "Link To Entity Type",
   "Link To Entity": "Link To Entity",
   "Unlink From Entity Type": "Unlink From Entity Type",
-  "Unlink From Entity": "Unlink From Entity"
+  "Unlink From Entity": "Unlink From Entity",
+  "Find Entity": "Find Entity",
+  "Searches leads, contacts or companies by full-text query and/or a single field filter.": "Searches leads, contacts or companies by full-text query and/or a single field filter.",
+  "Search Query": "Search Query",
+  "Full-text search across the entity fields.": "Full-text search across the entity fields.",
+  "Filter Field": "Filter Field",
+  "A single top-level field to filter by, e.g. name, responsible_user_id or id. Custom fields are not supported — use the query.": "A single top-level field to filter by, e.g. name, responsible_user_id or id. Custom fields are not supported — use the query.",
+  "Filter Value": "Filter Value",
+  "Sort Field": "Sort Field",
+  "Updated At": "Updated At",
+  "Created At": "Created At",
+  "Sort Order": "Sort Order",
+  "Descending": "Descending",
+  "Ascending": "Ascending",
+  "Limit": "Limit",
+  "Maximum number of records to return (max 250).": "Maximum number of records to return (max 250)."
 }
