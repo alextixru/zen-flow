@@ -368,7 +368,7 @@
 - **files:** `src/lib/triggers/event-occurred.ts` + index.
 - **verify:** общий + живой smoke test(): мультиселект из 2-3 типов отдаёт реальные события стенда.
 
-### - [ ] T038 — Spike: ре-пауза (DELAY-цикл) в piece-экшене
+### - [x] T038 — Spike: ре-пауза (DELAY-цикл) в piece-экшене
 - **spec:** исследовательская задача, КОД В КОММИТ НЕ ВХОДИТ (кроме записи в activity.md). Вопрос: может ли action на RESUME снова создать waitpoint (`createWaitpoint({ type: 'DELAY', resumeDateTime })` → `waitForWaitpoint`) и запаузиться повторно — движок по коду не запрещает (`packages/server/engine/src/lib/handler/piece-executor.ts` — executionType из `isPaused`, verdict PAUSED ставится одинаково), но ни один core-piece так не делает. Метод: поднять локальный стенд (см. память `local-preview-setup`: прод-превью без Docker, PGLite, порты 8081/8082), собрать flow с ВРЕМЕННО модифицированным `wait_for_task_completed` (локальная правка: на RESUME при незавершённой задаче — DELAY-waitpoint на 1 мин вместо возврата), прогнать: пауза → резюм → ре-пауза → второй резюм. Временную правку ОТКАТИТЬ (`git checkout -- <файл>`), в коммит идёт только `ralph/activity.md` + чекбокс. Вердикт в activity.md: «ре-пауза работает / не работает / не смог проверить (причина)» + фактические наблюдения (логи run). Если локальный рантайм поднять не удалось за разумное время — пометить `BLOCKED: нет доступного рантайма`, T039 при этом тоже станет BLOCKED.
 - **files:** только `ralph/activity.md` (+ чекбокс).
 - **verify:** сам прогон и есть верификация; `git status` чист от временных правок.
