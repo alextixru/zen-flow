@@ -292,6 +292,97 @@
 
 ---
 
+## Фаза 6 — Events API (лента событий): poll + doorbell
+
+### Справочник Events API (общий для T029–T039)
+
+- **`GET /api/v4/events`** — лента событий аккаунта. Пагинация `page`/`limit` (**макс 100**, не 250). Фильтры: `filter[created_at][from|to]` (unix-секунды), `filter[type][]` (массив имён типов), `filter[entity][]` (lead/contact/company/task/…), `filter[entity_id][]`, `filter[created_by][]` (до 10), `filter[value_after]`/`filter[value_before]` (leads_statuses/responsible_user_id/custom_field_values). `with=contact_name,lead_name,company_name` — обогащение именами. Точные формы `filter[entity]`+`filter[entity_id]` и `filter[value_after]` — **сверить живьём в T029** (PHP SDK: `amocrm-api-php/src/AmoCRM/Filters/EventsFilter.php`).
+- **Объект события:** `{ id: string, type, entity_id, entity_type, created_by, created_at (секунды), value_after: [], value_before: [], account_id }`. Формат `id` (ULID/числовая строка) и порядок ответа (заявлен desc по created_at) — сверить живьём в T029.
+- **`GET /api/v4/events/types?language_code=ru`** — каталог типов аккаунта (`key`, `type`, `lang`). На dzenteamdev ~209 типов: ~84 стандартных + 20 security + ~106 per-field `custom_field_{FIELD_ID}_value_changed` (все `type: 24`).
+- **Эксклюзивность per-field:** если в `filter[type]` передан `custom_field_{ID}_value_changed`, другие типы в тот же запрос добавлять НЕЛЬЗЯ (ограничение amo). Один per-field триггер = свой запрос.
+- **История бессрочна** → курсор ВСЕГДА инициализируется `now` при enable; никогда не запрашивать с `from=0`.
+- **Rate limit:** общий ~7 rps аккаунта. Поллинг раз в минуту с потолком страниц — незаметен; НЕ добавлять к событиям автоматическую догрузку сущностей (`Promise.all` по 100 GET при бурсте = проблема): событие уже несёт `entity_id` + `value_before/after`, полная сущность добирается отдельным шагом `find_entity` (`filter[id]`).
+- **Индустриальный паттерн блока:** «doorbell» (Microsoft Graph notification + delta pull) — push-вебхук amo будит триггер, данные берутся из `/events` по курсору. Где push-звонка нет (звонки, talks) — чистый поллинг с курсором.
+
+### - [ ] T029 — common/events.ts: клиент Events API + курсорная механика
+- **spec:** `amoEvents = { fetchEvents, fetchEventTypes, advanceCursor }`.
+  - `fetchEvents({ auth, from, types?, entity?, entityIds?, limit?, maxPages? })` — `GET /events` через `amoClient.makeRequest`, query через `URLSearchParams` (брекеты amo-фильтров), пагинация page++ до отсутствия `_links.next`/пустого `_embedded.events`, **жёсткий потолок `maxPages` (default 5 = 500 событий)**; 204/пустое тело → `[]`. Возврат — плоский массив событий (иммутабельно).
+  - `fetchEventTypes({ auth })` — `GET /events/types?language_code=ru` → массив `{key, type, lang}` (через `fetchAllPages` если пагинируется — проверить живьём).
+  - `advanceCursor({ events, cursor })` — **чистая функция** курсора: `cursor = { lastCreatedAt: number, lastIds: string[] }` (id событий с `created_at === lastCreatedAt` — защита от двух событий в одну секунду). Отфильтровывает события с `created_at < lastCreatedAt` и с `id ∈ lastIds`, возвращает `{ fresh, next }` (новый курсор). Запрос делается с `from = lastCreatedAt` (секундный перехлёст покрывается lastIds-дедупом). Оба вида триггеров (T030 poll, T031 doorbell) используют ЭТУ функцию — `pollingHelper`/`DedupeStrategy` из pieces-common НЕ использовать (`ponytail:`-коммент: его TIMEBASED теряет событие в ту же секунду, LAST_ITEM дедупит по одному id; своя функция проще и тестируемее).
+- **files:** `src/lib/common/events.ts` + колокейт `events.test.ts`, реэкспорт в `common/index.ts`.
+- **живой smoke (обязателен, зафиксировать в activity.md):** `GET /events?limit=5` — формат `id` (строка? ULID?), порядок сортировки (desc?); `GET /events/types?language_code=ru` — выгрузить каталог типов, число типов и ~10 ключевых `key` записать в activity (дамп `dzenteamdev_event_types.json` из ранней разведки утерян); форма `filter[entity]`/`filter[entity_id]` (запрос по конкретной сделке); форма `filter[type][]` c двумя типами; поведение `filter[created_at][from]` (включительно или нет — влияет на перехлёст).
+- **verify:** общий + `events.test.ts`: `advanceCursor` — дедуп на границе секунды (два события в одну секунду, одно уже виденное), пустой вход, продвижение курсора; `fetchEvents` — склейка 2 страниц + остановка по потолку `maxPages` (мок httpClient, паттерн `client.test.ts`).
+
+### - [ ] T030 — Poll-фабрика createAmoEventsPollingTrigger
+- **spec:** `createAmoEventsPollingTrigger({ name, displayName, description, aiMetadata, types | typesFromProps?, entity?, props?, sampleData })` → `createTrigger` с `TriggerStrategy.POLLING`.
+  - `onEnable`: `context.store.put('cursor', { lastCreatedAt: nowSeconds, lastIds: [] })`; запросить минутное расписание `context.setSchedule({ cronExpression: '* * * * *' })` (дефолт платформы 5 мин — `AP_TRIGGER_DEFAULT_POLL_INTERVAL`; механика: `packages/server/engine/src/lib/helper/trigger-helper.ts` → `scheduleOptions`). Если `setSchedule` в текущем typings триггер-контекста отсутствует — оставить дефолт платформы, `ponytail:`-коммент, НЕ лезть в ядро.
+  - `run`: прочитать курсор (нет → инициализировать now и вернуть `[]`), `fetchEvents({ from: cursor.lastCreatedAt, types, ... })`, `advanceCursor`, записать `next`, вернуть `fresh` (каждое событие — отдельный item). Курсор двигается ТОЛЬКО по фактически возвращённым событиям — при упоре в потолок страниц события не теряются, доберутся следующим тиком.
+  - `test`: `fetchEvents({ from: nowSeconds - 7*86400, limit: 5, maxPages: 1, types })` — последние события за неделю, курсор НЕ трогать; пусто → `[sampleData]`.
+  - `onDisable`: `store.delete('cursor')`.
+- **files:** `src/lib/common/events-polling.ts` (или в `events.ts` рядом), реэкспорт.
+- **pattern:** webhook-фабрика T004 (`common/webhooks.ts`) — та же форма опций/гвардов; `TriggerStrategy.POLLING` — см. `packages/pieces/community/freshservice/src/lib/triggers/updated-ticket.ts` (форма триггера, НЕ его pollingHelper).
+- **verify:** общий (фабрика без потребителя проверяется с T035/T037; типы без any/as).
+
+### - [ ] T031 — Doorbell-фабрика createAmoDoorbellTrigger + живая проверка покрытия
+- **spec:** `createAmoDoorbellTrigger({ name, displayName, description, aiMetadata, webhookEvents, eventTypes | eventTypesFromProps?, entity?, props?, filterEvent?, sampleData })` → `createTrigger` с `TriggerStrategy.WEBHOOK`. Паттерн «notification + delta pull»: вебхук amo — только будильник, данные — из `/events`.
+  - `onEnable`: `POST /webhooks { destination, settings: webhookEvents }` (реюз механики T004) + `store.put('cursor', { lastCreatedAt: nowSeconds, lastIds: [] })`.
+  - `onDisable`: `DELETE /webhooks { destination }` + `store.delete('cursor')`.
+  - `run`: payload вебхука НЕ парсить на данные (только как сигнал; опционально извлечь `entity_id` для сужения `fetchEvents`, если T029 подтвердил форму `filter[entity_id]`); `fetchEvents({ from: cursor.lastCreatedAt, types: eventTypes })` → `advanceCursor` → store → вернуть `fresh` (опц. `filterEvent(event, propsValue)` для фильтра по props — например статус/тег). **Если `fresh` пуст** (лента отстаёт от вебхука — задержка индексации) — вернуть `[]`, курсор НЕ двигать; событие доберётся при следующем звонке. Задержку ленты проверить живьём (см. smoke) и зафиксировать.
+  - `test`: как в T030 (последние события за неделю по `eventTypes`).
+- **живой smoke покрытия «звонков» (обязателен, результаты в activity.md — от них зависят T032/T033/T036):** на стенде подписать вебхук `update_lead` на webhook.site-подобный приёмник (или локальный), затем: (1) изменить кастом-поле сделки; (2) изменить бюджет; (3) добавить/снять тег. Для каждого зафиксировать: пришёл ли `update_lead` и с какой задержкой появилось соответствующее событие в `GET /events`. Если какой-то мутации звонок НЕ приходит — соответствующий триггер делать на poll-фабрике T030 (отметить в activity).
+- **files:** `src/lib/common/events-doorbell.ts`, реэкспорт.
+- **verify:** общий. Чистая логика курсора уже покрыта тестом T029 — новый тест не нужен, если run() не содержит новой чистой арифметики.
+
+### - [ ] T032 — Триггер custom_field_changed (per-field, doorbell)
+- **spec:** `custom_field_changed` через doorbell-фабрику T031. Props: `entity` (StaticDropdown leads/contacts/companies, default leads) + `field_id` (`Property.Dropdown`, refresher `['entity']`, options из `customFieldsUtils.fetchCustomFieldsMeta({ auth: auth.props, entity })` — label `field.name`, value `field.id`). `webhookEvents` по entity: `update_lead`/`update_contact`/`update_company`. `eventTypes: ['custom_field_' + field_id + '_value_changed']` (динамически из props — фабрика должна поддерживать `eventTypesFromProps`). Выход — событие целиком (`value_before`/`value_after` — главная ценность). `ponytail:`-коммент про эксклюзивность per-field фильтра (один триггер = одно поле = свой запрос). В description: предупреждение о цикле «этот триггер + action, меняющий то же поле, зациклит flow» и что полная сущность добирается шагом `find_entity` по `filter[id]`.
+- **files:** `src/lib/triggers/custom-field-changed.ts` + index.
+- **verify:** общий + живой e2e на стенде: включить-подобный replay — изменить поле через `PATCH /leads/{id}`, убедиться `GET /events?filter[type]=custom_field_{ID}_value_changed` отдаёт событие с корректными value_before/after (форму записать в sampleData с реального события).
+
+### - [ ] T033 — Триггеры sale_field_changed + lead_entered_stage (doorbell)
+- **spec:** два триггера через T031.
+  - `budget_changed`: `webhookEvents: ['update_lead']`, `eventTypes: ['sale_field_changed']`. Без props. Выход — событие (value_before/after = старый/новый бюджет).
+  - `lead_entered_stage`: `webhookEvents: ['status_lead']`, `eventTypes: ['lead_status_changed']`, props `pipelineId` (`pipelineDropdown`) + `statusId` (`statusDropdown`, refresher pipelineId) — оба required; `filterEvent`: событие проходит, если `value_after[].lead_status.id === statusId` (форма `value_after` для смены статуса: `[{ lead_status: { id, pipeline_id } }]` — сверить с реального события). Отличие от вебхучного `lead_status_changed` (T006): срабатывает только на вход В ВЫБРАННЫЙ статус + отдаёт `value_before` (откуда пришла) — описать в description обоих триггеров перекрёстно.
+- **files:** `src/lib/triggers/budget-changed.ts`, `lead-entered-stage.ts` + index.
+- **verify:** общий + живой replay: смена статуса/бюджета на стенде → событие в `/events` с ожидаемыми value_before/after (sampleData — с реального события).
+
+### - [ ] T034 — Action find_events (история изменений сущности)
+- **spec:** `find_events`: props `entity_type` (StaticDropdown leads/contacts/companies/tasks + опция «любая», optional), `entity_id` (`linkedEntityDropdown` refresher entity_type, optional), `event_types` (`Property.MultiSelectDropdown`, options из `fetchEventTypes` — label локализованный `lang`, value `key`; per-field типы включать в options можно, но при выборе per-field типа он должен быть ЕДИНСТВЕННЫМ — валидировать в `run` с читаемой ошибкой), `created_by` (`userDropdown`, optional), `from`/`to` (DateTime, optional), `limit` (Number, default 50, потолок 100). `GET /events` через `amoEvents.fetchEvents`, вернуть массив событий как есть (204 → `[]`). `aiMetadata`: «Audit history: who changed what and when on a CRM entity» — это AI-tool первого класса, `idempotent: true`.
+- **files:** `src/lib/actions/find-events.ts` + index.
+- **verify:** общий + живой smoke: запрос истории реальной сделки стенда с фильтром по типу и по created_by — форма ответа совпадает с извлечением.
+
+### - [ ] V006 — Чекпоинт-валидация блока T029–T034
+- **spec:** общая спецификация V-задач. Блок: клиент событий, обе фабрики, per-field триггер, doorbell-триггеры, find_events. Особое внимание: курсор НЕ выгружает историю при первом enable (инициализация now); дедуп на границе секунды покрыт тестом; курсор не двигается при упоре в потолок страниц и при пустой дельте doorbell; per-field эксклюзивность задокументирована и валидируется в find_events; вебхук-подписки doorbell-триггеров симметричны (enable/disable); результаты живых smoke (формат id, порядок, задержка ленты, покрытие звонков) зафиксированы в activity.md, а не «предположены».
+
+### - [ ] T035 — Poll-триггеры звонков: incoming_call / outgoing_call
+- **spec:** два триггера через poll-фабрику T030 (push-звонка у телефонии нет — единственный внешний путь): `incoming_call` (`eventTypes: ['incoming_call']`), `outgoing_call` (`['outgoing_call']`). Props: опц. `created_by` (`userDropdown`) — фильтр по менеджеру в `filterEvent`. В description: телефония должна быть подключена в amo; задержка до 1 мин (поллинг).
+- **files:** `src/lib/triggers/incoming-call.ts`, `outgoing-call.ts` + index.
+- **verify:** общий. Живая проверка формы payload события звонка — насколько позволит стенд (телефонии может не быть → sampleData best-guess по докам с пометкой «непроверено живьём» в activity.md, задачу НЕ блокировать).
+
+### - [ ] T036 — Триггеры тегов: entity_tag_added / entity_tag_deleted
+- **spec:** два триггера: `eventTypes: ['entity_tag_added']` / `['entity_tag_deleted']`. **Механизм — по результату smoke T031:** если смена тегов будит `update_{entity}` — doorbell-фабрика (webhookEvents по выбранной entity); иначе — poll-фабрика. Props: `entity` (StaticDropdown leads/contacts/companies, default leads; для poll — фильтр по `entity_type` в `filterEvent`), опц. `tag_name` (ShortText — фильтр в `filterEvent` по имени тега из `value_after`/`value_before`, форму снять с реального события). Задокументировать выбранный механизм в activity.md со ссылкой на smoke T031.
+- **files:** `src/lib/triggers/entity-tag-added.ts`, `entity-tag-deleted.ts` + index.
+- **verify:** общий + живой replay: добавить/снять тег на стенде → событие с формой value_after/before (sampleData — с реального).
+
+### - [ ] T037 — Универсальный триггер event_occurred
+- **spec:** `event_occurred` через poll-фабрику T030 — «хвост» каталога одним файлом (entity_linked/unlinked, entity_merged, invoice_paid, nps_rate_added, talk_created/closed, intent_identified, ai_result, robot_replied, transaction_added, …). Props: `event_types` (`Property.MultiSelectDropdown`, required, options из `fetchEventTypes`, **per-field типы (type 24) ИСКЛЮЧИТЬ из options** — для них есть T032; `ponytail:`-коммент), опц. `entity` StaticDropdown — фильтр в `filterEvent`. Description: «продвинутый триггер на любое событие ленты amoCRM; для полей/статусов/тегов используйте специализированные триггеры».
+- **files:** `src/lib/triggers/event-occurred.ts` + index.
+- **verify:** общий + живой smoke test(): мультиселект из 2-3 типов отдаёт реальные события стенда.
+
+### - [ ] T038 — Spike: ре-пауза (DELAY-цикл) в piece-экшене
+- **spec:** исследовательская задача, КОД В КОММИТ НЕ ВХОДИТ (кроме записи в activity.md). Вопрос: может ли action на RESUME снова создать waitpoint (`createWaitpoint({ type: 'DELAY', resumeDateTime })` → `waitForWaitpoint`) и запаузиться повторно — движок по коду не запрещает (`packages/server/engine/src/lib/handler/piece-executor.ts` — executionType из `isPaused`, verdict PAUSED ставится одинаково), но ни один core-piece так не делает. Метод: поднять локальный стенд (см. память `local-preview-setup`: прод-превью без Docker, PGLite, порты 8081/8082), собрать flow с ВРЕМЕННО модифицированным `wait_for_task_completed` (локальная правка: на RESUME при незавершённой задаче — DELAY-waitpoint на 1 мин вместо возврата), прогнать: пауза → резюм → ре-пауза → второй резюм. Временную правку ОТКАТИТЬ (`git checkout -- <файл>`), в коммит идёт только `ralph/activity.md` + чекбокс. Вердикт в activity.md: «ре-пауза работает / не работает / не смог проверить (причина)» + фактические наблюдения (логи run). Если локальный рантайм поднять не удалось за разумное время — пометить `BLOCKED: нет доступного рантайма`, T039 при этом тоже станет BLOCKED.
+- **files:** только `ralph/activity.md` (+ чекбокс).
+- **verify:** сам прогон и есть верификация; `git status` чист от временных правок.
+
+### - [ ] T039 — Апгрейд wait-экшенов на poll-цикл (УСЛОВНАЯ: только если T038 подтвердил ре-паузу)
+- **spec:** если T038 = «работает»: перевести `wait_for_task_completed` и `wait_for_customer_reply` с account-wide вебхук-резюма на DELAY-цикл: BEGIN — создать задачу (T026) / зафиксировать контекст (T027), `createWaitpoint({ type: 'DELAY', resumeDateTime: now + interval })`, store `{ taskId | контекст, cursor }`; RESUME — проверить через `amoEvents.fetchEvents` (`task_completed` + `filter[entity_id]={taskId}` / `incoming_chat_message` + фильтр по контакту/сделке из события): выполнено → вернуть результат; нет → новый DELAY-waitpoint (интервал: prop `check_interval_minutes`, default 5, потолок общего ожидания — prop `timeout_hours`, default 24, по истечении вернуть `{ timed_out: true }`). Вебхук-подписку и её лимит ~100 это устраняет; account-wide-резюм «на первое событие в аккаунте» — тоже (точный per-task/per-contact). Старую вебхук-механику удалить, `ponytail:`-комменты обновить. Если T038 = «не работает»/BLOCKED — пометить задачу ` — BLOCKED: ре-пауза не подтверждена (T038)` и НЕ трогать рабочие экшены.
+- **files:** `src/lib/actions/wait-for-task-completed.ts`, `wait-for-customer-reply.ts`.
+- **verify:** общий + живой прогон обоих flow на локальном стенде (пауза → ре-паузы → резюм по факту события; таймаут — сокращённым интервалом). Это P2-качество: без живого прогона чекбокс не ставить (partial по правилам PROMPT.md).
+
+### - [ ] V007 — Чекпоинт-валидация блока T035–T039 + финальный sweep фазы
+- **spec:** общая спецификация V-задач. Блок: звонки, теги, event_occurred, spike и (опц.) апгрейд wait-экшенов. Особое внимание: суммарная нагрузка поллинга задокументирована (N poll-триггеров × 1 req/мин « 7 rps); у всех новых триггеров sampleData с реальных событий (или честная пометка «best-guess»); README piece дополнен разделом про Events-триггеры (poll vs doorbell, задержки); `.env`/токены не утекли (`git diff main | grep -c eyJ0` = 0 по всей фазе); T039 — либо реализован с живым прогоном, либо корректно BLOCKED по T038.
+
+---
+
 ## Вне ночного цикла (НЕ задачи цикла)
 
 Виджет amoCRM (внешний проект): `manifest.json` (locations digital_pipeline / salesbot_designer / *card / *list / advanced_settings), DP-шаг-приёмник вебхука → запуск/останов flow, Salesbot handler, кнопки на карточке (+массовый запуск из списков), embedding через JWT (`externalProjectId` = id аккаунта amo, `piecesFilterType: ALLOWED`, `locale: 'ru'`), OAuth2 для marketplace-дистрибуции. Требует дизайна redirect-flow под cloud/self-hosted (см. открытый вопрос бэклога). Делается отдельно после стабилизации piece.
@@ -306,3 +397,7 @@ P2 общие (отдельные generic pieces, не amocrm): A/B-сплитт
 - Endpoint stop salesbot (T020).
 - Chats/Talks API scope для сообщений (T011, T027).
 - Files API для примечаний-вложений (T016).
+- Events API: формат `id` события, порядок сортировки ответа, формы `filter[entity_id]`/`filter[value_after]`, включительность `filter[created_at][from]` (T029).
+- Задержка появления события в ленте относительно push-вебхука; какие мутации будят `update_{entity}` — поле/бюджет/теги (T031).
+- Поддерживает ли typings триггер-контекста `setSchedule` для минутного поллинга (T030).
+- Допускает ли движок ре-паузу action на RESUME (T038 spike; от него зависит T039).
