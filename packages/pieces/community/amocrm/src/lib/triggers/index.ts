@@ -8,6 +8,7 @@ import { contactDeleted } from './contact-deleted';
 import { contactResponsibleChanged } from './contact-responsible-changed';
 import { contactUpdated } from './contact-updated';
 import { customFieldChanged } from './custom-field-changed';
+import { incomingCall } from './incoming-call';
 import { incomingMessage } from './incoming-message';
 import { leadEnteredStage } from './lead-entered-stage';
 import { leadAdded } from './lead-added';
@@ -17,6 +18,7 @@ import { leadRestored } from './lead-restored';
 import { leadStatusChanged } from './lead-status-changed';
 import { leadUpdated } from './lead-updated';
 import { noteAdded } from './note-added';
+import { outgoingCall } from './outgoing-call';
 import { taskAdded } from './task-added';
 import { taskDeleted } from './task-deleted';
 import { taskUpdatedOrCompleted } from './task-updated-or-completed';
@@ -44,4 +46,6 @@ export const amocrmTriggers = [
   customFieldChanged,
   budgetChanged,
   leadEnteredStage,
+  incomingCall,
+  outgoingCall,
 ];

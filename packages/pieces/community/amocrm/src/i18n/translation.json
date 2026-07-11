@@ -216,5 +216,8 @@
   "Only events created at or before this moment.": "Only events created at or before this moment.",
   "Maximum number of events to return (max 100).": "Maximum number of events to return (max 100).",
   "Any": "Any",
-  "Task": "Task"
+  "Task": "Task",
+  "Manager": "Manager",
+  "Triggers on each incoming call registered in amoCRM. Requires a connected telephony integration. Polls the events feed once a minute, so expect up to a minute of delay. Optionally filter by the manager who received the call.": "Triggers on each incoming call registered in amoCRM. Requires a connected telephony integration. Polls the events feed once a minute, so expect up to a minute of delay. Optionally filter by the manager who received the call.",
+  "Triggers on each outgoing call registered in amoCRM. Requires a connected telephony integration. Polls the events feed once a minute, so expect up to a minute of delay. Optionally filter by the manager who placed the call.": "Triggers on each outgoing call registered in amoCRM. Requires a connected telephony integration. Polls the events feed once a minute, so expect up to a minute of delay. Optionally filter by the manager who placed the call."
 }

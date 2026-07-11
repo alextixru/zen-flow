@@ -5,7 +5,7 @@ import {
   createTrigger,
 } from '@activepieces/pieces-framework';
 import { amocrmAuth } from '../auth';
-import { AmoEventCursor, amoEvents } from './events';
+import { AmoEvent, AmoEventCursor, amoEvents } from './events';
 
 export const createAmoEventsPollingTrigger = ({
   name,
@@ -15,6 +15,7 @@ export const createAmoEventsPollingTrigger = ({
   types,
   typesFromProps,
   entity,
+  filterEvent,
   props = {},
   sampleData,
 }: CreateAmoEventsPollingTriggerParams) =>
@@ -50,7 +51,9 @@ export const createAmoEventsPollingTrigger = ({
 
       const { fresh, next } = amoEvents.advanceCursor({ events, cursor });
       await context.store.put<AmoEventCursor>(CURSOR_KEY, next);
-      return fresh;
+      return filterEvent
+        ? fresh.filter((event) => filterEvent(event, context.propsValue))
+        : fresh;
     },
     async test(context) {
       const events = await amoEvents.fetchEvents({
@@ -100,6 +103,7 @@ type CreateAmoEventsPollingTriggerParams = {
   types?: string[];
   typesFromProps?: (propsValue: StaticPropsValue<InputPropertyMap>) => string[];
   entity?: string;
+  filterEvent?: (event: AmoEvent, propsValue: StaticPropsValue<InputPropertyMap>) => boolean;
   props?: InputPropertyMap;
   sampleData: unknown;
 };
