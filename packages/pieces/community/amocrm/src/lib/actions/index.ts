@@ -1,4 +1,5 @@
 import { addTags } from './add-tags';
+import { changeResponsible } from './change-responsible';
 import { completeTask } from './complete-task';
 import { createCompany } from './create-company';
 import { createContact } from './create-contact';
@@ -36,6 +37,7 @@ export const amocrmActions = [
   linkEntities,
   unlinkEntities,
   findEntity,
+  changeResponsible,
   runSalesbot,
   findCatalogElements,
   linkCatalogElement,

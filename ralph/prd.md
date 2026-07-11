@@ -242,7 +242,7 @@
 
 ## Фаза 4 — Каскадные / сложные
 
-### - [ ] T023 — change responsible с каскадом
+### - [x] T023 — change responsible с каскадом
 - **spec:** `change_responsible`: props `entity_type` (leads/contacts/companies), `entity_id`, `responsible_user_id` (`userDropdown`, required), и 6 булевых чекбоксов каскада (ТОЧНЫЙ набор подтверждён разведкой `Trigger/ChangeResponsible.js`): `change_in_linked_company`, `change_in_linked_contacts`, `change_in_linked_open_leads`, `change_in_linked_closed_leads`, `change_in_linked_open_tasks`, `change_in_parent_entity`.
 - **Спецрежим `rand` (из Triggeron `resp_id='rand'`):** добавить в `userDropdown`-выбор опцию «Случайный активный пользователь» (значение-маркер, напр. `'rand'`); в `run` при `'rand'` — `GET /users` → выбрать случайного НЕ-заблокированного (`rights.is_active`/не `is_free`). Иначе — конкретный id. Реализовать через доп. StaticDropdown-режим или отдельный чекбокс `random_user` (проще: чекбокс «случайный», тогда `responsible_user_id` опционален).
 - **каскад (эндпоинты):** PATCH основной сущности `{ responsible_user_id }`. Затем по включённым флагам:

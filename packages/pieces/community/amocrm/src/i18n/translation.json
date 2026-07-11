@@ -175,5 +175,16 @@
   "Links a catalog element (e.g. a product) to a lead with an optional quantity.": "Links a catalog element (e.g. a product) to a lead with an optional quantity.",
   "Quantity": "Quantity",
   "Unlink Catalog Element": "Unlink Catalog Element",
-  "Removes the link between a catalog element (e.g. a product) and a lead.": "Removes the link between a catalog element (e.g. a product) and a lead."
+  "Removes the link between a catalog element (e.g. a product) and a lead.": "Removes the link between a catalog element (e.g. a product) and a lead.",
+  "Change Responsible User": "Change Responsible User",
+  "Changes the responsible user of a lead, contact or company, optionally cascading the change to linked entities and open tasks.": "Changes the responsible user of a lead, contact or company, optionally cascading the change to linked entities and open tasks.",
+  "Random Active User": "Random Active User",
+  "Assign a randomly picked active account user instead of a specific one.": "Assign a randomly picked active account user instead of a specific one.",
+  "Also Change in Linked Company": "Also Change in Linked Company",
+  "Also Change in Linked Contacts": "Also Change in Linked Contacts",
+  "Also Change in Linked Open Leads": "Also Change in Linked Open Leads",
+  "Also Change in Linked Closed Leads": "Also Change in Linked Closed Leads",
+  "Also Change in Open Tasks": "Also Change in Open Tasks",
+  "Also Change in Parent Entity": "Also Change in Parent Entity",
+  "For a lead — its main contact; for a contact — its company.": "For a lead — its main contact; for a contact — its company."
 }
