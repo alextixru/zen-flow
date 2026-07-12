@@ -11,6 +11,11 @@ export function registerSalesbot(app: FastifyInstance): void {
         }
         const payload = parseSalesbotPayload(request.body)
         if (payload === null) {
+            // Только ключи, не значения: тело amo несёт JWT (token) — не в лог.
+            const keys = typeof request.body === 'object' && request.body !== null
+                ? Object.keys(request.body as Record<string, unknown>)
+                : []
+            request.log.warn({ bodyKeys: keys }, 'salesbot: invalid payload')
             return reply.code(400).send({ error: 'invalid payload' })
         }
         if (activeSubdomain(payload.accountId) === null) {
@@ -35,18 +40,23 @@ export function registerSalesbot(app: FastifyInstance): void {
     })
 }
 
-// Тело собирает сам виджет в onSalesbotDesignerSave (data = {flow_id, account_id,
-// subdomain}) — плоская форма, не вложенный DP-payload.
+// Виджет собирает поля в onSalesbotDesignerSave (data = {flow_id, account_id,
+// subdomain}), но amo при widget_request оборачивает их в тело
+// {token, data:{...}, return_url} (снято живьём 2026-07-12). Читаем из data,
+// с fallback на корень — устойчиво к обеим формам.
 export function parseSalesbotPayload(body: unknown): SalesbotPayload | null {
     if (typeof body !== 'object' || body === null) {
         return null
     }
-    const record = body as Record<string, unknown>
-    const accountId = normalizeAccountId(record.account_id)
+    const outer = body as Record<string, unknown>
+    const inner = typeof outer.data === 'object' && outer.data !== null
+        ? outer.data as Record<string, unknown>
+        : outer
+    const accountId = normalizeAccountId(inner.account_id)
     if (accountId === null) {
         return null
     }
-    const flowId = typeof record.flow_id === 'string' && record.flow_id !== '' ? record.flow_id : null
+    const flowId = typeof inner.flow_id === 'string' && inner.flow_id !== '' ? inner.flow_id : null
     if (flowId === null) {
         return null
     }

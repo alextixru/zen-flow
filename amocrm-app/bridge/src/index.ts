@@ -8,6 +8,7 @@ import './db.js'
 import { registerDp } from './dp.js'
 import { registerEmbedToken } from './embed-token.js'
 import { registerFlows } from './flows.js'
+import { parseFormBody } from './form-body.js'
 import { registerInstall } from './install.js'
 import { registerMobile } from './mobile.js'
 import { startPendingLaunchWorker } from './queue.js'
@@ -60,6 +61,11 @@ const app = Fastify({
             },
         },
     },
+})
+
+// Реальные DP-хуки amo приходят form-urlencoded (снято живьём: без парсера — 415).
+app.addContentTypeParser('application/x-www-form-urlencoded', { parseAs: 'string' }, (_request, body, done) => {
+    done(null, parseFormBody({ raw: String(body) }))
 })
 
 await app.register(cors, {

@@ -83,6 +83,11 @@ describe('parseSalesbotPayload', () => {
         expect(parseSalesbotPayload(sbBody('f1'))).toEqual({ accountId: ACCOUNT_ID, flowId: 'f1' })
     })
 
+    it('extracts from amo widget_request wrapper {token, data, return_url}', () => {
+        const body = { token: 'jwt-amo', data: { flow_id: 'f1', account_id: ACCOUNT_ID, subdomain: 'dzenteamdev' }, return_url: 'https://x/continue' }
+        expect(parseSalesbotPayload(body)).toEqual({ accountId: ACCOUNT_ID, flowId: 'f1' })
+    })
+
     it('rejects payload without flow_id', () => {
         expect(parseSalesbotPayload({ account_id: ACCOUNT_ID })).toBeNull()
     })
