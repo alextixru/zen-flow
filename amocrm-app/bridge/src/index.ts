@@ -10,6 +10,8 @@ import { registerEmbedToken } from './embed-token.js'
 import { registerFlows } from './flows.js'
 import { registerInstall } from './install.js'
 import { startPendingLaunchWorker } from './queue.js'
+import { registerRun } from './run.js'
+import { registerRuns } from './runs.js'
 import { registerSalesbot } from './salesbot.js'
 
 const ALLOWED_ORIGIN = /^https:\/\/[a-z0-9][a-z0-9-]*\.amocrm\.ru$/
@@ -78,6 +80,8 @@ await app.register(
         registerInstall(instance)
         registerEmbedToken(instance)
         registerFlows(instance)
+        registerRuns(instance)
+        registerRun(instance)
         registerDp(instance)
         registerSalesbot(instance)
         registerWidgetStatic(instance)

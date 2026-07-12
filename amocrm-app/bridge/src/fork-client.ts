@@ -154,6 +154,52 @@ export async function runFlowWebhook({ flowId, body }: { flowId: string, body: u
     }
 }
 
+// Последние раны проекта под project-сессией. Раны НЕ фильтруются по сделке
+// (ран не знает lead_id) — честное ограничение MVP (W018), UI это оговаривает.
+// 401 сигналит протухший токен — сброс кэша сессии на вызывающем (flows.ts).
+export async function listRecentRuns({ token, projectId, limit }: ListRunsParams): Promise<ListRunsResult> {
+    const url = `${config.forkUrl}/api/v1/flow-runs?projectId=${encodeURIComponent(projectId)}&limit=${limit}`
+    try {
+        const response = await fetch(url, {
+            method: 'GET',
+            headers: { authorization: `Bearer ${token}` },
+            signal: AbortSignal.timeout(10_000),
+        })
+        if (response.status === 401) {
+            return { ok: false, reason: 'http 401', unauthorized: true }
+        }
+        if (!response.ok) {
+            return { ok: false, reason: `http ${response.status}` }
+        }
+        const body = await response.json() as { data?: unknown }
+        if (!Array.isArray(body.data)) {
+            return { ok: false, reason: 'unexpected list shape' }
+        }
+        const runs = body.data.map(toRunSummary).filter((run): run is RunSummary => run !== null)
+        return { ok: true, runs }
+    }
+    catch {
+        return { ok: false, reason: 'network error' }
+    }
+}
+
+// FlowRun -> плоское summary. displayName живёт в flowVersion (ран не несёт его
+// на верхнем уровне); created из BaseModelSchema, fallback на startTime.
+function toRunSummary(raw: unknown): RunSummary | null {
+    if (typeof raw !== 'object' || raw === null) {
+        return null
+    }
+    const run = raw as Record<string, unknown>
+    if (typeof run.id !== 'string' || typeof run.flowId !== 'string') {
+        return null
+    }
+    const version = typeof run.flowVersion === 'object' && run.flowVersion !== null ? run.flowVersion as Record<string, unknown> : {}
+    const displayName = typeof version.displayName === 'string' ? version.displayName : run.flowId
+    const status = typeof run.status === 'string' ? run.status : 'UNKNOWN'
+    const created = typeof run.created === 'string' ? run.created : typeof run.startTime === 'string' ? run.startTime : ''
+    return { id: run.id, flowId: run.flowId, displayName, status, created }
+}
+
 // PopulatedFlow -> плоское summary; webhookCompatible = триггер piece-webhook/catch_webhook.
 function toFlowSummary(raw: unknown): FlowSummary | null {
     if (typeof raw !== 'object' || raw === null) {
@@ -181,4 +227,9 @@ export type ListFlowsParams = { token: string, projectId: string }
 export type FlowSummary = { id: string, displayName: string, webhookCompatible: boolean }
 export type ListFlowsResult =
     | { ok: true, flows: FlowSummary[] }
+    | { ok: false, reason: string, unauthorized?: boolean }
+export type ListRunsParams = { token: string, projectId: string, limit: number }
+export type RunSummary = { id: string, flowId: string, displayName: string, status: string, created: string }
+export type ListRunsResult =
+    | { ok: true, runs: RunSummary[] }
     | { ok: false, reason: string, unauthorized?: boolean }

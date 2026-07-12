@@ -263,6 +263,166 @@
       return location.protocol + '//' + location.host + '/settings/widgets/' + code + '/';
     }
 
+    // id текущей сделки для ручного запуска flow с карточки. Форма amo-глобала
+    // (AMOCRM.data.current_card.id) — из боевого reference (triggeron EntityCard,
+    // F5.currentCard); живьём не снята (headless без сессии). ponytail: уточнить
+    // на первой живой карточке.
+    function currentLeadId() {
+      try {
+        var card = window.AMOCRM && AMOCRM.data && AMOCRM.data.current_card;
+        return card && card.id ? card.id : null;
+      } catch (e) {
+        return null;
+      }
+    }
+
+    function statusLabel(status) {
+      var map = {
+        SUCCEEDED: t('runs.status_ok', 'Успех'),
+        FAILED: t('runs.status_failed', 'Ошибка'),
+        RUNNING: t('runs.status_running', 'Выполняется'),
+        PAUSED: t('runs.status_paused', 'Ожидание'),
+        QUEUED: t('runs.status_queued', 'В очереди')
+      };
+      return map[status] || status || '';
+    }
+
+    function renderRunsList($runs, runs) {
+      $runs.empty();
+      if (!runs || !runs.length) {
+        $runs.append($('<div class="dzenflow-runs-empty"></div>').text(t('runs.empty', 'Пока нет запусков')));
+        return;
+      }
+      for (var i = 0; i < runs.length; i++) {
+        var r = runs[i];
+        var when = '';
+        try {
+          if (r.created) {
+            when = new Date(r.created).toLocaleString('ru');
+          }
+        } catch (e) {}
+        var cls = String(r.status || '').toLowerCase().replace(/[^a-z]/g, '');
+        var $item = $('<div class="dzenflow-run-item"></div>');
+        // .text() — имя/статус приходят с форка, не интерпретируем как HTML.
+        $item.append($('<span class="dzenflow-run-name"></span>').text(r.displayName || r.flowId));
+        $item.append($('<span class="dzenflow-run-status dzenflow-run-status-' + cls + '"></span>').text(statusLabel(r.status)));
+        if (when) {
+          $item.append($('<span class="dzenflow-run-when"></span>').text(when));
+        }
+        $runs.append($item);
+      }
+    }
+
+    // Наполняет блок карточки: последние раны проекта (GET /runs) и селект flow
+    // для ручного запуска (GET /flows). Раны — по проекту, не по сделке (ран не
+    // знает lead_id — честное ограничение MVP W018, оговорено подписью в UI).
+    function hydrateCard() {
+      loadRuns();
+      loadFlowSelect();
+    }
+
+    function cardContext() {
+      var account = amoConstant('account');
+      var key = installKey();
+      if (!account || !account.id || !key) {
+        return null;
+      }
+      return '?install_key=' + encodeURIComponent(key) + '&account_id=' + encodeURIComponent(account.id);
+    }
+
+    function loadRuns() {
+      var $runs = $('.dzenflow-runs');
+      if (!$runs.length) {
+        return;
+      }
+      var suffix = cardContext();
+      if (suffix === null) {
+        $runs.text(t('runs.no_key', 'Введите ключ установки в настройках интеграции.'));
+        return;
+      }
+      $runs.text(t('runs.loading', 'Загрузка запусков…'));
+      fetch(BRIDGE_URL + '/runs' + suffix)
+        .then(function (res) {
+          return res.ok ? res.json() : null;
+        })
+        .then(function (runs) {
+          renderRunsList($runs, runs);
+        })
+        .catch(function () {
+          $runs.text(t('runs.error', 'Не удалось загрузить запуски.'));
+        });
+    }
+
+    function loadFlowSelect() {
+      var $select = $('.dzenflow-run-select');
+      if (!$select.length) {
+        return;
+      }
+      var suffix = cardContext();
+      if (suffix === null) {
+        return;
+      }
+      $select.empty().append(new Option(t('dp.loading', 'Загрузка сценариев…'), ''));
+      fetch(BRIDGE_URL + '/flows' + suffix)
+        .then(function (res) {
+          return res.ok ? res.json() : null;
+        })
+        .then(function (flows) {
+          $select.empty().append(new Option(t('run.choose', '— выберите сценарий —'), ''));
+          if (flows && flows.length) {
+            for (var i = 0; i < flows.length; i++) {
+              $select.append(new Option(flows[i].displayName || flows[i].id, flows[i].id));
+            }
+          } else {
+            var opt = new Option(t('dp.empty', 'Нет доступных сценариев'), '');
+            opt.disabled = true;
+            $select.append(opt);
+          }
+        })
+        .catch(function () {
+          $select.empty().append(new Option(t('dp.error', 'Не удалось загрузить список сценариев'), ''));
+        });
+    }
+
+    function runSelectedFlow($btn) {
+      var flowId = String($('.dzenflow-run-select').val() || '');
+      if (!flowId) {
+        notify(t('run.no_flow', 'Выберите сценарий для запуска.'));
+        return;
+      }
+      var account = amoConstant('account');
+      var key = installKey();
+      var leadId = currentLeadId();
+      if (!account || !account.id || !key) {
+        notify(t('advanced.unavailable', 'Сервис временно недоступен.'));
+        return;
+      }
+      if (!leadId) {
+        notify(t('run.no_lead', 'Не удалось определить сделку.'));
+        return;
+      }
+      $btn.prop('disabled', true);
+      fetch(BRIDGE_URL + '/run', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ install_key: key, account_id: account.id, flow_id: flowId, lead_id: leadId })
+      })
+        .then(function (res) {
+          if (res.ok) {
+            notify(t('run.ok', 'Сценарий запущен.'));
+            loadRuns();
+          } else {
+            notify(t('run.error', 'Не удалось запустить сценарий.'));
+          }
+        })
+        .catch(function () {
+          notify(t('run.error', 'Не удалось запустить сценарий.'));
+        })
+        .then(function () {
+          $btn.prop('disabled', false);
+        });
+    }
+
     function bindLcardClicks(code) {
       var store = core();
       if (store.lcardBound) {
@@ -273,6 +433,9 @@
       // при переходе на другую карточку, прямой bind на элемент тогда потеряется.
       $(document).on('click', '.dzenflow-lcard-button', function () {
         location.href = lcardConstructorUrl(code);
+      });
+      $(document).on('click', '.dzenflow-run-btn', function () {
+        runSelectedFlow($(this));
       });
     }
 
@@ -286,17 +449,35 @@
         // Блок уже отрисован для текущей карточки — повторный render_template не нужен.
         return;
       }
+      var rendered;
       try {
-        self.render_template({
+        rendered = self.render_template({
           caption: { class_name: 'dzenflow-lcard-caption', html: t('widget.name', 'Автоматизации Dzen.Team') },
           body: '',
           render:
             '<div class="dzenflow-lcard-block">' +
             '<button type="button" class="dzenflow-lcard-button">' +
             t('lcard.button', 'Автоматизации сделки') +
-            '</button></div>'
+            '</button>' +
+            '<div class="dzenflow-runs-title">' + t('runs.title', 'Последние запуски') + '</div>' +
+            '<div class="dzenflow-runs-hint">' + t('runs.hint', 'по проекту, не только по этой сделке') + '</div>' +
+            '<div class="dzenflow-runs"></div>' +
+            '<div class="dzenflow-run-row">' +
+            '<select class="dzenflow-run-select"></select>' +
+            '<button type="button" class="dzenflow-run-btn">' + t('runs.run_button', 'Запустить') + '</button>' +
+            '</div>' +
+            '</div>'
         });
       } catch (e) {}
+      // render_template в amo обычно асинхронный (возвращает Deferred/промис) —
+      // ждём его, иначе hydrate не найдёт DOM блока (боевой bpmn инжектит в .then).
+      if (rendered && typeof rendered.then === 'function') {
+        rendered.then(function () {
+          hydrateCard();
+        });
+      } else {
+        hydrateCard();
+      }
     }
 
     // Заменяет сырой <input name="flow_id"> в переданной области настроек на

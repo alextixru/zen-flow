@@ -1,7 +1,7 @@
 import type { FastifyInstance } from 'fastify'
 import { db } from './db.js'
-import { exchangeExternalToken, listEnabledFlows } from './fork-client.js'
-import type { FlowSummary } from './fork-client.js'
+import { exchangeExternalToken, listEnabledFlows, listRecentRuns } from './fork-client.js'
+import type { FlowSummary, RunSummary } from './fork-client.js'
 import { signEmbedJwt } from './jwt.js'
 import { PROVISIONER_USER_ID } from './provision-connection.js'
 
@@ -31,26 +31,52 @@ export function registerFlows(app: FastifyInstance): void {
 }
 
 // Список включённых flow аккаунта под кэшированной project-сессией.
-// Токен форка живёт 7 дней — держим его в памяти и переобмениваем только при
-// протухании (TTL) или 401 (одна повторная попытка со сбросом кэша).
 export async function getEnabledFlows({ accountId, subdomain, now }: GetEnabledFlowsParams): Promise<EnabledFlowsResult> {
+    const result = await callWithSession<FlowSummary[]>({ accountId, subdomain, now }, (session) =>
+        listEnabledFlows({ token: session.token, projectId: session.projectId }).then((listed) =>
+            listed.ok
+                ? { ok: true as const, value: listed.flows }
+                : { ok: false as const, reason: listed.reason, unauthorized: listed.unauthorized }))
+    if (!result.ok) {
+        return { ok: false, reason: result.reason }
+    }
+    return { ok: true, flows: result.value, projectId: result.projectId }
+}
+
+// Последние раны проекта под той же кэшированной сессией.
+export async function getRecentRuns({ accountId, subdomain, now, limit }: GetRecentRunsParams): Promise<RecentRunsResult> {
+    const result = await callWithSession<RunSummary[]>({ accountId, subdomain, now }, (session) =>
+        listRecentRuns({ token: session.token, projectId: session.projectId, limit }).then((listed) =>
+            listed.ok
+                ? { ok: true as const, value: listed.runs }
+                : { ok: false as const, reason: listed.reason, unauthorized: listed.unauthorized }))
+    if (!result.ok) {
+        return { ok: false, reason: result.reason }
+    }
+    return { ok: true, runs: result.value }
+}
+
+// Выполняет запрос к форку под кэшированной project-сессией аккаунта. Токен форка
+// живёт 7 дней — держим его в памяти; на 401 (протухший токен) один раз сбрасываем
+// кэш и переобмениваем JWT. Общий для /flows и /runs — 401-логика в одном месте.
+async function callWithSession<T>({ accountId, subdomain, now }: GetEnabledFlowsParams, call: SessionCall<T>): Promise<SessionCallResult<T>> {
     let session = await ensureSession({ accountId, subdomain, now })
     if (!session.ok) {
         return { ok: false, reason: session.reason }
     }
-    let listed = await listEnabledFlows({ token: session.token, projectId: session.projectId })
-    if (!listed.ok && listed.unauthorized) {
+    let result = await call({ token: session.token, projectId: session.projectId })
+    if (!result.ok && result.unauthorized) {
         sessions.delete(accountId)
         session = await ensureSession({ accountId, subdomain, now })
         if (!session.ok) {
             return { ok: false, reason: session.reason }
         }
-        listed = await listEnabledFlows({ token: session.token, projectId: session.projectId })
+        result = await call({ token: session.token, projectId: session.projectId })
     }
-    if (!listed.ok) {
-        return { ok: false, reason: listed.reason }
+    if (!result.ok) {
+        return { ok: false, reason: result.reason }
     }
-    return { ok: true, flows: listed.flows, projectId: session.projectId }
+    return { ok: true, value: result.value, projectId: session.projectId }
 }
 
 async function ensureSession({ accountId, subdomain, now }: GetEnabledFlowsParams): Promise<SessionResult> {
@@ -74,14 +100,15 @@ async function ensureSession({ accountId, subdomain, now }: GetEnabledFlowsParam
     return { ok: true, token: exchange.token, projectId: exchange.projectId }
 }
 
-function activeAccount({ installKey, accountId }: ValidatedFlowsQuery): { subdomain: string } | null {
+// Активная связка install_key+account_id (клиент шлёт ключ — он подтверждает его).
+export function activeAccount({ installKey, accountId }: ValidatedFlowsQuery): { subdomain: string } | null {
     const row = db
         .prepare('SELECT subdomain FROM accounts WHERE install_key = ? AND account_id = ? AND status = ?')
         .get(installKey, accountId, 'active') as { subdomain: string } | undefined
     return row ?? null
 }
 
-function validateFlowsQuery(query: unknown): ValidatedFlowsQuery | { error: string } {
+export function validateFlowsQuery(query: unknown): ValidatedFlowsQuery | { error: string } {
     if (typeof query !== 'object' || query === null) {
         return { error: 'invalid query' }
     }
@@ -115,8 +142,17 @@ type ForkSession = { token: string, projectId: string, cachedAt: number }
 
 type SessionResult = { ok: true, token: string, projectId: string } | { ok: false, reason: string }
 
+type SessionCall<T> = (session: { token: string, projectId: string }) => Promise<
+    { ok: true, value: T } | { ok: false, reason: string, unauthorized?: boolean }
+>
+type SessionCallResult<T> = { ok: true, value: T, projectId: string } | { ok: false, reason: string }
+
 export type GetEnabledFlowsParams = { accountId: string, subdomain: string, now: number }
+export type GetRecentRunsParams = { accountId: string, subdomain: string, now: number, limit: number }
 export type EnabledFlowsResult =
     | { ok: true, flows: FlowSummary[], projectId: string }
+    | { ok: false, reason: string }
+export type RecentRunsResult =
+    | { ok: true, runs: RunSummary[] }
     | { ok: false, reason: string }
 export type ValidatedFlowsQuery = { installKey: string, accountId: string }

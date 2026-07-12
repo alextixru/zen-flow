@@ -48,3 +48,70 @@
   cursor: pointer;
   font: inherit;
 }
+
+/* Панель «Автоматизации сделки»: последние раны + ручной запуск flow (W018). */
+.dzenflow-runs-title {
+  margin: 12px 0 2px;
+  font-weight: 600;
+  color: #7a8290;
+}
+.dzenflow-runs-hint {
+  margin: 0 0 6px;
+  font-size: 11px;
+  color: #a4abb5;
+}
+.dzenflow-runs {
+  color: #7a8290;
+}
+.dzenflow-run-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 4px 0;
+  border-bottom: 1px solid #eef0f3;
+}
+.dzenflow-run-name {
+  flex: 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  color: #313942;
+}
+.dzenflow-run-status {
+  font-size: 12px;
+}
+.dzenflow-run-status-succeeded {
+  color: #2fae60;
+}
+.dzenflow-run-status-failed {
+  color: #d24d57;
+}
+.dzenflow-run-when {
+  font-size: 11px;
+  color: #a4abb5;
+}
+.dzenflow-run-row {
+  display: flex;
+  gap: 8px;
+  margin-top: 12px;
+}
+.dzenflow-run-select {
+  flex: 1;
+  padding: 6px 8px;
+  border: 1px solid #d0d4da;
+  border-radius: 6px;
+  background: #fff;
+  font: inherit;
+}
+.dzenflow-run-btn {
+  padding: 6px 12px;
+  border: 1px solid #d0d4da;
+  border-radius: 6px;
+  background: #fff;
+  cursor: pointer;
+  font: inherit;
+}
+.dzenflow-run-btn[disabled] {
+  opacity: 0.6;
+  cursor: default;
+}
