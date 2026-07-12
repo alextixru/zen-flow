@@ -234,7 +234,7 @@
 - **pattern:** `reference/triggeron/widget/manifest.json` (dp-блок), `reference/triggeron/widget/script.js` (dpSettings).
 - **verify:** живьём (снимает вопрос формы payload): сделка переходит в этап на dzenteamdev → amo шлёт POST на мост (туннель) → flow запустился; фактический payload DP записать в activity (сверить со справочником, расхождения — поправить W014).
 
-### - [ ] W016 — Salesbot-шаг
+### - [x] W016 — Salesbot-шаг
 
 - **spec:** manifest: добавить `salesbot_designer` в locations + блок `salesbot_designer: { logo, start_flow: { name, settings: { flow_id: {name, type:'text', manual:true, required:true} } } }` (по образцу BPMN `start_bp`). `widget-app.js`: `salesbotDesignerSettings` — рендер выбора flow (реюз селекта W015), return `{exits:[{code:'success',title:'…'},{code:'fail',title:'…'}]}`; `onSalesbotDesignerSave` — вернуть JSON логики шага: вызов нашего handler-URL (`https://<мост>/salesbot?k=...`) с `{flow_id}` + маппинг exits. **Точный формат JSON (widget_request-шаг salesbot) и формат ответа handler — открытый вопрос:** восстановить из разобранной копии BPMN (`reference/bpmn/`) и подтвердить живьём. Мост: `POST /salesbot` — как `/dp` (валидация + запуск flow), ответ в формате, который salesbot ожидает для выбора exit (fire-and-forget → сразу exit `success`).
 - **escape:** если формат ответа handler не восстановится из референса/живых проб — оставить «выстрелил и забыл» (мгновенный success), пометить в activity, ветвление по результату flow — upgrade.

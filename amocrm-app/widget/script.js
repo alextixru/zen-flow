@@ -16,9 +16,22 @@ define(['jquery'], function ($) {
       return 'https://amoai-dev.dzen.team/bridge/static/widget';
     }
 
+    // Handler-URL шага salesbot: секрет тот же, что у DP-вебхука; в git —
+    // placeholder, build.sh подставляет DP_SECRET в zip (виден только админам
+    // аккаунта — тот же уровень, что webhook_url в манифесте).
+    var SALESBOT_HANDLER = 'https://amoai-dev.dzen.team/bridge/salesbot?k=__DP_SECRET__';
+
     function ns() {
       window.__dzenflow = window.__dzenflow || {};
       return window.__dzenflow;
+    }
+
+    function amoAccount() {
+      try {
+        return (window.AMOCRM && AMOCRM.constant && AMOCRM.constant('account')) || null;
+      } catch (e) {
+        return null;
+      }
     }
 
     function injectCss(base) {
@@ -147,6 +160,29 @@ define(['jquery'], function ($) {
           app.dpSettings();
         });
         return true;
+      },
+      // amo ждёт синхронный возврат {exits} — рендер селекта запускаем асинхронно,
+      // exits отдаём сразу. Пустой список: «выстрелил и забыл», ветвление по
+      // результату flow — upgrade (escape W016, формат ответа handler не проверен).
+      salesbotDesignerSettings: function ($body) {
+        withApp(function (app) {
+          app.salesbotDesignerSettings($body);
+        });
+        return { exits: [] };
+      },
+      // Логика шага возвращается синхронной строкой JSON (форма — reference/bpmn
+      // widget.js): один widget_request на наш handler c выбранным flow_id.
+      // account_id/subdomain вшиваем на сохранении — сценарий принадлежит аккаунту.
+      onSalesbotDesignerSave: function (handler_code, params) {
+        var account = amoAccount();
+        var data = {
+          flow_id: (params && params.flow_id) || '',
+          account_id: account && account.id ? account.id : null,
+          subdomain: account ? account.subdomain : null
+        };
+        return JSON.stringify([
+          { question: [{ handler: 'widget_request', params: { url: SALESBOT_HANDLER, data: data } }] }
+        ]);
       },
       destroy: function () {},
       contacts: {

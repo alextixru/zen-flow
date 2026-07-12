@@ -9,6 +9,7 @@ import { registerDp } from './dp.js'
 import { registerEmbedToken } from './embed-token.js'
 import { registerFlows } from './flows.js'
 import { registerInstall } from './install.js'
+import { registerSalesbot } from './salesbot.js'
 
 const ALLOWED_ORIGIN = /^https:\/\/[a-z0-9][a-z0-9-]*\.amocrm\.ru$/
 
@@ -39,7 +40,23 @@ function registerWidgetStatic(app: FastifyInstance): void {
     })
 }
 
-const app = Fastify({ logger: true })
+// Секреты моста ездят в query (?k=<DP_SECRET> у dp/salesbot, install_key у flows).
+// Дефолтный логгер Fastify пишет полный req.url — режем query, чтобы секрет не
+// попал в лог (иначе логи = хранилище действующих ключей).
+const app = Fastify({
+    logger: {
+        serializers: {
+            req(request) {
+                return {
+                    method: request.method,
+                    url: request.url.split('?')[0],
+                    hostname: request.hostname,
+                    remoteAddress: request.ip,
+                }
+            },
+        },
+    },
+})
 
 await app.register(cors, {
     origin(origin, callback) {
@@ -61,6 +78,7 @@ await app.register(
         registerEmbedToken(instance)
         registerFlows(instance)
         registerDp(instance)
+        registerSalesbot(instance)
         registerWidgetStatic(instance)
     },
     { prefix: '/bridge' },

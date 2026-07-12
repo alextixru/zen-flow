@@ -299,13 +299,12 @@
       } catch (e) {}
     }
 
-    // dpSettings: amo рендерит поля dp.settings манифеста как <input name="<код>">
-    // внутри #widget_settings__fields_wrapper (механика — reference/triggeron
-    // DpSettings.open). Наше поле — flow_id; заменяем сырой input на <select>
-    // сценариев из GET /flows и пишем выбранное обратно в input (amo сохраняет
-    // именно его значение). Сеть упала → input остаётся видимым (graceful degrade).
-    function dpSettings() {
-      var $input = $('#widget_settings__fields_wrapper').find('input[name="flow_id"]');
+    // Заменяет сырой <input name="flow_id"> в переданной области настроек на
+    // <select> сценариев из GET /flows и пишет выбранное обратно в input (amo
+    // сохраняет именно его значение). Сеть упала → input остаётся видимым
+    // (graceful degrade). Общий для dp-плашки и шага salesbot-конструктора.
+    function enhanceFlowSelect($scope) {
+      var $input = $scope.find('input[name="flow_id"]');
       if (!$input.length || $input.data('dzenflowEnhanced')) {
         return;
       }
@@ -350,11 +349,24 @@
         });
     }
 
+    // dp-плашка: amo рендерит поля dp.settings как <input> внутри
+    // #widget_settings__fields_wrapper (механика — reference/triggeron DpSettings.open).
+    function dpSettings() {
+      enhanceFlowSelect($('#widget_settings__fields_wrapper'));
+    }
+
+    // Шаг salesbot-конструктора: поля salesbot_designer.start_flow.settings amo
+    // рендерит теми же <input> внутри переданного $body блока-шага.
+    function salesbotDesignerSettings($body) {
+      enhanceFlowSelect($body);
+    }
+
     return {
       submitInstall: submitInstall,
       renderEmbed: renderEmbed,
       renderCardBlock: renderCardBlock,
-      dpSettings: dpSettings
+      dpSettings: dpSettings,
+      salesbotDesignerSettings: salesbotDesignerSettings
     };
   };
 })();

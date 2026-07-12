@@ -3,7 +3,7 @@
     "name": "widget.name",
     "description": "widget.description",
     "short_description": "widget.short_description",
-    "version": "0.1.2",
+    "version": "0.1.3",
     "interface_version": 2,
     "init_once": false,
     "locale": ["ru"],
@@ -13,7 +13,7 @@
       "email": "support@dzen.team"
     }
   },
-  "locations": ["settings", "advanced_settings", "lcard-0", "digital_pipeline"],
+  "locations": ["settings", "advanced_settings", "lcard-0", "digital_pipeline", "salesbot_designer"],
   "settings": {
     "install_key": {
       "name": "settings.install_key",
@@ -34,5 +34,19 @@
     },
     "action_multiple": false,
     "webhook_url": "https://amoai-dev.dzen.team/bridge/dp?k=__DP_SECRET__"
+  },
+  "salesbot_designer": {
+    "logo": " ",
+    "start_flow": {
+      "name": "salesbot.start_flow",
+      "settings": {
+        "flow_id": {
+          "name": "settings.flow_id",
+          "type": "text",
+          "manual": true,
+          "required": true
+        }
+      }
+    }
   }
 }

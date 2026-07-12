@@ -27,8 +27,8 @@ OUT="dzenflow-widget.zip"
 rm -f "$OUT"
 STAGE="$(mktemp -d)"
 trap 'rm -rf "$STAGE"' EXIT
-sed "s|__DP_SECRET__|$DP_SECRET|" manifest.json > "$STAGE/manifest.json"
-cp script.js "$STAGE/"
+sed "s|__DP_SECRET__|$DP_SECRET|g" manifest.json > "$STAGE/manifest.json"
+sed "s|__DP_SECRET__|$DP_SECRET|g" script.js > "$STAGE/script.js"
 cp -r i18n images "$STAGE/"
 ( cd "$STAGE" && zip -r -X "$OUT" manifest.json script.js i18n images \
   -x '*.DS_Store' -x '__MACOSX*' >/dev/null )
