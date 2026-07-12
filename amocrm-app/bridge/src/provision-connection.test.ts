@@ -24,6 +24,7 @@ beforeAll(async () => {
     process.env.SIGNING_KEY_ID = 'test-kid'
     process.env.DB_PATH = join(dir, 'bridge.db')
     process.env.FORK_API_KEY = 'sk-test'
+    process.env.DP_SECRET = 'dp-test-secret'
 
     ;({ provisionConnection } = await import('./provision-connection.js'))
 })

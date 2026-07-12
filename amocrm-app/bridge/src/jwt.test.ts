@@ -28,6 +28,7 @@ beforeAll(async () => {
     process.env.SIGNING_KEY_ID = signingKeyId
     process.env.DB_PATH = join(dir, 'bridge.db')
     process.env.FORK_API_KEY = 'sk-test'
+    process.env.DP_SECRET = 'dp-test-secret'
 
     ;({ signEmbedJwt } = await import('./jwt.js'))
 })

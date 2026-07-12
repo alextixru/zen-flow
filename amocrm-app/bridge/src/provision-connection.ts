@@ -28,7 +28,7 @@ export async function provisionConnection({ accountId, subdomain, amoToken }: Pr
     return { ok: true }
 }
 
-const PROVISIONER_USER_ID = 'bridge-provisioner'
+export const PROVISIONER_USER_ID = 'bridge-provisioner'
 
 export type ProvisionParams = { accountId: string, subdomain: string, amoToken: string }
 export type ProvisionResult = { ok: true } | { ok: false, reason: string }

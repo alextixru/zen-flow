@@ -18,4 +18,5 @@ export const config = {
     signingKeyId: requireEnv({ name: 'SIGNING_KEY_ID' }),
     dbPath: resolve(BRIDGE_ROOT, requireEnv({ name: 'DB_PATH' })),
     forkApiKey: requireEnv({ name: 'FORK_API_KEY' }),
+    dpSecret: requireEnv({ name: 'DP_SECRET' }),
 }

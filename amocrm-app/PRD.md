@@ -220,7 +220,7 @@
 
 ## Фаза 2 — Автоворонка: DP-шаг и salesbot-шаг (этап 2 PLAN)
 
-### - [ ] W014 — Мост: список flow + приёмник DP-вебхука → запуск flow
+### - [x] W014 — Мост: список flow + приёмник DP-вебхука → запуск flow
 
 - **spec:** (а) `GET /flows?install_key&account_id` — мост обменивает свой embed-JWT на access-token форка (реюз W009), дергает `GET {fork}/v1/flows` проекта (точную форму листинга и фильтр status=ENABLED сверить с контроллером flows), отдаёт `[{id, displayName}]` для flow с webhook-совместимым триггером (`catch_webhook`; если фильтрация по типу триггера из листинга нетривиальна — отдать все включённые, пометить `ponytail:`). (б) `POST /dp?k=<static-секрет из env>` — приёмник DP-вебхука amo: payload по справочнику (`event`, `action.settings.widget.settings.{flow_id}`, `subdomain`, `account_id`); валидация: `k` совпал И `account_id` есть в активных связках (подписи у amo-вебхука нет — `k` в query это наш максимум, зафиксировать); ответ amo — 200 СРАЗУ (быстрый ответ обязателен), затем асинхронно: проверить, что `flow_id` принадлежит проекту ЭТОГО `account_id` (по листингу flow проекта из (а); чужой flow_id → событие отброшено с логом — иначе подмена settings запускает flow чужого клиента), и `POST {fork}/api/v1/webhooks/{flowId}` с телом `{source:'amocrm_dp', event, account_id, subdomain}` → flow стартует. Access-token форка на аккаунт кэшировать в памяти (живёт 7 дней; сброс кэша на 401) — не обменивать JWT на каждый запрос.
 - **files:** `bridge/src/{flows.ts,dp.ts,fork-client.ts}` + тесты (валидация payload, отказы).

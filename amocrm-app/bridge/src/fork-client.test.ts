@@ -7,6 +7,8 @@ import { afterEach, beforeAll, describe, expect, it, vi } from 'vitest'
 let db: typeof import('./db.js').db
 let addAllowedEmbedOrigin: typeof import('./fork-client.js').addAllowedEmbedOrigin
 let setPieceTags: typeof import('./fork-client.js').setPieceTags
+let listEnabledFlows: typeof import('./fork-client.js').listEnabledFlows
+let runFlowWebhook: typeof import('./fork-client.js').runFlowWebhook
 let registerInstall: typeof import('./install.js').registerInstall
 
 function seedPending(installKey: string): void {
@@ -31,9 +33,10 @@ beforeAll(async () => {
     process.env.SIGNING_KEY_ID = 'test-kid'
     process.env.DB_PATH = join(dir, 'bridge.db')
     process.env.FORK_API_KEY = 'sk-test'
+    process.env.DP_SECRET = 'dp-test-secret'
 
     ;({ db } = await import('./db.js'))
-    ;({ addAllowedEmbedOrigin, setPieceTags } = await import('./fork-client.js'))
+    ;({ addAllowedEmbedOrigin, setPieceTags, listEnabledFlows, runFlowWebhook } = await import('./fork-client.js'))
     ;({ registerInstall } = await import('./install.js'))
 })
 
@@ -95,6 +98,75 @@ describe('setPieceTags', () => {
     it('reports network error when fetch throws', async () => {
         vi.stubGlobal('fetch', vi.fn().mockRejectedValue(new Error('boom')))
         expect(await setPieceTags({ pieceNames: ['@activepieces/piece-amocrm'], tag: 'ru-allowed' })).toEqual({ ok: false, reason: 'network error' })
+    })
+})
+
+describe('listEnabledFlows', () => {
+    const populated = {
+        data: [
+            {
+                id: 'flow-webhook',
+                version: {
+                    displayName: 'Веб-хук флоу',
+                    trigger: { type: 'PIECE_TRIGGER', settings: { pieceName: '@activepieces/piece-webhook', triggerName: 'catch_webhook' } },
+                },
+            },
+            {
+                id: 'flow-schedule',
+                version: {
+                    displayName: 'По расписанию',
+                    trigger: { type: 'PIECE_TRIGGER', settings: { pieceName: '@activepieces/piece-schedule', triggerName: 'every_x_minutes' } },
+                },
+            },
+        ],
+    }
+
+    it('GETs enabled flows with the bearer token and flags webhook compatibility', async () => {
+        const fetchMock = vi.fn().mockResolvedValue(new Response(JSON.stringify(populated), { status: 200 }))
+        vi.stubGlobal('fetch', fetchMock)
+
+        const result = await listEnabledFlows({ token: 'sess-tok', projectId: 'proj-1' })
+
+        expect(result).toEqual({
+            ok: true,
+            flows: [
+                { id: 'flow-webhook', displayName: 'Веб-хук флоу', webhookCompatible: true },
+                { id: 'flow-schedule', displayName: 'По расписанию', webhookCompatible: false },
+            ],
+        })
+        const [url, init] = fetchMock.mock.calls[0] as [string, RequestInit]
+        expect(url).toBe('https://fork.test/api/v1/flows?projectId=proj-1&status=ENABLED&limit=100')
+        expect((init.headers as Record<string, string>).authorization).toBe('Bearer sess-tok')
+    })
+
+    it('flags 401 as unauthorized for cache reset', async () => {
+        vi.stubGlobal('fetch', vi.fn().mockResolvedValue(new Response('{}', { status: 401 })))
+        expect(await listEnabledFlows({ token: 't', projectId: 'p' })).toEqual({ ok: false, reason: 'http 401', unauthorized: true })
+    })
+
+    it('reports network error when fetch throws', async () => {
+        vi.stubGlobal('fetch', vi.fn().mockRejectedValue(new Error('boom')))
+        expect(await listEnabledFlows({ token: 't', projectId: 'p' })).toEqual({ ok: false, reason: 'network error' })
+    })
+})
+
+describe('runFlowWebhook', () => {
+    it('POSTs the body to the public webhook endpoint of the flow', async () => {
+        const fetchMock = vi.fn().mockResolvedValue(new Response('{}', { status: 200 }))
+        vi.stubGlobal('fetch', fetchMock)
+
+        const result = await runFlowWebhook({ flowId: 'flow-1', body: { source: 'amocrm_dp' } })
+
+        expect(result).toEqual({ ok: true })
+        const [url, init] = fetchMock.mock.calls[0] as [string, RequestInit]
+        expect(url).toBe('https://fork.test/api/v1/webhooks/flow-1')
+        expect(init.method).toBe('POST')
+        expect(JSON.parse(init.body as string)).toEqual({ source: 'amocrm_dp' })
+    })
+
+    it('reports http status on a non-ok response', async () => {
+        vi.stubGlobal('fetch', vi.fn().mockResolvedValue(new Response('{}', { status: 404 })))
+        expect(await runFlowWebhook({ flowId: 'x', body: {} })).toEqual({ ok: false, reason: 'http 404' })
     })
 })
 

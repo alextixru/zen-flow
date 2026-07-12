@@ -5,7 +5,9 @@ import Fastify from 'fastify'
 import type { FastifyInstance } from 'fastify'
 import { config } from './config.js'
 import './db.js'
+import { registerDp } from './dp.js'
 import { registerEmbedToken } from './embed-token.js'
+import { registerFlows } from './flows.js'
 import { registerInstall } from './install.js'
 
 const ALLOWED_ORIGIN = /^https:\/\/[a-z0-9][a-z0-9-]*\.amocrm\.ru$/
@@ -57,6 +59,8 @@ await app.register(
         instance.get('/health', async () => ({ status: 'ok' }))
         registerInstall(instance)
         registerEmbedToken(instance)
+        registerFlows(instance)
+        registerDp(instance)
         registerWidgetStatic(instance)
     },
     { prefix: '/bridge' },

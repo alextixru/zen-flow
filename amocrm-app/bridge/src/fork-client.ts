@@ -104,7 +104,81 @@ export async function setPieceTags({ pieceNames, tag }: SetPieceTagsParams): Pro
     }
 }
 
+// Листинг включённых flow проекта под обменянной project-сессией (Bearer token).
+// projectId в query обязателен схемой форка, но фактический фильтр — по projectId
+// принципала сессии, так что cross-tenant утечки нет. 401 сигналит протухший токен
+// (сброс кэша сессии — забота вызывающего, flows.ts).
+export async function listEnabledFlows({ token, projectId }: ListFlowsParams): Promise<ListFlowsResult> {
+    const url = `${config.forkUrl}/api/v1/flows?projectId=${encodeURIComponent(projectId)}&status=ENABLED&limit=100`
+    try {
+        const response = await fetch(url, {
+            method: 'GET',
+            headers: { authorization: `Bearer ${token}` },
+            signal: AbortSignal.timeout(10_000),
+        })
+        if (response.status === 401) {
+            return { ok: false, reason: 'http 401', unauthorized: true }
+        }
+        if (!response.ok) {
+            return { ok: false, reason: `http ${response.status}` }
+        }
+        const body = await response.json() as { data?: unknown }
+        if (!Array.isArray(body.data)) {
+            return { ok: false, reason: 'unexpected list shape' }
+        }
+        const flows = body.data.map(toFlowSummary).filter((flow): flow is FlowSummary => flow !== null)
+        return { ok: true, flows }
+    }
+    catch {
+        return { ok: false, reason: 'network error' }
+    }
+}
+
+// Запуск flow через публичный webhook-эндпоинт триггера (async — форк отвечает сразу,
+// исполнение уходит в очередь). Аутентификации нет: сам flowId — это webhook-секрет.
+export async function runFlowWebhook({ flowId, body }: { flowId: string, body: unknown }): Promise<ForkCallResult> {
+    try {
+        const response = await fetch(`${config.forkUrl}/api/v1/webhooks/${encodeURIComponent(flowId)}`, {
+            method: 'POST',
+            headers: { 'content-type': 'application/json' },
+            body: JSON.stringify(body),
+            signal: AbortSignal.timeout(10_000),
+        })
+        if (!response.ok) {
+            return { ok: false, reason: `http ${response.status}` }
+        }
+        return { ok: true }
+    }
+    catch {
+        return { ok: false, reason: 'network error' }
+    }
+}
+
+// PopulatedFlow -> плоское summary; webhookCompatible = триггер piece-webhook/catch_webhook.
+function toFlowSummary(raw: unknown): FlowSummary | null {
+    if (typeof raw !== 'object' || raw === null) {
+        return null
+    }
+    const flow = raw as { id?: unknown, version?: unknown }
+    if (typeof flow.id !== 'string') {
+        return null
+    }
+    const version = typeof flow.version === 'object' && flow.version !== null ? flow.version as Record<string, unknown> : {}
+    const displayName = typeof version.displayName === 'string' ? version.displayName : flow.id
+    const trigger = typeof version.trigger === 'object' && version.trigger !== null ? version.trigger as Record<string, unknown> : {}
+    const settings = typeof trigger.settings === 'object' && trigger.settings !== null ? trigger.settings as Record<string, unknown> : {}
+    const webhookCompatible = trigger.type === 'PIECE_TRIGGER'
+        && settings.pieceName === '@activepieces/piece-webhook'
+        && settings.triggerName === 'catch_webhook'
+    return { id: flow.id, displayName, webhookCompatible }
+}
+
 export type ForkCallResult = { ok: true } | { ok: false, reason: string }
 export type ExchangeResult = { ok: true, token: string, projectId: string } | { ok: false, reason: string }
 export type UpsertConnectionParams = { token: string, projectId: string, subdomain: string, apiToken: string }
 export type SetPieceTagsParams = { pieceNames: string[], tag: string }
+export type ListFlowsParams = { token: string, projectId: string }
+export type FlowSummary = { id: string, displayName: string, webhookCompatible: boolean }
+export type ListFlowsResult =
+    | { ok: true, flows: FlowSummary[] }
+    | { ok: false, reason: string, unauthorized?: boolean }

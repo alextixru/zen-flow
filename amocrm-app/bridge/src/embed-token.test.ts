@@ -44,6 +44,7 @@ beforeAll(async () => {
     process.env.SIGNING_KEY_PATH = keyPath
     process.env.SIGNING_KEY_ID = 'test-kid'
     process.env.FORK_API_KEY = 'sk-test'
+    process.env.DP_SECRET = 'dp-test-secret'
     process.env.DB_PATH = join(dir, 'bridge.db')
 
     ;({ db } = await import('./db.js'))
