@@ -144,13 +144,19 @@ define(['jquery'], function ($) {
       },
       destroy: function () {},
       contacts: {
-        selected: function () {}
+        selected: function () {
+          return true;
+        }
       },
       leads: {
-        selected: function () {}
+        selected: function () {
+          return true;
+        }
       },
       todo: {
-        selected: function () {}
+        selected: function () {
+          return true;
+        }
       }
     };
 
