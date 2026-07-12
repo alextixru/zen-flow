@@ -19,7 +19,11 @@ export function registerDp(app: FastifyInstance): void {
         }
         // amo ждёт быстрый 200 — запуск flow идёт после отправки ответа.
         void reply.code(200).send({ status: 'accepted' })
-        void handleDpEvent({ payload, log: request.log })
+        // .catch обязателен: необработанный reject (например, ошибка sqlite в
+        // дедупе) уронил бы процесс моста целиком (unhandledRejection).
+        handleDpEvent({ payload, log: request.log }).catch((error: unknown) => {
+            request.log.error(error, 'dp: async launch failed')
+        })
         return reply
     })
 }

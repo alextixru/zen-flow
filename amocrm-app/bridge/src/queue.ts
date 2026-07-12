@@ -50,8 +50,27 @@ export function enqueuePendingLaunch({ eventKey, accountId, flowId, source, extr
 
 export function startPendingLaunchWorker({ log }: { log: FastifyBaseLogger }): NodeJS.Timeout {
     return setInterval(() => {
-        void drainPendingLaunchesOnce({ log })
+        void runDrainTick({ log })
     }, RETRY_INTERVAL_MS)
+}
+
+// Гардированный тик: проход может длиться дольше интервала (fetch-таймауты по
+// 10с на строку) — без гарда параллельный тик прочитал бы те же ещё не
+// удалённые строки и запустил flow дважды.
+export async function runDrainTick({ log }: { log: FastifyBaseLogger }): Promise<void> {
+    if (draining) {
+        return
+    }
+    draining = true
+    try {
+        await drainPendingLaunchesOnce({ log })
+    }
+    catch (error) {
+        log.error(error, 'pending launch: drain failed')
+    }
+    finally {
+        draining = false
+    }
 }
 
 // Один проход очереди — экспортирован отдельно от setInterval, чтобы тесты
@@ -82,7 +101,18 @@ export async function drainPendingLaunchesOnce({ log }: { log: FastifyBaseLogger
     }
 }
 
-function extractEntityId(data: unknown, depth = 0): string {
+function extractEntityId(data: unknown): string {
+    if (typeof data !== 'object' || data === null) {
+        return ''
+    }
+    const found = findFirstId(data, 0)
+    // id не нашли — хешируем data ЦЕЛИКОМ (fallback только на верхнем уровне:
+    // stringify первого вложенного объекта склеивал бы разные события с
+    // одинаковым time в один дедуп-ключ).
+    return found !== '' ? found : JSON.stringify(data)
+}
+
+function findFirstId(data: unknown, depth: number): string {
     if (depth > 2 || typeof data !== 'object' || data === null) {
         return ''
     }
@@ -91,13 +121,15 @@ function extractEntityId(data: unknown, depth = 0): string {
         return String(record.id)
     }
     for (const value of Object.values(record)) {
-        const found = extractEntityId(Array.isArray(value) ? value[0] : value, depth + 1)
+        const found = findFirstId(Array.isArray(value) ? value[0] : value, depth + 1)
         if (found !== '') {
             return found
         }
     }
-    return JSON.stringify(data)
+    return ''
 }
+
+let draining = false
 
 const PROCESSED_TTL_MS = 24 * 60 * 60 * 1000
 const RETRY_INTERVAL_MS = 30_000

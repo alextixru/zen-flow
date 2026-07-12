@@ -34,6 +34,16 @@ define(['jquery'], function ($) {
       }
     }
 
+    function digFlowId(params, depth) {
+      if (!params || typeof params !== 'object' || depth > 4) {
+        return '';
+      }
+      if (typeof params.flow_id === 'string' && params.flow_id) {
+        return params.flow_id;
+      }
+      return digFlowId(params.params, depth + 1);
+    }
+
     function injectCss(base) {
       var store = ns();
       if (store.cssLoaded) {
@@ -173,10 +183,13 @@ define(['jquery'], function ($) {
       // Логика шага возвращается синхронной строкой JSON (форма — reference/bpmn
       // widget.js): один widget_request на наш handler c выбранным flow_id.
       // account_id/subdomain вшиваем на сохранении — сценарий принадлежит аккаунту.
+      // Форма params save-колбэка живьём не снята: render-путь BPMN получает поля
+      // вложенными (params.params.params.params — SbSettings.js), поэтому flow_id
+      // ищем и плоско, и вглубь по цепочке .params.
       onSalesbotDesignerSave: function (handler_code, params) {
         var account = amoAccount();
         var data = {
-          flow_id: (params && params.flow_id) || '',
+          flow_id: digFlowId(params, 0),
           account_id: account && account.id ? account.id : null,
           subdomain: account ? account.subdomain : null
         };

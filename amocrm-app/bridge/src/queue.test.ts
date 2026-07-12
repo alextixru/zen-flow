@@ -10,6 +10,7 @@ let computeEventKey: typeof import('./queue.js').computeEventKey
 let markEventOnce: typeof import('./queue.js').markEventOnce
 let enqueuePendingLaunch: typeof import('./queue.js').enqueuePendingLaunch
 let drainPendingLaunchesOnce: typeof import('./queue.js').drainPendingLaunchesOnce
+let runDrainTick: typeof import('./queue.js').runDrainTick
 
 const ACCOUNT_ID = '32453394'
 const FLOW_ID = 'flow-owned'
@@ -22,7 +23,7 @@ function seedActiveAccount(): void {
 
 // Роутер fetch-мока: сессия форка + листинг owned webhook-flow + управляемый
 // исход вызова запуска (для симуляции недоступного/восстановленного форка).
-function ownedFlowFetchMock({ webhook }: { webhook: 'ok' | 'down' }): ReturnType<typeof vi.fn> {
+function ownedFlowFetchMock({ webhook }: { webhook: 'ok' | 'down' }): (input: string) => Promise<Response> {
     return vi.fn(async (input: string) => {
         if (input.includes('/managed-authn/external-token')) {
             return new Response(JSON.stringify({ token: 'sess', projectId: 'proj' }), { status: 200 })
@@ -65,12 +66,43 @@ beforeAll(async () => {
     process.env.DP_SECRET = 'dp-test-secret'
 
     ;({ db } = await import('./db.js'))
-    ;({ computeEventKey, markEventOnce, enqueuePendingLaunch, drainPendingLaunchesOnce } = await import('./queue.js'))
+    ;({ computeEventKey, markEventOnce, enqueuePendingLaunch, drainPendingLaunchesOnce, runDrainTick } = await import('./queue.js'))
     seedActiveAccount()
 })
 
 afterEach(() => {
     vi.unstubAllGlobals()
+})
+
+describe('runDrainTick', () => {
+    it('параллельный тик не обрабатывает те же строки (гард наложения)', async () => {
+        let release!: () => void
+        const gate = new Promise<void>((resolve) => { release = resolve })
+        const inner = ownedFlowFetchMock({ webhook: 'ok' })
+        const fetchMock = vi.fn(async (input: string) => {
+            await gate
+            return inner(input)
+        })
+        vi.stubGlobal('fetch', fetchMock)
+        const app = Fastify()
+        const eventKey = `tick-overlap-${Math.random()}`
+        enqueuePendingLaunch({ eventKey, accountId: ACCOUNT_ID, flowId: FLOW_ID, source: 'amocrm_dp', extra: {}, now: Date.now() })
+
+        // draining выставляется синхронно при первом вызове — второй тик обязан
+        // выйти сразу, не читая те же строки (иначе двойной запуск flow).
+        const first = runDrainTick({ log: app.log })
+        const callsAfterFirst = fetchMock.mock.calls.length
+        await runDrainTick({ log: app.log })
+        expect(fetchMock.mock.calls.length).toBe(callsAfterFirst)
+
+        release()
+        await first
+        const row = db.prepare('SELECT * FROM pending_launches WHERE event_key = ?').get(eventKey)
+        expect(row).toBeUndefined()
+        const webhookCalls = fetchMock.mock.calls.filter((call) => String(call[0]).includes('/api/v1/webhooks/'))
+        expect(webhookCalls.length).toBe(1)
+        await app.close()
+    })
 })
 
 describe('computeEventKey', () => {

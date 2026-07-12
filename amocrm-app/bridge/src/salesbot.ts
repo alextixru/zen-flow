@@ -16,11 +16,15 @@ export function registerSalesbot(app: FastifyInstance): void {
         if (activeSubdomain(payload.accountId) === null) {
             return reply.code(403).send({ error: 'unknown account' })
         }
-        void launchOwnedFlow({
+        // .catch обязателен: необработанный reject уронил бы процесс моста
+        // целиком (unhandledRejection).
+        launchOwnedFlow({
             accountId: payload.accountId,
             flowId: payload.flowId,
             source: 'amocrm_salesbot',
             log: request.log,
+        }).catch((error: unknown) => {
+            request.log.error(error, 'salesbot: async launch failed')
         })
         // «Выстрелил и забыл»: точный формат ответа salesbot для выбора exit не
         // восстановлен из референса и не проверен живьём (escape W016), поэтому
