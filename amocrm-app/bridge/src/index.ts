@@ -9,6 +9,7 @@ import { registerDp } from './dp.js'
 import { registerEmbedToken } from './embed-token.js'
 import { registerFlows } from './flows.js'
 import { registerInstall } from './install.js'
+import { startPendingLaunchWorker } from './queue.js'
 import { registerSalesbot } from './salesbot.js'
 
 const ALLOWED_ORIGIN = /^https:\/\/[a-z0-9][a-z0-9-]*\.amocrm\.ru$/
@@ -83,6 +84,9 @@ await app.register(
     },
     { prefix: '/bridge' },
 )
+
+// Дожимает события DP, для которых форк был недоступен в момент вебхука (W017).
+startPendingLaunchWorker({ log: app.log })
 
 app.listen({ port: config.port, host: '0.0.0.0' }).catch((error: unknown) => {
     app.log.error(error)

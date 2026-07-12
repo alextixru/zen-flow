@@ -7,19 +7,21 @@ import { runFlowWebhook } from './fork-client.js'
 // отправлен — эта работа идёт после reply, ошибки только логируются.
 // Проверка принадлежности flow аккаунту — единственная защита от cross-tenant
 // (подмена settings шага чужим flow_id), поэтому живёт в одном месте на оба пути.
-export async function launchOwnedFlow({ accountId, flowId, source, extra, log }: LaunchParams): Promise<void> {
+// Возврат статуса (не void) — нужен W017: 'unreachable' сигналит вызывающему
+// (dp.ts), что стоит поставить событие в очередь ретраев, а не потерять его.
+export async function launchOwnedFlow({ accountId, flowId, source, extra, log }: LaunchParams): Promise<LaunchOutcome> {
     const account = activeSubdomain(accountId)
     if (account === null) {
-        return
+        return { status: 'unknown_account' }
     }
     const flows = await getEnabledFlows({ accountId, subdomain: account.subdomain, now: Date.now() })
     if (!flows.ok) {
         log.warn({ accountId, source, reason: flows.reason }, 'launch: flow listing failed')
-        return
+        return { status: 'unreachable', reason: flows.reason }
     }
     if (!flows.flows.some((flow) => flow.id === flowId)) {
         log.warn({ accountId, source, flowId }, 'launch: flow_id not owned by account')
-        return
+        return { status: 'not_owned' }
     }
     const run = await runFlowWebhook({
         flowId,
@@ -27,9 +29,10 @@ export async function launchOwnedFlow({ accountId, flowId, source, extra, log }:
     })
     if (!run.ok) {
         log.warn({ accountId, source, flowId, reason: run.reason }, 'launch: flow launch failed')
-        return
+        return { status: 'unreachable', reason: run.reason }
     }
     log.info({ accountId, source, flowId }, 'launch: flow launched')
+    return { status: 'launched' }
 }
 
 export function activeSubdomain(accountId: string): { subdomain: string } | null {
@@ -54,3 +57,9 @@ export type LaunchParams = {
     extra?: Record<string, unknown>
     log: FastifyBaseLogger
 }
+
+export type LaunchOutcome =
+    | { status: 'launched' }
+    | { status: 'unknown_account' }
+    | { status: 'not_owned' }
+    | { status: 'unreachable', reason: string }

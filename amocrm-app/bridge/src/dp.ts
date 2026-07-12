@@ -1,6 +1,7 @@
-import type { FastifyInstance } from 'fastify'
+import type { FastifyBaseLogger, FastifyInstance } from 'fastify'
 import { config } from './config.js'
 import { activeSubdomain, launchOwnedFlow, normalizeAccountId } from './flow-launch.js'
+import { computeEventKey, enqueuePendingLaunch, markEventOnce } from './queue.js'
 
 export function registerDp(app: FastifyInstance): void {
     app.post('/dp', async (request, reply) => {
@@ -18,15 +19,39 @@ export function registerDp(app: FastifyInstance): void {
         }
         // amo ждёт быстрый 200 — запуск flow идёт после отправки ответа.
         void reply.code(200).send({ status: 'accepted' })
-        void launchOwnedFlow({
+        void handleDpEvent({ payload, log: request.log })
+        return reply
+    })
+}
+
+// Дедуп + запуск flow, вынесено из хендлера — amo ретраит DP-вебхук на
+// таймаут/не-200 (W017 §а), а форк может быть временно недоступен: дедуп по
+// event_key не даёт повторного запуска, 'unreachable' уходит в очередь ретраев.
+async function handleDpEvent({ payload, log }: { payload: DpPayload, log: FastifyBaseLogger }): Promise<void> {
+    const now = Date.now()
+    const eventKey = computeEventKey({ accountId: payload.accountId, flowId: payload.flowId, event: payload.event })
+    if (!markEventOnce({ eventKey, now })) {
+        log.info({ accountId: payload.accountId, flowId: payload.flowId }, 'dp: duplicate event dropped')
+        return
+    }
+    const outcome = await launchOwnedFlow({
+        accountId: payload.accountId,
+        flowId: payload.flowId,
+        source: 'amocrm_dp',
+        extra: { event: payload.event },
+        log,
+    })
+    if (outcome.status === 'unreachable') {
+        enqueuePendingLaunch({
+            eventKey,
             accountId: payload.accountId,
             flowId: payload.flowId,
             source: 'amocrm_dp',
             extra: { event: payload.event },
-            log: request.log,
+            now,
         })
-        return reply
-    })
+        log.warn({ accountId: payload.accountId, flowId: payload.flowId, reason: outcome.reason }, 'dp: fork unreachable, queued for retry')
+    }
 }
 
 // Форма payload — справочник PRD (DP-блок): flow_id в action.settings.widget.settings.

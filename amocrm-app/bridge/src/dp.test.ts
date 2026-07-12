@@ -135,4 +135,46 @@ describe('POST /dp', () => {
         })
         expect(fetchMock.mock.calls.some(([url]) => String(url).includes('/api/v1/webhooks/'))).toBe(false)
     })
+
+    it('W017: a repeated identical event launches the webhook only once', async () => {
+        const fetchMock = routedFetch()
+        vi.stubGlobal('fetch', fetchMock)
+        const body = { ...(dpBody(OWNED_FLOW) as Record<string, unknown>), event: { type: 'status', time: 424242 } }
+        expect(await postDp({ query: '?k=dp-test-secret', body })).toBe(200)
+        expect(await postDp({ query: '?k=dp-test-secret', body })).toBe(200)
+        await vi.waitFor(() => {
+            const calls = fetchMock.mock.calls.filter(([url]) => String(url).includes(`/api/v1/webhooks/${OWNED_FLOW}`))
+            expect(calls.length).toBe(1)
+        })
+    })
+
+    it('W017: fork unreachable at the webhook step queues the event in pending_launches', async () => {
+        const fetchMock = vi.fn(async (input: string) => {
+            if (input.includes('/managed-authn/external-token')) {
+                return new Response(JSON.stringify({ token: 'sess-w017', projectId: 'proj-w017' }), { status: 200 })
+            }
+            if (input.includes('/api/v1/flows')) {
+                return new Response(JSON.stringify({
+                    data: [{
+                        id: OWNED_FLOW,
+                        version: {
+                            displayName: 'Owned',
+                            trigger: { type: 'PIECE_TRIGGER', settings: { pieceName: '@activepieces/piece-webhook', triggerName: 'catch_webhook' } },
+                        },
+                    }],
+                }), { status: 200 })
+            }
+            if (input.includes('/api/v1/webhooks/')) {
+                return new Response('{}', { status: 503 })
+            }
+            return new Response('{}', { status: 200 })
+        })
+        vi.stubGlobal('fetch', fetchMock)
+        const body = { ...(dpBody(OWNED_FLOW) as Record<string, unknown>), event: { type: 'status', time: 555555 } }
+        expect(await postDp({ query: '?k=dp-test-secret', body })).toBe(200)
+        await vi.waitFor(() => {
+            const row = db.prepare('SELECT * FROM pending_launches WHERE account_id = ? AND flow_id = ?').get(ACCOUNT_ID, OWNED_FLOW)
+            expect(row).toBeDefined()
+        })
+    })
 })

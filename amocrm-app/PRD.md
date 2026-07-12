@@ -242,7 +242,7 @@
 - **pattern:** `reference/bpmn/widget/manifest.json` (`salesbot_designer.start_bp` c manual-полями), `research/amo-surfaces.md` §1 (salesbot_designer).
 - **verify:** живьём: сценарий salesbot на dzenteamdev с нашим шагом → запуск бота на сделке → flow запустился; фактические формы JSON записаны в activity.
 
-### - [ ] W017 — Надёжность DP-пути: дедуп + очередь при недоступном форке
+### - [x] W017 — Надёжность DP-пути: дедуп + очередь при недоступном форке
 
 - **spec:** (а) выяснить живьём поведение ретраев amo DP-вебхука (таймаут ответа, повторы при не-200) — записать в activity; (б) дедуп на мосту: таблица `processed_events` (ключ: hash от `account_id+flow_id+event.time+entity_id`, TTL сутки, чистка при вставке) — повторный вебхук не даёт второго запуска; (в) недоступный форк: мост всё равно отвечает amo 200, событие ложится в таблицу `pending_launches`, фоновый цикл (`setInterval`, каждые 30с, до 20 попыток) дожимает запуск — сделки клиента не теряют автоматизацию при рестарте форка. `ponytail:` очередь = таблица SQLite + interval; BullMQ/красивый шедулер — когда упрёмся.
 - **files:** `bridge/src/{dp.ts,queue.ts}` + тесты (дедуп, ретрай-цикл на моке fork-client).
