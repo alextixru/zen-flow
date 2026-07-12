@@ -9,6 +9,7 @@ import { registerDp } from './dp.js'
 import { registerEmbedToken } from './embed-token.js'
 import { registerFlows } from './flows.js'
 import { registerInstall } from './install.js'
+import { registerMobile } from './mobile.js'
 import { startPendingLaunchWorker } from './queue.js'
 import { registerRun } from './run.js'
 import { registerRuns } from './runs.js'
@@ -84,6 +85,7 @@ await app.register(
         registerRun(instance)
         registerDp(instance)
         registerSalesbot(instance)
+        registerMobile(instance)
         registerWidgetStatic(instance)
     },
     { prefix: '/bridge' },

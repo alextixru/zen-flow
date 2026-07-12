@@ -3,7 +3,7 @@
     "name": "widget.name",
     "description": "widget.description",
     "short_description": "widget.short_description",
-    "version": "0.1.5",
+    "version": "0.1.6",
     "interface_version": 2,
     "init_once": false,
     "locale": ["ru"],
@@ -13,7 +13,7 @@
       "email": "support@dzen.team"
     }
   },
-  "locations": ["settings", "advanced_settings", "lcard-0", "digital_pipeline", "salesbot_designer"],
+  "locations": ["settings", "advanced_settings", "lcard-0", "digital_pipeline", "salesbot_designer", "mobile_card"],
   "settings": {
     "install_key": {
       "name": "settings.install_key",
@@ -48,5 +48,9 @@
         }
       }
     }
+  },
+  "mobile": {
+    "frame_url": "https://amoai-dev.dzen.team/bridge/mobile/card",
+    "color": "#313942"
   }
 }
