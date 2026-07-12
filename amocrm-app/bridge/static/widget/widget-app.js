@@ -330,6 +330,15 @@
       return '?install_key=' + encodeURIComponent(key) + '&account_id=' + encodeURIComponent(account.id);
     }
 
+    // Не-ok ответ моста (403 ревокнутый ключ, 502 недоступный форк) — ошибка,
+    // а не «пустой список»: роняем в catch, чтобы UI показал текст ошибки.
+    function jsonOrThrow(res) {
+      if (!res.ok) {
+        throw new Error('http ' + res.status);
+      }
+      return res.json();
+    }
+
     function loadRuns() {
       var $runs = $('.dzenflow-runs');
       if (!$runs.length) {
@@ -342,9 +351,7 @@
       }
       $runs.text(t('runs.loading', 'Загрузка запусков…'));
       fetch(BRIDGE_URL + '/runs' + suffix)
-        .then(function (res) {
-          return res.ok ? res.json() : null;
-        })
+        .then(jsonOrThrow)
         .then(function (runs) {
           renderRunsList($runs, runs);
         })
@@ -364,9 +371,7 @@
       }
       $select.empty().append(new Option(t('dp.loading', 'Загрузка сценариев…'), ''));
       fetch(BRIDGE_URL + '/flows' + suffix)
-        .then(function (res) {
-          return res.ok ? res.json() : null;
-        })
+        .then(jsonOrThrow)
         .then(function (flows) {
           $select.empty().append(new Option(t('run.choose', '— выберите сценарий —'), ''));
           if (flows && flows.length) {
@@ -505,9 +510,7 @@
         return;
       }
       fetch(BRIDGE_URL + '/flows?install_key=' + encodeURIComponent(key) + '&account_id=' + encodeURIComponent(account.id))
-        .then(function (res) {
-          return res.ok ? res.json() : null;
-        })
+        .then(jsonOrThrow)
         .then(function (flows) {
           $select.empty();
           $select.append(new Option(t('dp.choose', '— выберите сценарий —'), ''));
