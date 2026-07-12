@@ -142,6 +142,12 @@ define(['jquery'], function ($) {
         });
         return true;
       },
+      dpSettings: function () {
+        withApp(function (app) {
+          app.dpSettings();
+        });
+        return true;
+      },
       destroy: function () {},
       contacts: {
         selected: function () {

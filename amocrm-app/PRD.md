@@ -227,7 +227,7 @@
 - **pattern:** формы payload — справочник (DP-блок); webhook-запуск flow — `/api/v1/webhooks/{flowId}` (публичный эндпоинт webhook-триггеров форка).
 - **verify:** tsc + vitest; живьём на превью: curl-эмуляция DP-payload → flow-run появился в проекте (запуск через webhook-URL подтверждён).
 
-### - [ ] W015 — Manifest DP-блок + dpSettings-плашка выбора flow
+### - [x] W015 — Manifest DP-блок + dpSettings-плашка выбора flow
 
 - **spec:** manifest: добавить `digital_pipeline` в locations + `dp`-блок: `settings: { flow_id: {type:'text', required:true} }`, `action_multiple:false`, `webhook_url:'https://<мост>/dp?k=...'`; `images/logo_dp.png` 174×109. `widget-app.js`: `dpSettings($el)` — рендер селекта flow (данные из `GET /flows` моста), выбор пишется в поле `flow_id` формы шага. **Механику записи значения в поле шага снять с боевого кода** (`reference/triggeron/widget/script.js`, как Triggeron заполняет `dp_rule`) — это главный неочевидный момент задачи. Собрать на dzenteamdev автоворонку: этап → наш шаг → выбран flow.
 - **files:** `widget/manifest.json`, `widget/i18n/ru.json`, `widget/images/logo_dp.png`, `bridge/static/widget/widget-app.js`.

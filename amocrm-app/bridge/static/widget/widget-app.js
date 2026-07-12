@@ -299,10 +299,62 @@
       } catch (e) {}
     }
 
+    // dpSettings: amo рендерит поля dp.settings манифеста как <input name="<код>">
+    // внутри #widget_settings__fields_wrapper (механика — reference/triggeron
+    // DpSettings.open). Наше поле — flow_id; заменяем сырой input на <select>
+    // сценариев из GET /flows и пишем выбранное обратно в input (amo сохраняет
+    // именно его значение). Сеть упала → input остаётся видимым (graceful degrade).
+    function dpSettings() {
+      var $input = $('#widget_settings__fields_wrapper').find('input[name="flow_id"]');
+      if (!$input.length || $input.data('dzenflowEnhanced')) {
+        return;
+      }
+      $input.data('dzenflowEnhanced', true);
+      var current = String($input.val() || '');
+      var $select = $('<select class="dzenflow-dp-select"></select>');
+      $select.append(new Option(t('dp.loading', 'Загрузка сценариев…'), ''));
+      $input.hide().after($select);
+      $select.on('change', function () {
+        $input.val($select.val()).trigger('change');
+      });
+
+      var account = amoConstant('account');
+      var key = installKey();
+      if (!account || !account.id || !key) {
+        $select.empty().append(new Option(t('dp.no_key', 'Сначала введите ключ установки в настройках интеграции'), ''));
+        return;
+      }
+      fetch(BRIDGE_URL + '/flows?install_key=' + encodeURIComponent(key) + '&account_id=' + encodeURIComponent(account.id))
+        .then(function (res) {
+          return res.ok ? res.json() : null;
+        })
+        .then(function (flows) {
+          $select.empty();
+          $select.append(new Option(t('dp.choose', '— выберите сценарий —'), ''));
+          if (!flows || !flows.length) {
+            var opt = new Option(t('dp.empty', 'Нет доступных сценариев'), '');
+            opt.disabled = true;
+            $select.append(opt);
+          } else {
+            for (var i = 0; i < flows.length; i++) {
+              // new Option ставит текст через textContent — имя flow не интерпретируется как HTML.
+              $select.append(new Option(flows[i].displayName || flows[i].id, flows[i].id));
+            }
+          }
+          if (current) {
+            $select.val(current);
+          }
+        })
+        .catch(function () {
+          $select.empty().append(new Option(t('dp.error', 'Не удалось загрузить список сценариев'), ''));
+        });
+    }
+
     return {
       submitInstall: submitInstall,
       renderEmbed: renderEmbed,
-      renderCardBlock: renderCardBlock
+      renderCardBlock: renderCardBlock,
+      dpSettings: dpSettings
     };
   };
 })();

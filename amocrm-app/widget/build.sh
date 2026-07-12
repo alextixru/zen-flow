@@ -14,10 +14,25 @@ fi
 
 node -e "require('./manifest.json'); require('./i18n/ru.json')"
 
+# Секрет DP-вебхука не хранится в git-манифесте (placeholder __DP_SECRET__),
+# подставляется из env или bridge/.env только в собираемый zip — он должен
+# совпадать с DP_SECRET моста (config.dpSecret), иначе amo → мост даст 403.
+DP_SECRET="${DP_SECRET:-$(grep -s '^DP_SECRET=' ../bridge/.env | cut -d= -f2-)}"
+if [ -z "$DP_SECRET" ]; then
+  echo "FAIL: DP_SECRET not set (env or amocrm-app/bridge/.env) — webhook_url останется с placeholder" >&2
+  exit 1
+fi
+
 OUT="dzenflow-widget.zip"
 rm -f "$OUT"
-zip -r -X "$OUT" manifest.json script.js i18n images \
-  -x '*.DS_Store' -x '__MACOSX*' >/dev/null
+STAGE="$(mktemp -d)"
+trap 'rm -rf "$STAGE"' EXIT
+sed "s|__DP_SECRET__|$DP_SECRET|" manifest.json > "$STAGE/manifest.json"
+cp script.js "$STAGE/"
+cp -r i18n images "$STAGE/"
+( cd "$STAGE" && zip -r -X "$OUT" manifest.json script.js i18n images \
+  -x '*.DS_Store' -x '__MACOSX*' >/dev/null )
+mv "$STAGE/$OUT" ./
 
 echo "built $OUT"
 unzip -l "$OUT"

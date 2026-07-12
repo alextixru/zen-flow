@@ -3,7 +3,7 @@
     "name": "widget.name",
     "description": "widget.description",
     "short_description": "widget.short_description",
-    "version": "0.1.1",
+    "version": "0.1.2",
     "interface_version": 2,
     "init_once": false,
     "locale": ["ru"],
@@ -13,7 +13,7 @@
       "email": "support@dzen.team"
     }
   },
-  "locations": ["settings", "advanced_settings", "lcard-0"],
+  "locations": ["settings", "advanced_settings", "lcard-0", "digital_pipeline"],
   "settings": {
     "install_key": {
       "name": "settings.install_key",
@@ -23,5 +23,16 @@
   },
   "advanced": {
     "title": "advanced.title"
+  },
+  "dp": {
+    "settings": {
+      "flow_id": {
+        "name": "settings.flow_id",
+        "type": "text",
+        "required": true
+      }
+    },
+    "action_multiple": false,
+    "webhook_url": "https://amoai-dev.dzen.team/bridge/dp?k=__DP_SECRET__"
   }
 }
