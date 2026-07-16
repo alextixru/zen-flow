@@ -71,8 +71,9 @@ RUN --mount=type=cache,target=/root/.bun/install/cache \
 # Copy remaining source code (turbo config, etc.)
 COPY . .
 
-# Build frontend, engine, server API, and worker
-RUN npx turbo run build --filter=web --filter=@activepieces/engine --filter=api --filter=worker
+# Build frontend, engine, server API, worker and the amocrm piece (not on npm —
+# ships in the image and loads via AP_DEV_PIECES=amocrm)
+RUN npx turbo run build --filter=web --filter=@activepieces/engine --filter=api --filter=worker --filter=@activepieces/piece-amocrm
 
 # The web build emits hidden source maps (vite build.sourcemap='hidden') used to
 # symbolicate production stack traces in Sentry/BetterStack error tracking. Upload
@@ -96,6 +97,7 @@ RUN rm -rf packages/pieces/core packages/pieces/custom && \
       ! -name square \
       ! -name facebook-leads \
       ! -name intercom \
+      ! -name amocrm \
       -exec rm -rf {} + && \
     rm -f bun.lock && bun install
 
