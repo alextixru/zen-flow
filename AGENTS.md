@@ -86,6 +86,13 @@ npx turbo run serve --filter=web -- --mode=cloud # Run local frontend against th
 
 When running in `--mode=cloud`, do not use OAuth2 connections — the OAuth provider will redirect back to `cloud.activepieces.com` after sign-in instead of your local frontend, breaking the flow. Use API-key / basic-auth connections, or test OAuth2 against a fully local backend.
 
+## Production Deployment — STRICT RULE
+
+- **Merging into `main` = deploying to production.** Автодеплой: пуш в `main` → GHCR-сборка → watchtower обновляет flow.dzen.team за минуты.
+- **НИКОГДА не отправлять изменения в продакшн без явного согласования с пользователем в текущем разговоре.** Запрещено без отдельного «да» на конкретный деплой: `gh pr merge` в `main`, прямой пуш в `main`, пуш тегов `v*`, `gh workflow run build-image.yml`, ручное обновление контейнеров на сервере.
+- Разрешено без согласования: работать в feature-ветках, пушить их, создавать PR. Дальше — показать PR пользователю и ждать его решения.
+- Согласование не переносится: «да» на прошлый деплой не разрешает следующий.
+
 ## Pull Requests
 
 - When creating a PR with `gh pr create`, always apply exactly one of these labels based on the nature of the change:

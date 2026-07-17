@@ -1,0 +1,6 @@
+{
+  "Manual Trigger": "Ручной триггер",
+  "Manually start your own flow without any extra configurations": "Запускайте свой сценарий вручную без дополнительных настроек",
+  "Markdown": "Markdown",
+  "Manual triggers are used to start a flow on demand, publish your flow and click (Run Flow) at the start of the flow.": "Ручные триггеры используются для запуска сценария по требованию: опубликуйте сценарий и нажмите (Запустить сценарий) в начале сценария."
+}
