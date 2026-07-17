@@ -13,7 +13,7 @@ import { projectService } from '../../project/project-service'
 import { pieceTagService } from '../tags/pieces/piece-tag.service'
 import { pieceCache, PieceRegistryEntry } from './piece-cache'
 import { PieceMetadataEntity, PieceMetadataSchema } from './piece-metadata-entity'
-import { filterPieceBasedOnType, isNewerVersion, isSupportedRelease, lastVersionOfEachPiece, loadDevPiecesIfEnabled, pieceListUtils } from './utils'
+import { filterPieceBasedOnType, isNewerVersion, isSupportedRelease, lastVersionOfEachPiece, loadDevPiecesIfEnabled, pieceListUtils, piecesI18nOverlay } from './utils'
 
 export const pieceRepos = repoFactory(PieceMetadataEntity)
 
@@ -87,7 +87,7 @@ export const pieceMetadataService = (log: FastifyBaseLogger) => {
             if (isNil(locale) || locale === LocalesEnum.ENGLISH) {
                 return piece
             }
-            return pieceTranslation.translatePiece<PieceMetadataModel>({ piece, locale, mutate: false })
+            return pieceTranslation.translatePiece<PieceMetadataModel>({ piece: piecesI18nOverlay.enrich({ piece, locale }), locale, mutate: false })
         },
         async updateUsage({ id, usage }: UpdateUsage): Promise<void> {
             const existingMetadata = await pieceRepos().findOneByOrFail({
@@ -478,7 +478,7 @@ function translatePieces(pieces: PieceMetadataSchema[], locale: LocalesEnum): Pi
     return pieces.map((piece) => {
         const translated = locale === LocalesEnum.ENGLISH
             ? { ...piece }
-            : pieceTranslation.translatePiece<PieceMetadataSchema>({ piece, locale, mutate: false })
+            : pieceTranslation.translatePiece<PieceMetadataSchema>({ piece: piecesI18nOverlay.enrich({ piece, locale }), locale, mutate: false })
         translated.i18n = undefined
         return translated
     })

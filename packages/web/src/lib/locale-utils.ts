@@ -9,5 +9,6 @@ export const localesMap = {
   [LocalesEnum.JAPANESE]: '日本語',
   [LocalesEnum.DUTCH]: 'Nederlands',
   [LocalesEnum.PORTUGUESE]: 'Português',
+  [LocalesEnum.RUSSIAN]: 'Русский',
   [LocalesEnum.CHINESE_TRADITIONAL]: '繁體中文',
 };
