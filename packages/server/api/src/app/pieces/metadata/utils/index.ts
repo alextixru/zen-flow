@@ -43,3 +43,4 @@ export type FilterPiecesParams = {
 }
 
 export * from './piece-cache-utils'
+export * from './pieces-i18n-overlay'

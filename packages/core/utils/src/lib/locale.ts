@@ -7,6 +7,7 @@ export enum LocalesEnum {
     JAPANESE = 'ja',
     CHINESE_SIMPLIFIED = 'zh',
     PORTUGUESE = 'pt',
+    RUSSIAN = 'ru',
     ARABIC = 'ar',
     CHINESE_TRADITIONAL = 'zh-TW',
 }
