@@ -44,3 +44,11 @@ jobs:
           labels: ${{ steps.meta.outputs.labels }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
+
+      # Push-деплой: будим watchtower на проде сразу после пуша образа,
+      # не дожидаясь его 5-минутного поллинга (поллинг остаётся как фолбэк).
+      - name: Trigger deploy (watchtower)
+        run: |
+          curl -fsS -X POST --retry 3 --retry-delay 5 \
+            -H "Authorization: Bearer ${{ secrets.WATCHTOWER_TOKEN }}" \
+            https://deploy.flow.dzen.team/v1/update
