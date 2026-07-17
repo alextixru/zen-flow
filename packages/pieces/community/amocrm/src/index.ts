@@ -9,7 +9,7 @@ export const amocrm = createPiece({
   displayName: 'amoCRM',
   description: 'CRM automation for amoCRM: leads, contacts, companies, tasks and more.',
   auth: amocrmAuth,
-  logoUrl: 'https://cdn.activepieces.com/pieces/amocrm.png',
+  logoUrl: 'https://flow.dzen.team/pieces/amocrm.png',
   categories: [PieceCategory.SALES_AND_CRM, PieceCategory.COMMUNICATION],
   authors: [],
   actions: [
