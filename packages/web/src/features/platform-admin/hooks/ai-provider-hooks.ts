@@ -18,6 +18,18 @@ export const aiProviderQueries = {
       queryKey: aiProviderKeys.all,
       queryFn: () => aiProviderApi.list(),
     }),
+  useAiProviderModels: ({
+    provider,
+    enabled,
+  }: {
+    provider: string | undefined;
+    enabled: boolean;
+  }) =>
+    useQuery({
+      queryKey: [...aiProviderKeys.all, 'models', provider],
+      queryFn: () => aiProviderApi.listModelsForProvider(provider ?? ''),
+      enabled: enabled && Boolean(provider),
+    }),
 };
 
 export const aiProviderMutations = {
