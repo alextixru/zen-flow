@@ -1,7 +1,6 @@
 {
-  "GraphQL": "GraphQL",
   "Send Request": "Отправить запрос",
-  "Makes a GraphQL request.": "Делает запрос GraphQL.",
+  "Makes a GraphQL request.": "Выполняет запрос GraphQL.",
   "Method": "Метод",
   "URL": "URL",
   "Query params": "Параметры запроса",
@@ -11,12 +10,12 @@
   "Use Proxy": "Использовать прокси",
   "Proxy Settings": "Настройки прокси",
   "Timeout(in seconds)": "Тайм-аут (в секундах)",
-  "No Error on Failure": "Нет ошибок при ошибке",
+  "No Error on Failure": "Не выдавать ошибку при сбое",
   "Use a proxy for this request": "Использовать прокси для этого запроса",
-  "GET": "ПОЛУЧИТЬ",
-  "POST": "ПОСТ",
-  "PATCH": "ПАТЧ",
-  "PUT": "ПОКУПИТЬ",
-  "DELETE": "УДАЛИТЬ",
+  "GET": "GET",
+  "POST": "POST",
+  "PATCH": "PATCH",
+  "PUT": "PUT",
+  "DELETE": "DELETE",
   "HEAD": "HEAD"
 }

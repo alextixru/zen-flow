@@ -1,8 +1,7 @@
 {
-  "Data Mapper": "Карта данных",
-  "tools to manipulate data structure": "инструменты для управления структурой данных",
-  "Advanced Mapping": "Расширенное отображение",
-  "Map data from one format to another": "Карта данных из одного формата в другой",
+  "tools to manipulate data structure": "инструменты для работы со структурой данных",
+  "Advanced Mapping": "Расширенное сопоставление",
+  "Map data from one format to another": "Преобразовать данные из одного формата в другой",
   "Mapping": "Сопоставление",
   "The mapping to use": "Используемое сопоставление"
 }
