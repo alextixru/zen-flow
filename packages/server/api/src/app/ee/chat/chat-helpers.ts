@@ -1,5 +1,5 @@
 import { ActivepiecesError, AIProviderName, ErrorCode, isNil } from '@activepieces/core-utils'
-import { ACTIVEPIECES_CHAT_TIERS, ChatConversationStatus, DEFAULT_CHAT_TIER_ID, GetProviderConfigResponse, Project, ProjectType } from '@activepieces/shared'
+import { ACTIVEPIECES_CHAT_TIERS, AIProviderModelType, ChatConversationStatus, DEFAULT_CHAT_TIER_ID, GetProviderConfigResponse, OpenAICompatibleProviderConfig, Project, ProjectType, ProviderModelConfig } from '@activepieces/shared'
 import { FastifyBaseLogger } from 'fastify'
 import { aiProviderService } from '../../ai/ai-provider-service'
 import { repoFactory } from '../../core/db/repo-factory'
@@ -78,10 +78,40 @@ function resolveModelIdForProvider({ tier, provider }: { tier: { modelId: string
     return openrouterModelId.replace(/^[^/]+\//, '').replace(/\./g, '-')
 }
 
+// У CUSTOM-провайдера чат работает со списком моделей из его конфига, а не с зашитыми
+// облачными тирами: пользователь селф-хоста сам решает, какие модели отдаёт его эндпоинт.
+function customChatModels({ provider, config }: { provider: AIProviderName, config: unknown }): ProviderModelConfig[] | null {
+    if (provider !== AIProviderName.CUSTOM) {
+        return null
+    }
+    const parsed = OpenAICompatibleProviderConfig.safeParse(config)
+    if (!parsed.success) {
+        return null
+    }
+    const textModels = parsed.data.models.filter((m) => m.modelType === AIProviderModelType.TEXT)
+    return textModels.length > 0 ? textModels : null
+}
+
+// requestedModelId — это либо id модели CUSTOM-провайдера (новый путь), либо id тира
+// ('fast'/'smart'/'premium') из старых разговоров и облачных провайдеров — оба резолвятся тут.
+function resolveChatModelId({ requestedModelId, provider, config }: { requestedModelId: string | null, provider: AIProviderName, config: unknown }): string {
+    const models = customChatModels({ provider, config })
+    if (models) {
+        return models.find((m) => m.modelId === requestedModelId)?.modelId ?? models[0].modelId
+    }
+    const tier = resolveTier({ tierId: requestedModelId })
+    return resolveModelIdForProvider({ tier, provider })
+}
+
 // Round one of the chat turn runs on the fastest tier so its first token streams in ~400ms
 // (the opener + first discovery) — fast enough to replace the bare "Thinking…" gap —
 // regardless of which tier the user picked for the main turn.
-function resolveFastModelId({ provider }: { provider: AIProviderName }): string {
+// Для CUSTOM-провайдера «быстрая» — первая модель его списка (кладите дешёвую первой).
+function resolveFastModelId({ provider, config }: { provider: AIProviderName, config?: unknown }): string {
+    const models = customChatModels({ provider, config })
+    if (models) {
+        return models[0].modelId
+    }
     return resolveModelIdForProvider({ tier: resolveTier({ tierId: FAST_TIER_ID }), provider })
 }
 
@@ -91,6 +121,7 @@ export const chatHelpers = {
     resolveChatProvider,
     resolveTier,
     resolveModelIdForProvider,
+    resolveChatModelId,
     resolveFastModelId,
     conversationRepo,
 }
