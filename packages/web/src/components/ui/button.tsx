@@ -17,12 +17,13 @@ const buttonVariants = cva(
           'bg-primary stroke-background text-primary-foreground enabled:hover:bg-primary/85',
         basic: 'text-primary underline-offset-4 enabled:hover:bg-accent',
         secondary:
-          'rounded-none border-b border-input bg-transparent px-1 text-muted-foreground hover-underline enabled:hover:text-foreground',
+          'rounded-none bg-transparent px-1 text-muted-foreground hover-underline enabled:hover:text-foreground',
         destructive:
           'bg-destructive text-white enabled:hover:bg-destructive/90 focus-visible:ring-destructive/20 dark:bg-destructive/60 dark:focus-visible:ring-destructive/40',
-        // Zen: outline == secondary — любое второстепенное действие выглядит одинаково
+        // Zen: outline == secondary — любое второстепенное действие выглядит одинаково:
+        // чистый текст в покое, ink-линия растягивается на hover
         outline:
-          'rounded-none border-b border-input bg-transparent px-1 text-muted-foreground hover-underline enabled:hover:text-foreground',
+          'rounded-none bg-transparent px-1 text-muted-foreground hover-underline enabled:hover:text-foreground',
         accent: 'bg-accent text-accent-foreground enabled:hover:bg-accent/80',
         ghost: 'hover-underline hover:text-foreground',
         link: 'rounded-none px-0 text-muted-foreground underline decoration-border underline-offset-4 hover:text-foreground hover:decoration-foreground',
