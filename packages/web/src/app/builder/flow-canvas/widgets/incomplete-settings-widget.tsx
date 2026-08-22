@@ -45,7 +45,8 @@ const IncompleteSettingsButton: React.FC<IncompleteSettingsButtonProps> = ({
     !flowVersion.valid && (
       <Button
         variant="ghost"
-        className="h-[28px] hover:bg-amber-50 p-2 dark:hover:bg-amber-950 dark:bg-amber-950 bg-amber-50 border border-solid border-amber-500 hover:border-amber-700 dark:hover:border-amber-600  dark:border-amber-900 dark:text-amber-600 text-amber-700 hover:text-amber-700 dark:hover:text-amber-600   animate-fade"
+        // Zen DS: плашка без рамки и заливки, warning — цветом текста; hover — растягивающаяся линия
+        className="h-[28px] p-2 animate-fade bg-background shadow-[0_1px_3px_rgb(0_0_0_/_0.06)] text-warning-700 hover:text-warning-700 dark:text-warning-400 dark:hover:text-warning-400"
         key={'complete-flow-button'}
         onClick={(e) => {
           onClick();

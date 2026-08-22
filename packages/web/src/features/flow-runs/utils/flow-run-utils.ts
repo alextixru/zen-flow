@@ -179,17 +179,18 @@ export const flowRunUtils = {
     variant: 'default' | 'success' | 'error' | 'warning',
     withPaddingAndAnimation = false,
   ) {
-    return cn('text-xs border rounded-md leading-tight', {
-      'text-success-800 bg-success-50 border-success-200 dark:text-success-200 dark:bg-success-900 dark:border-success-800':
-        variant === 'success',
-      'text-destructive-700 bg-destructive-50 border-destructive-200 dark:text-destructive-200 dark:bg-destructive-900 dark:border-destructive-800':
-        variant === 'error',
-      'text-amber-700 bg-amber-50 border-amber-200 dark:text-amber-600 dark:bg-amber-950 border-amber-500 dark:border-amber-900':
-        variant === 'warning',
-      'bg-background  border-border text-foreground': variant === 'default',
-      'flex gap-1 animate-in fade-in slide-in-from-bottom-2 duration-500 items-center  justify-center px-2 py-0.5':
-        withPaddingAndAnimation,
-    });
+    // Zen DS: статус-чип — чистая плашка с карточной тенью, семантика цветом текста, без рамок и заливок
+    return cn(
+      'text-xs rounded-sm leading-tight bg-background shadow-[0_1px_3px_rgb(0_0_0_/_0.06)]',
+      {
+        'text-success-700 dark:text-success-300': variant === 'success',
+        'text-destructive-600 dark:text-destructive-300': variant === 'error',
+        'text-warning-700 dark:text-warning-400': variant === 'warning',
+        'text-muted-foreground': variant === 'default',
+        'flex gap-1 animate-in fade-in slide-in-from-bottom-2 duration-500 items-center  justify-center px-2 py-0.5':
+          withPaddingAndAnimation,
+      },
+    );
   },
 
   getStatusIcon(status: FlowRunStatus): {

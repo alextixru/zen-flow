@@ -133,7 +133,7 @@ const CanvasControls = ({
       id="canvas-controls"
       className="z-50 absolute bottom-2 left-0 flex items-center  w-full pointer-events-none "
     >
-      <div className=" absolute flex ml-2 items-center justify-center p-1.5 pointer-events-auto rounded-lg bg-background border border-sidebar-border">
+      <div className=" absolute flex ml-2 items-center justify-center p-1.5 pointer-events-auto rounded-lg bg-background border shadow-[0_1px_3px_rgb(0_0_0_/_0.06)]">
         <CanvasControlButton
           tooltip={t('Minimap' + (isMac() ? ' (⌘ + M)' : ' (Ctrl + M)'))}
           icon={Map}
@@ -143,7 +143,8 @@ const CanvasControls = ({
       </div>
       <div className="grow"></div>
 
-      <div className="bg-background gap-2 flex items-center shadow-2xl justify-center border border-sidebar-border p-1.5 rounded-lg pointer-events-auto">
+      {/* Zen DS: остров без тяжёлой тени — рамка line-2 + карточная тень */}
+      <div className="bg-background gap-2 flex items-center shadow-[0_1px_3px_rgb(0_0_0_/_0.06)] justify-center border p-1.5 rounded-lg pointer-events-auto">
         <CanvasControlButton
           tooltip={t('Zoom in')}
           icon={Plus}
