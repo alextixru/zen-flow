@@ -69,7 +69,7 @@ export const MoveToFolderDialog = ({
           </Select>
         </div>
         <DialogFooter>
-          <Button variant="outline" onClick={() => onOpenChange(false)}>
+          <Button variant="secondary" onClick={() => onOpenChange(false)}>
             {t('Cancel')}
           </Button>
           <Button

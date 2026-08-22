@@ -93,7 +93,7 @@ export const ConfirmationDeleteDialog = ({
         )}
         <DialogFooter className="mt-3">
           <Button
-            variant="outline"
+            variant="secondary"
             disabled={isPending}
             onClick={() => handleClose()}
           >

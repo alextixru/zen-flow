@@ -323,7 +323,7 @@ const TestWebhookFunctionalityForm = (
 
         <DialogFooter>
           <DialogClose asChild>
-            <Button type="button" variant="outline">
+            <Button type="button" variant="secondary">
               {t('Cancel')}
             </Button>
           </DialogClose>

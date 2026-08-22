@@ -102,7 +102,7 @@ export const ActivateLicenseDialog = ({
         <DialogFooter className="gap-2">
           <DialogClose asChild>
             <Button
-              variant="outline"
+              variant="secondary"
               onClick={handleClose}
               disabled={isPending}
             >

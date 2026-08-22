@@ -264,7 +264,7 @@ const AddEditSecretManagerForm = ({
 
         <DialogFooter className="mt-1">
           <Button
-            variant="outline"
+            variant="secondary"
             type="button"
             onClick={(e) => {
               e.stopPropagation();

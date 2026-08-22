@@ -223,7 +223,7 @@ export function AgentMcpDialog({
             <DialogFooter>
               <Button
                 type="button"
-                variant="outline"
+                variant="secondary"
                 onClick={handleBackToForm}
               >
                 {t('Back')}

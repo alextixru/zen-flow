@@ -181,7 +181,7 @@ export function AutoTopUpConfigDialog({
 
         <DialogFooter>
           <Button
-            variant="outline"
+            variant="secondary"
             onClick={() => onOpenChange(false)}
             disabled={isPending}
           >

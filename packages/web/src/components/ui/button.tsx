@@ -7,7 +7,7 @@ import { LoadingSpinner } from '@/components/custom/spinner';
 import { cn } from '@/lib/utils';
 
 /* Zen DS: кнопки — mono uppercase; заливка только у primary/destructive,
-   outline — рамка с ink-hover, secondary/link — подчёркнутый текст */
+   все второстепенные (secondary/outline/ghost/link) — текст с подчёркиванием */
 const buttonVariants = cva(
   "inline-flex shrink-0 items-center justify-center gap-2 rounded-sm font-mono text-xs font-medium uppercase tracking-widest whitespace-nowrap transition-all outline-none focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50 disabled:pointer-events-none disabled:opacity-50 aria-invalid:border-destructive aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4",
   {
@@ -15,16 +15,16 @@ const buttonVariants = cva(
       variant: {
         default:
           'bg-primary stroke-background text-primary-foreground enabled:hover:bg-primary/85',
-        basic:
-          'text-primary underline-offset-4 enabled:hover:bg-accent',
+        basic: 'text-primary underline-offset-4 enabled:hover:bg-accent',
         secondary:
-          'rounded-none border-b border-input bg-transparent px-1 text-muted-foreground enabled:hover:border-foreground enabled:hover:text-foreground',
+          'rounded-none border-b border-input bg-transparent px-1 text-muted-foreground hover-underline enabled:hover:text-foreground',
         destructive:
           'bg-destructive text-white enabled:hover:bg-destructive/90 focus-visible:ring-destructive/20 dark:bg-destructive/60 dark:focus-visible:ring-destructive/40',
+        // Zen: outline == secondary — любое второстепенное действие выглядит одинаково
         outline:
-          'border-input bg-background enabled:hover:border-foreground border',
+          'rounded-none border-b border-input bg-transparent px-1 text-muted-foreground hover-underline enabled:hover:text-foreground',
         accent: 'bg-accent text-accent-foreground enabled:hover:bg-accent/80',
-        ghost: 'hover:bg-accent hover:text-accent-foreground',
+        ghost: 'hover-underline hover:text-foreground',
         link: 'rounded-none px-0 text-muted-foreground underline decoration-border underline-offset-4 hover:text-foreground hover:decoration-foreground',
         transparent: 'text-primary enabled:hover:bg-transparent',
       },
@@ -96,8 +96,8 @@ function renderButtonContent(
     return (
       <LoadingSpinner
         className={cn('size-5', {
-          'stroke-background': variant === 'default' || variant === 'secondary',
-          'stroke-foreground': variant !== 'default' && variant !== 'secondary',
+          'stroke-background': variant === 'default',
+          'stroke-foreground': variant !== 'default',
         })}
       />
     );

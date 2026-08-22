@@ -138,7 +138,7 @@ export const NewApiKeyDialog = ({
               />
               <DialogFooter>
                 <Button
-                  variant="outline"
+                  variant="secondary"
                   type="button"
                   onClick={() => setOpen(false)}
                 >

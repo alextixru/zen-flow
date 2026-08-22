@@ -307,7 +307,7 @@ const ImportFlowDialog = (
         )}
         <DialogFooter>
           <Button
-            variant="outline"
+            variant="secondary"
             onClick={() => setIsDialogOpen(false)}
             disabled={isPending}
           >

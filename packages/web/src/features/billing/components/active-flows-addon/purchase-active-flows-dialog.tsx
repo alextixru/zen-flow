@@ -263,7 +263,7 @@ export function PurchaseExtraFlowsDialog() {
 
         <DialogFooter>
           <Button
-            variant="outline"
+            variant="secondary"
             onClick={() => closeDialog()}
             disabled={isLoading}
           >

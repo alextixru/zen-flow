@@ -155,7 +155,7 @@ export const AllowedDomainDialog = ({
 
             <DialogFooter>
               <Button
-                variant="outline"
+                variant="secondary"
                 onClick={() => setOpen(false)}
                 type="button"
               >

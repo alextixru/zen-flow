@@ -116,7 +116,7 @@ export const NewSigningKeyDialog = ({
         <DialogFooter>
           {!signingKey ? (
             <>
-              <Button variant="outline" onClick={() => setOpen(false)}>
+              <Button variant="secondary" onClick={() => setOpen(false)}>
                 {t('Cancel')}
               </Button>
               <Button

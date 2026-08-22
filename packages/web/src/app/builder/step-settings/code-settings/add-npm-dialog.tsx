@@ -118,7 +118,7 @@ const AddNpmDialog = ({ children, onAdd }: AddNpmDialogProps) => {
         </Form>
         <DialogFooter>
           <DialogClose asChild>
-            <Button type="button" variant="outline">
+            <Button type="button" variant="secondary">
               {t('Cancel')}
             </Button>
           </DialogClose>

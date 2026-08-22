@@ -295,7 +295,7 @@ function CreateOrEditConnectionSection({
                 )}
                 <div className="grow"></div>
                 <DialogClose asChild>
-                  <Button variant="outline">{t('Cancel')}</Button>
+                  <Button variant="secondary">{t('Cancel')}</Button>
                 </DialogClose>
                 <Button
                   onClick={(e) =>

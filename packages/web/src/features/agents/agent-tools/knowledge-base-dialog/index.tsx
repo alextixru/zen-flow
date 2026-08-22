@@ -280,7 +280,7 @@ function KnowledgeBaseDialogContent({
       </div>
 
       <DialogFooter>
-        <Button type="button" variant="outline" onClick={closeKbDialog}>
+        <Button type="button" variant="secondary" onClick={closeKbDialog}>
           {t('Cancel')}
         </Button>
         <Button onClick={handleAdd}>

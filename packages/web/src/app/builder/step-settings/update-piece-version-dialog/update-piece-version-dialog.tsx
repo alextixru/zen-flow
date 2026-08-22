@@ -287,14 +287,14 @@ const AdvancedForm: React.FC<AdvancedFormProps> = ({
           {onBack && (
             <Button
               type="button"
-              variant="outline"
+              variant="secondary"
               className="mr-auto"
               onClick={onBack}
             >
               {t('Back')}
             </Button>
           )}
-          <Button type="button" variant="outline" onClick={onClose}>
+          <Button type="button" variant="secondary" onClick={onClose}>
             {t('Cancel')}
           </Button>
           <Button

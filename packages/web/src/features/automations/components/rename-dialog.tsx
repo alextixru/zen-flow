@@ -43,7 +43,7 @@ export const RenameDialog = ({
           placeholder={t('Enter new name')}
         />
         <DialogFooter>
-          <Button variant="outline" onClick={() => onOpenChange(false)}>
+          <Button variant="secondary" onClick={() => onOpenChange(false)}>
             {t('Cancel')}
           </Button>
           <Button

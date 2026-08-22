@@ -65,7 +65,7 @@ export const UpgradePieceVersionContent: React.FC<
         >
           {t('Advanced')}
         </Button>
-        <Button type="button" variant="outline" onClick={onClose}>
+        <Button type="button" variant="secondary" onClick={onClose}>
           {t('Cancel')}
         </Button>
         <Button

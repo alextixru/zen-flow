@@ -213,7 +213,7 @@ function VariableForm(props: VariableFormProps) {
         )}
         <DialogFooter>
           <DialogClose asChild>
-            <Button type="button" variant="outline">
+            <Button type="button" variant="secondary">
               {isEdit && !showValueField ? t('Close') : t('Cancel')}
             </Button>
           </DialogClose>

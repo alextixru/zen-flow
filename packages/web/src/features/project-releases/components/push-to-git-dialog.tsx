@@ -139,7 +139,7 @@ const PushToGitDialog = (props: PushToGitDialogProps) => {
             <DialogFooter>
               <Button
                 type="button"
-                variant="outline"
+                variant="secondary"
                 onClick={() => {
                   setOpen(false);
                   form.reset();

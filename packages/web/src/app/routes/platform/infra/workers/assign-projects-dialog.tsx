@@ -179,7 +179,7 @@ function AssignProjectsContent({
         <div className="flex gap-2">
           <Button
             type="button"
-            variant="outline"
+            variant="secondary"
             onClick={() => onOpenChange(false)}
           >
             {t('Cancel')}

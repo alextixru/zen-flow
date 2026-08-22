@@ -125,7 +125,7 @@ export const EmbeddedMcpAuthorizeDialog = () => {
         <div className="flex gap-3">
           <Button
             type="button"
-            variant="outline"
+            variant="secondary"
             className="flex-1"
             onClick={deny}
           >
