@@ -61,38 +61,49 @@ export function ThemeProvider({
       : theme;
     root.classList.remove('light', 'dark');
     document.title = branding.websiteName;
-    document.documentElement.style.setProperty(
-      '--primary',
-      colorsUtils.hexToHslString(branding.colors.primary.default),
-    );
+
+    // Zen DS: дефолтный ink-брендинг живёт в CSS-токенах (light и dark настроены
+    // вручную в styles.css) — рантайм-переопределение только для кастомного брендинга.
+    const isDefaultInkBranding =
+      branding.colors.primary.default.toLowerCase() === '#111111';
+    if (isDefaultInkBranding) {
+      document.documentElement.style.removeProperty('--primary');
+      document.documentElement.style.removeProperty('--primary-100');
+      document.documentElement.style.removeProperty('--primary-300');
+    } else {
+      document.documentElement.style.setProperty(
+        '--primary',
+        colorsUtils.hexToHslString(branding.colors.primary.default),
+      );
+      switch (resolvedTheme) {
+        case 'light': {
+          document.documentElement.style.setProperty(
+            '--primary-100',
+            colorsUtils.hexToHslString(branding.colors.primary.light),
+          );
+          document.documentElement.style.setProperty(
+            '--primary-300',
+            colorsUtils.hexToHslString(branding.colors.primary.dark),
+          );
+          break;
+        }
+        case 'dark': {
+          document.documentElement.style.setProperty(
+            '--primary-100',
+            colorsUtils.hexToHslString(branding.colors.primary.dark),
+          );
+          document.documentElement.style.setProperty(
+            '--primary-300',
+            colorsUtils.hexToHslString(branding.colors.primary.light),
+          );
+          break;
+        }
+        default:
+          break;
+      }
+    }
 
     setFavicon(branding.logos.favIconUrl);
-    switch (resolvedTheme) {
-      case 'light': {
-        document.documentElement.style.setProperty(
-          '--primary-100',
-          colorsUtils.hexToHslString(branding.colors.primary.light),
-        );
-        document.documentElement.style.setProperty(
-          '--primary-300',
-          colorsUtils.hexToHslString(branding.colors.primary.dark),
-        );
-        break;
-      }
-      case 'dark': {
-        document.documentElement.style.setProperty(
-          '--primary-100',
-          colorsUtils.hexToHslString(branding.colors.primary.dark),
-        );
-        document.documentElement.style.setProperty(
-          '--primary-300',
-          colorsUtils.hexToHslString(branding.colors.primary.light),
-        );
-        break;
-      }
-      default:
-        break;
-    }
 
     root.classList.add(resolvedTheme);
   }, [theme, branding, forceLightMode]);

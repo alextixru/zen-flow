@@ -4,13 +4,12 @@ import {
   ThirdPartyAuthnProvidersToShowMap,
 } from '@activepieces/shared';
 import { t } from 'i18next';
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
 
 import { useTheme } from '@/components/providers/theme-provider';
 import { authenticationSession } from '@/lib/authentication-session';
 import { useRedirectAfterLogin } from '@/lib/navigation-utils';
-import { cn } from '@/lib/utils';
 
 import { FullLogo } from '../../../components/custom/full-logo';
 import { HorizontalSeparatorWithText } from '../../../components/ui/separator';
@@ -113,20 +112,32 @@ const AuthSeparator = ({
   ) : null;
 };
 
-const AuthImage = () => {
-  const [loaded, setLoaded] = useState(false);
-  const onLoad = useCallback(() => setLoaded(true), []);
-
+/* Zen DS: типографическая ink-панель вместо стоковой иллюстрации */
+const ZenBrandPanel = () => {
   return (
-    <img
-      src="https://cdn.activepieces.com/assets/auth-bg.webp"
-      alt=""
-      onLoad={onLoad}
-      className={cn(
-        'absolute inset-0 w-full h-full object-cover transition-opacity duration-300',
-        loaded ? 'opacity-100' : 'opacity-0',
-      )}
-    />
+    <div className="absolute inset-0 flex flex-col justify-between bg-[#101010] p-12 text-[#f2f2f2]">
+      <div className="font-mono text-[10px] uppercase tracking-[0.16em] text-[#777777]">
+        zen flow · dzen.team
+      </div>
+      <div className="flex flex-col gap-8">
+        <svg viewBox="0 0 100 100" className="size-14" aria-hidden="true">
+          <rect x="1.67" y="1.67" width="30" height="30" rx="9.5" fill="currentColor" opacity="0.3" />
+          <rect x="68.33" y="1.67" width="30" height="30" rx="9.5" fill="currentColor" />
+          <rect x="35" y="35" width="30" height="30" rx="9.5" fill="currentColor" opacity="0.72" />
+          <rect x="1.67" y="68.33" width="30" height="30" rx="9.5" fill="currentColor" opacity="0.5" />
+          <rect x="68.33" y="68.33" width="30" height="30" rx="9.5" fill="currentColor" opacity="0.72" />
+        </svg>
+        <h2 className="font-sentient text-4xl font-medium leading-tight max-w-md">
+          {t('Calm, ordered automation')}
+        </h2>
+        <p className="text-sm text-[#bdbdbd] max-w-sm">
+          {t('Flows, integrations and agents in one system')}
+        </p>
+      </div>
+      <div className="font-mono text-[9px] uppercase tracking-[0.10em] text-[#474747]">
+        {t('Built by Dzen.Team')}
+      </div>
+    </div>
   );
 };
 
@@ -162,7 +173,7 @@ const AuthLayout = ({
       {/* Right side — animation for sign-up, image for sign-in */}
       <div className="hidden lg:flex w-1/2 py-5 pr-5">
         <div className="relative w-full h-full rounded-2xl overflow-hidden bg-muted">
-          {isSignUp ? <AuthAnimation /> : <AuthImage />}
+          {isSignUp ? <AuthAnimation /> : <ZenBrandPanel />}
         </div>
       </div>
     </div>

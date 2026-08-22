@@ -27,8 +27,8 @@ export const ActiveFlowsMetric = ({ report }: ActiveFlowsMetricProps) => {
       subtitle={t('{total} total flows created', {
         total: totalFlows.toLocaleString(),
       })}
-      iconColor="text-purple-500"
-      iconBgColor="bg-purple-500/10"
+      iconColor="text-primary"
+      iconBgColor="bg-primary/10"
     />
   );
 };

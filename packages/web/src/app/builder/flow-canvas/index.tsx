@@ -248,10 +248,11 @@ export const FlowCanvas = React.memo(
               onSelectionEnd={onSelectionEnd}
             >
               <AboveFlowWidgets></AboveFlowWidgets>
+              {/* Zen DS: чертёжная крестовая сетка вместо фирменных точек Activepieces */}
               <Background
-                gap={10}
-                size={1}
-                variant={BackgroundVariant.Dots}
+                gap={24}
+                size={6}
+                variant={BackgroundVariant.Cross}
                 bgColor={`var(--builder-background)`}
                 color={`var(--builder-background-pattern)`}
               />

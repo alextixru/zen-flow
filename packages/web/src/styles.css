@@ -557,7 +557,7 @@
     --sidebar-ring: #111111;
     --sidebar-progress: 0 0% 50%;
     --builder-background: #fafafa;
-    --builder-background-pattern: #d8d8d8;
+    --builder-background-pattern: #e0e0e0;
   }
 
   /* Zen DS dark: neutral near-black, no warm cast, inverted ink */
@@ -609,7 +609,7 @@
     --sidebar-ring: #999999;
     --sidebar-progress: 0 0% 45%;
     --builder-background: #141414;
-    --builder-background-pattern: #3a3a3a;
+    --builder-background-pattern: #2e2e2e;
   }
 }
 

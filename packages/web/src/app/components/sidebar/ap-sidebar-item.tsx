@@ -49,7 +49,11 @@ export const ApSidebarItem = (item: SidebarItemType) => {
   const button = (
     <SidebarMenuButton
       className={cn(
-        { 'bg-sidebar-accent hover:bg-sidebar-accent!': isLinkActive },
+        // Zen DS: активный пункт — инвертированный ink
+        {
+          'bg-sidebar-primary text-sidebar-primary-foreground hover:bg-sidebar-primary! hover:text-sidebar-primary-foreground!':
+            isLinkActive,
+        },
         item.highlight && !isLinkActive && 'hover:bg-sidebar-accent/60',
       )}
       onClick={() => {
@@ -66,7 +70,7 @@ export const ApSidebarItem = (item: SidebarItemType) => {
         </span>
       )}
       {!isCollapsed && item.badge && (
-        <span className="ml-auto text-[10px] font-medium text-primary">
+        <span className="ml-auto text-[10px] font-medium opacity-70">
           {item.badge}
         </span>
       )}

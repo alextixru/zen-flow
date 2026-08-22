@@ -215,7 +215,7 @@ export function RichQuestionInput({
       });
     }
     if (question.type === 'color') {
-      const initial = question.presets?.[0] ?? '#8142E3';
+      const initial = question.presets?.[0] ?? '#121212';
       onChange({ display: initial, value: initial });
     }
   }, [question, value, onChange]);
@@ -351,7 +351,7 @@ function renderControl({
     }
     case 'color': {
       const current =
-        typeof value === 'string' && value ? value : displayValue || '#8142E3';
+        typeof value === 'string' && value ? value : displayValue || '#121212';
       return (
         <ColorInput
           value={current}
