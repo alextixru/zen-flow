@@ -59,7 +59,8 @@ function TableHead({ className, ...props }: React.ComponentProps<'th'>) {
     <th
       data-slot="table-head"
       className={cn(
-        'py-2.5 px-2 text-left align-middle text-xs font-medium text-foreground first:pl-8 last:pr-8 [&:has([role=checkbox])]:pl-4 [&:has([role=checkbox])]:pr-2',
+        // overflow-hidden: фикс-ширины колонок (table-fixed) не должны наезжать соседям
+        'overflow-hidden py-2.5 px-2 text-left align-middle text-xs font-medium text-foreground first:pl-8 last:pr-8 [&:has([role=checkbox])]:pl-4 [&:has([role=checkbox])]:pr-2',
         className,
       )}
       {...props}

@@ -359,7 +359,8 @@ export function DataTable<
           'flex-1 min-h-0 overflow-auto': virtualizeRows,
         })}
       >
-        <Table className="table-fixed">
+        {/* auto-layout: таблица всегда заполняет ширину, лишнее распределяется по колонкам */}
+        <Table>
           <TableHeader
             className={cn(virtualizeRows ? 'sticky top-0 z-10' : undefined)}
           >
