@@ -450,7 +450,9 @@
   animation: dash 2s linear infinite;
 }
 
-/* Zen DS: hover — подчёркивание растягивается слева направо, вместо заливки фона */
+/* Zen DS: hover — подчёркивание растягивается слева направо, вместо заливки фона.
+   Также реагирует на Radix-подсветку (data-highlighted) и выбор в cmdk (data-selected) —
+   клавиатурная навигация по меню ведёт себя как hover. */
 @utility hover-underline {
   position: relative;
 
@@ -465,7 +467,9 @@
     transition: width 0.15s ease;
   }
 
-  &:hover::after {
+  &:hover::after,
+  &[data-highlighted]::after,
+  &[data-selected='true']::after {
     width: 100%;
   }
 }
