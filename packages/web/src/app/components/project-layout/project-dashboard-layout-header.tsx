@@ -1,6 +1,6 @@
 import { Permission } from '@activepieces/core-utils';
 import { t } from 'i18next';
-import { useRef } from 'react';
+import { Fragment, useRef } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 
 import { BoxIcon } from '@/components/icons/box';
@@ -127,29 +127,24 @@ export const ProjectDashboardLayoutHeader = () => {
       {!embedState.hideSideNav && (
         <Tabs className="px-3 pt-2 border-b">
           <TabsList variant="outline">
-            {visiblePrimaryTabs.map((tab) => (
-              <AnimatedTab
-                key={tab.to}
-                tab={tab}
-                isActive={location.pathname.includes(tab.to)}
-                onClick={() => navigate(tab.to)}
-              />
-            ))}
-            {visiblePrimaryTabs.length > 0 &&
-              visibleSecondaryTabs.length > 0 && (
-                <Separator
-                  orientation="vertical"
-                  className="mx-2 h-5 self-center mb-2"
-                />
-              )}
-            {visibleSecondaryTabs.map((tab) => (
-              <AnimatedTab
-                key={tab.to}
-                tab={tab}
-                isActive={location.pathname.includes(tab.to)}
-                onClick={() => navigate(tab.to)}
-              />
-            ))}
+            {/* Zen DS: разделитель между каждым табом, а не только между группами */}
+            {[...visiblePrimaryTabs, ...visibleSecondaryTabs].map(
+              (tab, index) => (
+                <Fragment key={tab.to}>
+                  {index > 0 && (
+                    <Separator
+                      orientation="vertical"
+                      className="mx-2 h-5 self-center mb-2"
+                    />
+                  )}
+                  <AnimatedTab
+                    tab={tab}
+                    isActive={location.pathname.includes(tab.to)}
+                    onClick={() => navigate(tab.to)}
+                  />
+                </Fragment>
+              ),
+            )}
           </TabsList>
         </Tabs>
       )}
