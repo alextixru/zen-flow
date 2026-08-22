@@ -29,18 +29,14 @@ function BuilderLayoutInner({ children }: { children: React.ReactNode }) {
     <SidebarProvider hoverMode={!searchOpen} defaultOpen={false}>
       {!embedState.isEmbedded && <ProjectDashboardSidebar />}
       <SidebarInset className="flex flex-col h-full overflow-hidden bg-sidebar">
-        <div
-          className={cn(
-            'flex-1 flex flex-col overflow-hidden',
-            !embedState.isEmbedded && 'p-1.5',
-          )}
-        >
+        <div className="flex-1 flex flex-col overflow-hidden">
           <div
             className={cn(
               'flex flex-col h-full bg-background overflow-hidden',
+              // Zen DS: как контент-контейнер дашборда — плоский лист с жирной линией слева
               embedState.isEmbedded
                 ? 'border-l'
-                : 'rounded-xl shadow-[2px_0px_4px_-2px_rgba(0,0,0,0.05),0px_2px_4px_-2px_rgba(0,0,0,0.05)] border',
+                : 'border-l-2 border-foreground',
             )}
           >
             {children}
