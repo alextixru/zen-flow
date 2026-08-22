@@ -64,6 +64,10 @@ WORKDIR /usr/src/app
 COPY .npmrc package.json bun.lock bunfig.toml ./
 COPY packages/ ./packages/
 
+# redis-memory-server нужен только dev/тестам (AP_REDIS_TYPE=MEMORY) — в образе живой Redis;
+# его постинсталл теперь компилит Redis из исходников и ломает сборку, отключаем
+ENV REDISMS_DISABLE_POSTINSTALL=1
+
 # Install all dependencies with frozen lockfile
 RUN --mount=type=cache,target=/root/.bun/install/cache \
     bun install --frozen-lockfile
@@ -103,6 +107,9 @@ RUN rm -rf packages/pieces/core packages/pieces/custom && \
 
 ### STAGE 2: Run ###
 FROM base AS run
+
+# см. комментарий в стадии build — постинсталл redis-memory-server ломает сборку и не нужен в рантайме
+ENV REDISMS_DISABLE_POSTINSTALL=1
 
 WORKDIR /usr/src/app
 
