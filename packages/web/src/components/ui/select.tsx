@@ -42,8 +42,8 @@ function SelectTrigger({
       data-slot="select-trigger"
       data-size={size}
       className={cn(
-        // Zen DS: селект — подчёркнутый текст, не рамка; hover/focus затемняют линию до ink
-        "flex w-full items-center justify-between gap-2 rounded-none border-0 border-b border-input bg-transparent px-1 py-2 text-sm whitespace-nowrap transition-[color,border-color] outline-none hover:border-foreground focus-visible:border-foreground focus-visible:ring-0 disabled:cursor-not-allowed disabled:opacity-50 aria-invalid:border-destructive data-[placeholder]:text-muted-foreground data-[size=default]:h-9 data-[size=sm]:h-8 *:data-[slot=select-value]:line-clamp-1 *:data-[slot=select-value]:flex *:data-[slot=select-value]:items-center *:data-[slot=select-value]:gap-2 [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4 [&_svg:not([class*='text-'])]:text-muted-foreground",
+        // Zen DS: селект — как input: без hover, линия загорается только на фокусе/открытии
+        "flex w-full items-center justify-between gap-2 rounded-none border-0 border-b border-input bg-transparent px-1 py-2 text-sm whitespace-nowrap transition-[color,border-color] outline-none focus:border-foreground focus-visible:ring-0 data-[state=open]:border-foreground disabled:cursor-not-allowed disabled:opacity-50 aria-invalid:border-destructive data-[placeholder]:text-muted-foreground data-[size=default]:h-9 data-[size=sm]:h-8 *:data-[slot=select-value]:line-clamp-1 *:data-[slot=select-value]:flex *:data-[slot=select-value]:items-center *:data-[slot=select-value]:gap-2 [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4 [&_svg:not([class*='text-'])]:text-muted-foreground",
         className,
       )}
       {...props}

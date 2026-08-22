@@ -19,12 +19,12 @@ export function GlobalSearchCommand() {
 
   return (
     <Button
-      variant="ghost"
+      variant="transparent"
       onClick={() => setOpen(true)}
       className={cn(
-        // Zen DS: триггер поиска выглядит как инпут — только подчёркивание, плейсхолдер обычным регистром
+        // Zen DS: триггер поиска ведёт себя как input — без hover, линия загорается на фокусе
         'h-8 w-full justify-start gap-2 overflow-hidden rounded-none p-1! font-sans text-sm font-normal normal-case tracking-normal mr-auto',
-        'border-0 border-b border-input bg-transparent',
+        'border-0 border-b border-input bg-transparent focus:border-foreground focus-visible:ring-0',
         'group-data-[collapsible=icon]:size-8! group-data-[collapsible=icon]:border-0 group-data-[collapsible=icon]:p-2!',
       )}
     >
