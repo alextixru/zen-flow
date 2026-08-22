@@ -319,7 +319,7 @@ const EventDestinationForm = ({
           <DialogFooter>
             <Button
               type="button"
-              variant="outline"
+              variant="secondary"
               onClick={onClose}
               disabled={isSubmitDisabled}
             >

@@ -153,12 +153,16 @@ export const SearchableSelect = <T,>({
         <div className="relative">
           <Button
             ref={triggerRef}
-            variant="outline"
+            variant="transparent"
             disabled={disabled}
             role="combobox"
             loading={loading}
             aria-expanded={open}
-            className={cn('w-full justify-between', triggerClassName)}
+            className={cn(
+              // Zen DS: как input — без hover, линия загорается на фокусе/открытии; значение — обычный регистр
+              'w-full justify-between rounded-none border-0 border-b border-input bg-transparent px-1 font-sans text-sm font-normal normal-case tracking-normal text-foreground focus:border-foreground focus-visible:ring-0 aria-expanded:border-foreground',
+              triggerClassName,
+            )}
             onClick={(e) => {
               handleOpenChange(!open);
               e.preventDefault();

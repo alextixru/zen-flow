@@ -60,7 +60,7 @@ function AutomationsSkeletonRow({
   isEmbedded: boolean;
 }) {
   return (
-    <div className="flex items-center py-2.5 border-b">
+    <div className="flex items-center py-2.5 divider-inset">
       <div className="w-10 shrink-0" />
       <div className="w-8 shrink-0" />
       <div
@@ -182,7 +182,7 @@ export const AutomationsTable = ({
                   <AccordionPrimitive.Item
                     key={`folder-${group.item.id}`}
                     value={group.item.id}
-                    className="border-b"
+                    className="divider-inset"
                   >
                     <div
                       className={cn(rowClassName)}
@@ -267,7 +267,7 @@ export const AutomationsTable = ({
               return (
                 <div
                   key={`${group.item.type}-${group.item.id}`}
-                  className={cn(rowClassName, 'border-b')}
+                  className={cn(rowClassName, 'divider-inset')}
                   onClick={(e) =>
                     onRowClick(group.item, e.ctrlKey || e.metaKey)
                   }

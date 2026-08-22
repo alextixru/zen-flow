@@ -118,18 +118,13 @@ function ProjectDashboardLayoutInner({
     <SidebarProvider defaultOpen={false} hoverMode={!searchOpen}>
       {!isEmbedded && <ProjectDashboardSidebar />}
       <SidebarInset className="flex flex-col h-full overflow-hidden bg-sidebar">
-        <div
-          className={cn(
-            'flex-1 flex flex-col overflow-hidden',
-            !isEmbedded && 'pr-2 pt-3 pb-3',
-          )}
-        >
+        <div className="flex-1 flex flex-col overflow-hidden">
           <div
             id="dashboard-content-container"
             className={cn(
               'relative flex flex-col h-full bg-background overflow-clip',
-              !isEmbedded &&
-                'rounded-xl shadow-[2px_0px_4px_-2px_rgba(0,0,0,0.05),0px_2px_4px_-2px_rgba(0,0,0,0.05)] border',
+              // Zen DS: не карточка в рамке, а лист с одной жирной структурной линией слева (--line-3)
+              !isEmbedded && 'border-l-2 border-foreground',
             )}
           >
             {!hideHeader && (

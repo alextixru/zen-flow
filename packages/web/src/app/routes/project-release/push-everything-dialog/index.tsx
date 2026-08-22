@@ -118,7 +118,7 @@ const PushEverythingDialog = (props: PushEverythingDialogProps) => {
             <DialogFooter>
               <Button
                 type="button"
-                variant="outline"
+                variant="secondary"
                 onClick={() => {
                   setOpen(false);
                   form.reset();

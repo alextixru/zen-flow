@@ -156,7 +156,7 @@ export const ConfigurePieceOAuth2Dialog = forwardRef<
             )}
 
             <DialogFooter>
-              <Button variant="outline" onClick={() => setOpen(false)}>
+              <Button variant="secondary" onClick={() => setOpen(false)}>
                 {t('Cancel')}
               </Button>
               <Button

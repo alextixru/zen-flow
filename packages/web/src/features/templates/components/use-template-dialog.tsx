@@ -200,7 +200,7 @@ export const UseTemplateDialog = ({
         </div>
         <DialogFooter>
           <Button
-            variant="outline"
+            variant="secondary"
             onClick={() => onOpenChange(false)}
             disabled={isPending}
           >

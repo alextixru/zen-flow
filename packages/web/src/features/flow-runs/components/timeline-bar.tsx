@@ -12,7 +12,7 @@ import { cn } from '@/lib/utils';
 const PHASE_COLOR: Record<TimelinePhase['name'], string> = {
   QUEUE: 'bg-blue-600',
   PROVISION: 'bg-amber-500',
-  BOOT: 'bg-violet-600',
+  BOOT: 'bg-primary',
   RUN: 'bg-emerald-600',
 };
 

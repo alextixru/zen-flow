@@ -178,7 +178,7 @@ function GlobalSearchDialogContent({
                     key={item.id}
                     value={item.id}
                     onSelect={() => handleSelectResult(item)}
-                    className="group flex items-center data-[selected=true]:bg-foreground/10"
+                    className="group flex items-center"
                   >
                     <SearchResultRow
                       item={item}

@@ -62,9 +62,9 @@ export const MultiSelectFilter = ({
     >
       <PopoverTrigger asChild>
         <Button
-          variant="outline"
+          variant="ghost"
           size="sm"
-          className="text-sm gap-2 whitespace-nowrap border-dashed"
+          className="gap-2 whitespace-nowrap hover-underline hover:bg-transparent"
         >
           {icon}
           <span>{label}</span>

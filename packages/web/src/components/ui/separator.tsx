@@ -16,7 +16,10 @@ function Separator({
       orientation={orientation}
       className={cn(
         'shrink-0 bg-border',
-        orientation === 'horizontal' ? 'h-px w-full' : 'h-full w-px',
+        // Zen DS: линия не от края до края — небольшой отступ даёт воздух
+        orientation === 'horizontal'
+          ? 'h-px w-[calc(100%-1.5rem)] mx-auto'
+          : 'w-px h-[calc(100%-0.5rem)] my-auto',
         className,
       )}
       {...props}

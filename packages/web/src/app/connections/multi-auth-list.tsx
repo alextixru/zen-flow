@@ -80,7 +80,7 @@ export function MutliAuthList({
       <DialogFooter className="mt-4">
         <div className="mx-5 w-full flex justify-end gap-2">
           <DialogClose asChild>
-            <Button variant="outline">{t('Cancel')}</Button>
+            <Button variant="secondary">{t('Cancel')}</Button>
           </DialogClose>
           <Button variant="default" onClick={() => confirmSelectedItem()}>
             {t('Next')}

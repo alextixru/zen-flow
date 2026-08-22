@@ -24,7 +24,7 @@ export function EnableAIOverageDialog({
     <Dialog open={isOpen} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-[420px] p-8 text-center">
         <div className="flex flex-col items-center">
-          <div className="rounded-full bg-purple-50 p-4 mb-6">
+          <div className="rounded-full bg-accent p-4 mb-6">
             <Info className="w-10 h-10 text-primary" />
           </div>
 

@@ -41,13 +41,13 @@ const Container = ({
 }) => {
   return (
     <Alert
-      className={cn('rounded-md border', {
-        'dark:bg-amber-950 bg-amber-50  border-none dark:text-amber-600 text-amber-700':
+      // Zen DS: callout наследует базовый Alert (линия слева), семантика — цветом линии и текста
+      className={cn({
+        'border-warning text-warning-700 dark:text-warning-400':
           variant === MarkdownVariant.WARNING,
-        'bg-success-100 text-success-300 border-none':
+        'border-success text-success-700 dark:text-success-300':
           variant === MarkdownVariant.TIP,
-        'p-0 bg-transparent border-none':
-          variant === MarkdownVariant.BORDERLESS,
+        'p-0 bg-transparent border-0': variant === MarkdownVariant.BORDERLESS,
       })}
     >
       {variant !== MarkdownVariant.BORDERLESS && (
@@ -56,7 +56,7 @@ const Container = ({
             <Info className="w-4 h-4 mt-1" />
           )}
           {variant === MarkdownVariant.WARNING && (
-            <AlertTriangle className="w-4 h-4 mt-1 stroke-amber-700" />
+            <AlertTriangle className="w-4 h-4 mt-1 stroke-current" />
           )}
           {variant === MarkdownVariant.TIP && (
             <Lightbulb className="w-4 h-4 mt-1" />
@@ -114,7 +114,7 @@ const ApMarkdown = React.memo(
               const codeContent = String(props.children).trim();
               const isCopying = codeContent === copiedText;
               return (
-                <div className="relative w-full items-center flex bg-background border border-solid text-sm rounded block w-full gap-1 p-1.5">
+                <div className="relative w-full items-center flex bg-transparent border-0 border-b border-input text-sm rounded-none block w-full gap-1 p-1.5">
                   <input
                     type="text"
                     className="grow bg-background"

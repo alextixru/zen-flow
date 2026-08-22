@@ -72,10 +72,11 @@ export function generateTheme({
     }
 }
 
+// Zen DS: primary = ink; логотипы отдаются самим фронтендом, без внешнего CDN
 export const defaultTheme = generateTheme({
-    primaryColor: '#6e41e2',
-    websiteName: 'Activepieces',
-    fullLogoUrl: 'https://cdn.activepieces.com/brand/full-logo.png',
-    favIconUrl: 'https://cdn.activepieces.com/brand/logo.svg',
-    logoIconUrl: 'https://cdn.activepieces.com/brand/logo.svg',
+    primaryColor: '#111111',
+    websiteName: 'Zen Flow',
+    fullLogoUrl: '/branding/zen-full.svg',
+    favIconUrl: '/branding/zen-mark.svg',
+    logoIconUrl: '/branding/zen-mark.svg',
 })

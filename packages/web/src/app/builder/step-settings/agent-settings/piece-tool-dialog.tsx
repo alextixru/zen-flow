@@ -214,7 +214,7 @@ export function AgentPieceDialog({
         {selectedPage === 'action-inputs' && (
           <DialogFooter className="border-t p-4 mt-auto">
             <DialogClose asChild>
-              <Button type="button" variant="outline">
+              <Button type="button" variant="secondary">
                 {t('Close')}
               </Button>
             </DialogClose>

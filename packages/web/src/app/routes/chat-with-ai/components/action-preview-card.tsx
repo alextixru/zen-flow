@@ -73,7 +73,7 @@ export function ActionPreviewCard({
           <Check className="size-3.5" />
           {t('Run')}
         </Button>
-        <Button size="sm" variant="outline" onClick={onCancel} type="button">
+        <Button size="sm" variant="secondary" onClick={onCancel} type="button">
           {t('Cancel')}
         </Button>
       </div>

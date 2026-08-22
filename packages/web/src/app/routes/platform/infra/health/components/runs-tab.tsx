@@ -58,8 +58,8 @@ export function RunsTab({ report, isLoading }: RunsTabProps) {
               ? renderDelta(summary.completed, summary.previousCompleted)
               : undefined
           }
-          iconColor="text-purple-500"
-          iconBgColor="bg-purple-500/10"
+          iconColor="text-primary"
+          iconBgColor="bg-primary/10"
         />
         <MetricCard
           icon={CheckCircle2}

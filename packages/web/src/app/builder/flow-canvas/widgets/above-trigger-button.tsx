@@ -60,16 +60,15 @@ const AboveTriggerButton = ({
   return (
     <Tooltip>
       <TooltipTrigger asChild>
+        {/* Zen DS: главное действие канваса — ink-заливка; второстепенное — плашка с подчёркнутым текстом */}
         <div className="bg-builder-background">
           <Button
-            variant="ghost"
-            className={cn(
-              'h-8 bg-background border-input hover:border-border  border p-2.5 border-solid rounded-lg animate-fade',
-              {
-                'bg-primary-100/50! dark:text-primary-foreground  text-primary hover:text-primary disabled:pointer-events-auto hover:border-primary!  border-primary/50':
-                  showPrimaryBg,
-              },
-            )}
+            variant={showPrimaryBg ? 'default' : 'secondary'}
+            className={cn('h-8 animate-fade', {
+              'disabled:pointer-events-auto': showPrimaryBg,
+              'bg-background px-2.5 shadow-[0_1px_3px_rgb(0_0_0_/_0.06)]':
+                !showPrimaryBg,
+            })}
             loading={loading}
             disabled={disable}
             onClick={onClick}
@@ -79,10 +78,10 @@ const AboveTriggerButton = ({
               {showKeyboardShortcut && (
                 <span
                   className={cn(
-                    'text-[10px] bg-muted h-[20px] flex items-center justify-center px-1 rounded-sm tracking-widest whitespace-nowrap text-muted-foreground',
-                    {
-                      'bg-primary/13 text-primary': showPrimaryBg,
-                    },
+                    'text-[10px] h-[20px] flex items-center justify-center px-1 rounded-sm tracking-widest whitespace-nowrap',
+                    showPrimaryBg
+                      ? 'bg-primary-foreground/20 text-primary-foreground'
+                      : 'bg-muted text-muted-foreground',
                   )}
                 >
                   {shortCutIsEscape

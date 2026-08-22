@@ -341,7 +341,7 @@ const DomainStep = ({
           </Alert>
           <DialogFooter>
             <Button
-              variant="outline"
+              variant="secondary"
               type="button"
               disabled={isSaving}
               onClick={() => setShowUpdateWarning(false)}
@@ -482,7 +482,7 @@ Activepieces
                 {t('Disable')}
               </Button>
             )}
-            <Button variant="outline" type="button" onClick={onBack}>
+            <Button variant="secondary" type="button" onClick={onBack}>
               {t('Back')}
             </Button>
             <Button

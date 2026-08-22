@@ -204,7 +204,7 @@ function CapabilityForm({
         )}
 
         <DialogFooter>
-          <Button type="button" variant="outline" onClick={onClose}>
+          <Button type="button" variant="secondary" onClick={onClose}>
             {t('Cancel')}
           </Button>
           <Button type="submit" loading={isPending}>

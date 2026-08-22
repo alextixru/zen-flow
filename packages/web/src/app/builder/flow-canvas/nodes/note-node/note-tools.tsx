@@ -63,6 +63,7 @@ const NoteColorPickerClassName = {
   [NoteColorVariant.RED]: 'bg-red-400',
   [NoteColorVariant.GREEN]: 'bg-green-400',
   [NoteColorVariant.BLUE]: 'bg-blue-400',
+  // заметки — пользовательский контент, фиолетовый вариант остаётся фиолетовым
   [NoteColorVariant.PURPLE]: 'bg-purple-400',
 };
 

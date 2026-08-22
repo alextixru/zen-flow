@@ -216,7 +216,7 @@ const EditProjectForm = ({
         )}
 
         <DialogFooter className="justify-end mt-6">
-          <Button type="button" variant="outline" onClick={onClose}>
+          <Button type="button" variant="secondary" onClick={onClose}>
             {t('Cancel')}
           </Button>
           <Button type="submit" disabled={isPending} loading={isPending}>

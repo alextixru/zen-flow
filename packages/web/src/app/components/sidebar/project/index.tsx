@@ -52,7 +52,8 @@ const ProjectSideBarItem = ({
     <SidebarMenuButton
       onClick={() => handleProjectSelect(project.id)}
       className={cn('', {
-        'bg-sidebar-accent! ': isCurrentProject,
+        // Zen DS: выбранный проект — подчёркивание, не заливка
+        'active-underline': isCurrentProject,
       })}
     >
       {projectAvatar}

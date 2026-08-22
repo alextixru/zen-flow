@@ -452,7 +452,7 @@ const ImportTableDialog = ({
             )}
             <DialogFooter>
               <DialogClose asChild>
-                <Button variant="outline" size="sm" disabled={isLoading}>
+                <Button variant="secondary" size="sm" disabled={isLoading}>
                   {t('Cancel')}
                 </Button>
               </DialogClose>

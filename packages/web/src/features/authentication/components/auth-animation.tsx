@@ -197,7 +197,7 @@ function LoopSvg() {
 function TableSvg() {
   return (
     <svg
-      className="w-4 h-4 text-violet-600"
+      className="w-4 h-4 text-primary"
       fill="none"
       stroke="currentColor"
       viewBox="0 0 24 24"
@@ -311,7 +311,7 @@ function AgentCard({
           <div className="px-3 py-2.5 flex items-center gap-2.5">
             <div
               className={cn(
-                'flex-shrink-0 rounded-lg flex items-center justify-center bg-gradient-to-br from-violet-100 to-fuchsia-100 transition-all duration-500',
+                'flex-shrink-0 rounded-lg flex items-center justify-center bg-gradient-to-br from-gray-100 to-gray-200 transition-all duration-500',
                 isLarge ? 'w-10 h-10' : 'w-8 h-8',
               )}
             >
@@ -350,11 +350,11 @@ function AgentCard({
                   Instructions
                 </label>
                 {showInstructions ? (
-                  <div className="p-3 rounded-lg bg-violet-50 border border-violet-200 min-h-[60px]">
+                  <div className="p-3 rounded-lg bg-accent border border-border min-h-[60px]">
                     <p className="text-sm text-gray-700 leading-relaxed">
                       {typedPrompt}
                       {isTyping && (
-                        <span className="inline-block w-0.5 h-4 bg-violet-500 ml-0.5 animate-pulse" />
+                        <span className="inline-block w-0.5 h-4 bg-primary ml-0.5 animate-pulse" />
                       )}
                     </p>
                   </div>
@@ -397,14 +397,14 @@ function AgentCard({
                   className={cn(
                     'p-3 rounded-lg',
                     showToolsHighlight
-                      ? 'bg-violet-50 border border-violet-200'
+                      ? 'bg-accent border border-border'
                       : 'bg-gray-50 border border-gray-100',
                   )}
                 >
                   <p
                     className={cn(
                       'text-xs font-bold uppercase mb-2',
-                      showToolsHighlight ? 'text-violet-500' : 'text-gray-400',
+                      showToolsHighlight ? 'text-primary' : 'text-gray-400',
                     )}
                   >
                     Tools
@@ -423,8 +423,8 @@ function AgentCard({
                           />
                         </div>
                       ))}
-                      <div className="w-7 h-7 rounded-md bg-violet-100 border border-violet-200 flex items-center justify-center flex-shrink-0">
-                        <span className="text-xs font-bold text-violet-600">
+                      <div className="w-7 h-7 rounded-md bg-accent border border-border flex items-center justify-center flex-shrink-0">
+                        <span className="text-xs font-bold text-primary">
                           +
                         </span>
                       </div>
@@ -435,11 +435,11 @@ function AgentCard({
                       <div className="w-7 h-7 rounded-md bg-gray-200 flex-shrink-0" />
                       <div
                         className={cn(
-                          'w-7 h-7 rounded-md bg-violet-200 border-2 border-violet-400 flex items-center justify-center flex-shrink-0',
+                          'w-7 h-7 rounded-md bg-gray-300 border-2 border-gray-400 flex items-center justify-center flex-shrink-0',
                           showToolsHighlight && 'animate-pulse',
                         )}
                       >
-                        <span className="text-xs font-bold text-violet-600">
+                        <span className="text-xs font-bold text-primary">
                           +
                         </span>
                       </div>
@@ -453,7 +453,7 @@ function AgentCard({
 
         {/* Collapsed emoji overlay (scene 3) */}
         <div
-          className="absolute inset-[2px] rounded-[10px] bg-gradient-to-br from-violet-100 to-fuchsia-100 flex items-center justify-center text-sm"
+          className="absolute inset-[2px] rounded-[10px] bg-gradient-to-br from-gray-100 to-gray-200 flex items-center justify-center text-sm"
           style={{
             transition: 'opacity 300ms ease, visibility 300ms ease',
             transitionDelay: isCollapsed ? '200ms' : '0ms',
@@ -517,7 +517,7 @@ function Scene1({
               {INTEGRATION_LOGOS.map((app) => (
                 <div
                   key={app.slug}
-                  className="group/icon relative w-12 h-12 rounded-lg bg-white border border-gray-200 p-2 hover:border-violet-400 hover:scale-105 hover:bg-violet-50 transition-all duration-150 cursor-pointer flex items-center justify-center hover:z-[100]"
+                  className="group/icon relative w-12 h-12 rounded-lg bg-white border border-gray-200 p-2 hover:border-primary/40 hover:scale-105 hover:bg-accent transition-all duration-150 cursor-pointer flex items-center justify-center hover:z-[100]"
                 >
                   <img
                     src={`${CDN}/${app.slug}.png`}
@@ -535,7 +535,7 @@ function Scene1({
           {/* Footer */}
           <div className="px-4 py-3 bg-gray-50 border border-gray-200 border-t-gray-100 rounded-b-xl flex items-center justify-between">
             <p className="text-gray-900 font-semibold">685+ apps</p>
-            <span className="text-xs text-violet-600 font-medium">
+            <span className="text-xs text-primary font-medium">
               Browse all &rarr;
             </span>
           </div>
@@ -704,7 +704,7 @@ function Scene2({
             }
             label="5. Notify Sales"
             subtitle="Slack"
-            iconBg="bg-purple-50"
+            iconBg="bg-gray-50"
           />
         </div>
 
@@ -855,7 +855,7 @@ function Scene4({
             y1="100%"
             x2="20"
             y2="0"
-            stroke="#8b5cf6"
+            stroke="#9ca3af"
             strokeWidth="2"
             strokeOpacity="0.2"
             strokeLinecap="round"
@@ -873,7 +873,7 @@ function Scene4({
           {[0, 0.5, 1, 1.5].map((delay) => (
             <span
               key={`up-${delay}`}
-              className="auth-anim-particle-dot-vertical-reverse bg-violet-500"
+              className="auth-anim-particle-dot-vertical-reverse bg-gray-400"
               style={{ left: '18px', animationDelay: `${delay}s` }}
             />
           ))}
@@ -885,7 +885,7 @@ function Scene4({
         {/* Toolbar */}
         <div className="px-4 py-2.5 bg-white border-b border-gray-200 flex items-center gap-3">
           <div className="flex items-center gap-2">
-            <div className="w-7 h-7 rounded-md bg-violet-100 flex items-center justify-center">
+            <div className="w-7 h-7 rounded-md bg-accent flex items-center justify-center">
               <TableSvg />
             </div>
             <span className="font-semibold text-gray-900 text-sm">

@@ -142,7 +142,7 @@ export function EditTimeSavedPopover({
         <div className="flex flex-col gap-4">
           <div className="text-sm font-semibold">{t('Time Saved Per Run')}</div>
 
-          <div className="flex items-center rounded-md border border-input bg-background px-3 py-1.5 gap-1 focus-within:ring-1 focus-within:ring-ring">
+          <div className="flex items-center rounded-none border-0 border-b border-input bg-transparent px-1 py-1.5 gap-1 focus-within:border-foreground">
             <div className="flex flex-col items-center gap-0.5 flex-1">
               <input
                 type="text"

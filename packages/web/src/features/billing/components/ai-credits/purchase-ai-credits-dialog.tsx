@@ -92,7 +92,7 @@ export function PurchaseAICreditsDialog({
 
         <DialogFooter>
           <Button
-            variant="outline"
+            variant="secondary"
             onClick={() => onOpenChange(false)}
             disabled={isCreatingSession}
           >

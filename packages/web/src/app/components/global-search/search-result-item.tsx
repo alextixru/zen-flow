@@ -48,7 +48,7 @@ function ItemIcon({
 
   if (type === 'flow') {
     return (
-      <span className="[&_svg]:text-violet-500! shrink-0">
+      <span className="[&_svg]:text-primary! shrink-0">
         <WorkflowIcon className="size-4" />
       </span>
     );

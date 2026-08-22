@@ -166,7 +166,7 @@ const EditGlobalConnectionDialog: React.FC<EditGlobalConnectionDialogProps> = ({
               <DialogFooter className="mt-8">
                 <Button
                   type="button"
-                  variant="outline"
+                  variant="secondary"
                   disabled={isUpdatingGlobalConnection}
                   onClick={(e) => {
                     e.stopPropagation();

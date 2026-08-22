@@ -84,7 +84,7 @@ export const PlatformAdminProjectAlertSubscriptionBulkActions = ({
           </DialogHeader>
           <DialogFooter>
             <Button
-              variant="outline"
+              variant="secondary"
               onClick={() => setConfirmUnsubscribeOpen(false)}
             >
               {t('Cancel')}

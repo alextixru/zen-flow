@@ -69,7 +69,7 @@ const ErrorFallbackContent = ({
             <RefreshCcw className="size-4 mr-2" />
             {t('Reload page')}
           </Button>
-          <Button variant="outline" asChild>
+          <Button variant="secondary" asChild>
             <a href="/">{t('Go to home')}</a>
           </Button>
         </div>

@@ -20,7 +20,7 @@ const CopyToClipboardInput = ({
   useInput,
 }: CopyToClipboardInputProps) => {
   return (
-    <div className="flex gap-2 items-center bg-background border border-solid text-sm rounded block w-full select-none pr-3">
+    <div className="flex gap-2 items-center bg-transparent border-0 border-b border-input text-sm rounded-none block w-full select-none pr-1">
       {useInput ? (
         <Input value={textToCopy} className={noBorderInputClass} readOnly />
       ) : (

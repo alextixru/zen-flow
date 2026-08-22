@@ -347,7 +347,7 @@ export const AddMcpToolForm = ({
         )}
 
         <DialogFooter className="mt-4">
-          <Button type="button" variant="outline" onClick={handleClose}>
+          <Button type="button" variant="secondary" onClick={handleClose}>
             {t('Cancel')}
           </Button>
           <Button

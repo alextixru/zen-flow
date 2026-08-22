@@ -6,25 +6,27 @@ import { Shortcut } from '@/components/custom/shortcut';
 import { LoadingSpinner } from '@/components/custom/spinner';
 import { cn } from '@/lib/utils';
 
+/* Zen DS: кнопки — mono uppercase; заливка только у primary/destructive,
+   все второстепенные (secondary/outline/ghost/link) — текст с подчёркиванием */
 const buttonVariants = cva(
-  "inline-flex shrink-0 items-center justify-center gap-2 rounded-md text-sm font-normal whitespace-nowrap transition-all outline-none focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50 disabled:pointer-events-none disabled:opacity-50 aria-invalid:border-destructive aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4",
+  "inline-flex shrink-0 items-center justify-center gap-2 rounded-sm font-mono text-xs font-medium uppercase tracking-widest whitespace-nowrap transition-all outline-none focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50 disabled:pointer-events-none disabled:opacity-50 aria-invalid:border-destructive aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4",
   {
     variants: {
       variant: {
         default:
-          'bg-primary stroke-background text-primary-foreground enabled:hover:bg-primary/90',
-        basic:
-          'text-primary font-medium underline-offset-4 enabled:hover:bg-accent',
+          'bg-primary stroke-background text-primary-foreground enabled:hover:bg-primary/85',
+        basic: 'text-primary underline-offset-4 enabled:hover:bg-accent',
         secondary:
-          'text-secondary-foreground bg-secondary enabled:hover:bg-secondary/80 enabled:hover:text-secondary-foreground',
+          'rounded-none bg-transparent px-1 text-muted-foreground hover-underline enabled:hover:text-foreground',
         destructive:
           'bg-destructive text-white enabled:hover:bg-destructive/90 focus-visible:ring-destructive/20 dark:bg-destructive/60 dark:focus-visible:ring-destructive/40',
+        // Zen: outline == secondary — любое второстепенное действие выглядит одинаково:
+        // чистый текст в покое, ink-линия растягивается на hover
         outline:
-          'border-input bg-background enabled:hover:bg-accent enabled:hover:text-accent-foreground border',
+          'rounded-none bg-transparent px-1 text-muted-foreground hover-underline enabled:hover:text-foreground',
         accent: 'bg-accent text-accent-foreground enabled:hover:bg-accent/80',
-        ghost:
-          'hover:bg-gray-300/30 hover:text-accent-foreground dark:hover:bg-gray-300/10',
-        link: 'text-primary underline-offset-4 hover:underline',
+        ghost: 'hover-underline hover:text-foreground',
+        link: 'rounded-none px-0 text-muted-foreground underline decoration-border underline-offset-4 hover:text-foreground hover:decoration-foreground',
         transparent: 'text-primary enabled:hover:bg-transparent',
       },
       size: {
@@ -95,8 +97,8 @@ function renderButtonContent(
     return (
       <LoadingSpinner
         className={cn('size-5', {
-          'stroke-background': variant === 'default' || variant === 'secondary',
-          'stroke-foreground': variant !== 'default' && variant !== 'secondary',
+          'stroke-background': variant === 'default',
+          'stroke-foreground': variant !== 'default',
         })}
       />
     );

@@ -10,8 +10,8 @@
     .welcome-gradient {
         background: linear-gradient(
             to bottom right,
-            rgba(31, 41, 55, 1) 0%,
-            rgba(17, 24, 39, 0.9) 100%
+            rgba(28, 28, 28, 1) 0%,
+            rgba(16, 16, 16, 0.9) 100%
         );
     }
 }
@@ -20,13 +20,13 @@
 
 /* Cursor is inside this function — subtle outline on the pair */
 span.ap-fn-badge.ap-fn-cursor-active {
-    background-color: #ddd6fe !important;
+    background-color: hsl(var(--primary) / 0.15) !important;
 }
 
 /* Mouse is hovering on a badge — stronger highlight on the pair */
 span.ap-fn-badge.ap-fn-active {
-    background-color: #7c3aed !important;
-    color: #fff !important;
+    background-color: hsl(var(--primary)) !important;
+    color: hsl(var(--primary-foreground)) !important;
 }
 
 /* Type error on the function */
@@ -79,9 +79,9 @@ span.ap-fn-badge.ap-fn-deprecated {
     margin: 0 1px;
 }
 
-.ap-fn-name-token { color: #7c3aed; font-weight: 600; }
-.ap-fn-paren-open-token { color: #7c3aed; }
-.ap-fn-paren-close-token { color: #7c3aed; }
+.ap-fn-name-token { color: hsl(var(--primary)); font-weight: 600; }
+.ap-fn-paren-open-token { color: hsl(var(--primary)); }
+.ap-fn-paren-close-token { color: hsl(var(--primary)); }
 
 /* CodeMirror formula editor reset */
 .formula-editor .cm-editor { outline: none; }
