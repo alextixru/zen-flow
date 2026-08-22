@@ -229,7 +229,8 @@ const MultiSelectTrigger = React.forwardRef<
           type="button"
           loading={loading}
           className={cn(
-            'flex min-h-9 h-auto w-full items-center justify-between cursor-pointer gap-2 whitespace-nowrap rounded-sm border border-input bg-transparent px-4 py-1 text-sm ring-offset-background focus:outline-hidden focus:ring-1 focus:ring-ring [&>span]:line-clamp-1',
+            // Zen DS: триггер мульти-селекта — подчёркивание, не рамка
+            'flex min-h-9 h-auto w-full items-center justify-between cursor-pointer gap-2 whitespace-nowrap rounded-none border-0 border-b border-input bg-transparent px-1 py-1 text-sm hover:border-foreground focus:outline-hidden focus:border-foreground [&>span]:line-clamp-1',
             {
               'cursor-not-allowed opacity-80': disabled,
               'cursor-pointer': !disabled,
