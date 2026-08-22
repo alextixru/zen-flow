@@ -227,9 +227,9 @@ export function DateTimePickerWithRange({
       <Popover>
         <PopoverTrigger asChild>
           <Button
-            variant="outline"
+            variant="ghost"
             className={cn(
-              'min-w-[90px] border-dashed justify-start text-left font-normal',
+              'min-w-[90px] justify-start text-left hover-underline hover:bg-transparent',
             )}
           >
             <CalendarIcon className="mr-2 h-4 w-4" />

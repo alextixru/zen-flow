@@ -28,6 +28,13 @@ const initialState: ThemeProviderState = {
 
 const ThemeProviderContext = createContext<ThemeProviderState>(initialState);
 
+// Кастомный бренд-цвет может быть светлым или тёмным — текст на primary-кнопках подбираем по яркости (YIQ)
+const readableForegroundFor = (hex: string): string => {
+  const [r, g, b] = [1, 3, 5].map((i) => parseInt(hex.slice(i, i + 2), 16));
+  const yiq = (r * 299 + g * 587 + b * 114) / 1000;
+  return yiq > 150 ? '0 0% 7%' : '0 0% 98%';
+};
+
 const setFavicon = (url: string) => {
   document.querySelectorAll("link[rel*='icon']").forEach((el) => el.remove());
   const link = document.createElement('link');
@@ -68,12 +75,17 @@ export function ThemeProvider({
       branding.colors.primary.default.toLowerCase() === '#111111';
     if (isDefaultInkBranding) {
       document.documentElement.style.removeProperty('--primary');
+      document.documentElement.style.removeProperty('--primary-foreground');
       document.documentElement.style.removeProperty('--primary-100');
       document.documentElement.style.removeProperty('--primary-300');
     } else {
       document.documentElement.style.setProperty(
         '--primary',
         colorsUtils.hexToHslString(branding.colors.primary.default),
+      );
+      document.documentElement.style.setProperty(
+        '--primary-foreground',
+        readableForegroundFor(branding.colors.primary.default),
       );
       switch (resolvedTheme) {
         case 'light': {

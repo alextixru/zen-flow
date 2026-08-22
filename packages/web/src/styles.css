@@ -450,6 +450,26 @@
   animation: dash 2s linear infinite;
 }
 
+/* Zen DS: hover — подчёркивание растягивается слева направо, вместо заливки фона */
+@utility hover-underline {
+  position: relative;
+
+  &::after {
+    content: '';
+    position: absolute;
+    left: 0;
+    bottom: 0;
+    height: 1px;
+    width: 0%;
+    background-color: currentColor;
+    transition: width 0.15s ease;
+  }
+
+  &:hover::after {
+    width: 100%;
+  }
+}
+
 @utility scrollbar-none {
   scrollbar-width: none;
 

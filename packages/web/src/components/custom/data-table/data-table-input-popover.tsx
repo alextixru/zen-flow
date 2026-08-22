@@ -29,7 +29,10 @@ const DataTableInputPopover = ({
   return (
     <Popover>
       <PopoverTrigger asChild>
-        <Button variant="outline" className="border-dashed">
+        <Button
+          variant="ghost"
+          className="hover-underline hover:bg-transparent"
+        >
           <SearchIcon className="mr-2 size-4" />
           {title}
           {filterValue.length > 0 && (

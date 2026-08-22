@@ -288,7 +288,7 @@ export function FunctionTooltipCard({
       </p>
       {argNames.length > 0 && currentArgIndex != null && (
         <div className="flex flex-wrap gap-x-0.5 gap-y-0.5 text-[12px] font-mono bg-gray-800 rounded px-2 py-1">
-          <span className="text-primary">{fnDef.name}(</span>
+          <span className="text-gray-100">{fnDef.name}(</span>
           {argNames.map((arg, i) => (
             <React.Fragment key={i}>
               {i > 0 && <span className="text-gray-500">; </span>}
@@ -303,7 +303,7 @@ export function FunctionTooltipCard({
               </span>
             </React.Fragment>
           ))}
-          <span className="text-primary">)</span>
+          <span className="text-gray-100">)</span>
         </div>
       )}
       <div className="space-y-1">

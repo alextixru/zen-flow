@@ -94,7 +94,7 @@ const renderEmailBody = async ({ platform, templateData }: RenderEmailBodyArgs):
     const edition = system.getEdition()
     const primaryColor = platform?.primaryColor ?? defaultTheme.colors.primary.default
     const primaryColorLight = hexToLightTint({ hex: primaryColor, opacity: 0.08 })
-    const fullLogoUrl = platform?.fullLogoUrl ?? defaultTheme.logos.fullLogoUrl
+    const fullLogoUrl = toAbsoluteUrl(platform?.fullLogoUrl ?? defaultTheme.logos.fullLogoUrl)
     const platformName = platform?.name ?? defaultTheme.websiteName
 
     return Mustache.render(template, {
@@ -109,6 +109,15 @@ const renderEmailBody = async ({ platform, templateData }: RenderEmailBodyArgs):
         footer,
     },
     )
+}
+
+// Дефолтные логотипы темы — относительные пути, которые отдаёт фронтенд; в письмах нужен абсолютный URL
+const toAbsoluteUrl = (url: string): string => {
+    if (!url.startsWith('/')) {
+        return url
+    }
+    const frontendUrl = system.getOrThrow(AppSystemProp.FRONTEND_URL).replace(/\/$/, '')
+    return `${frontendUrl}${url}`
 }
 
 const initSmtpClient = (): Transporter => {

@@ -346,7 +346,7 @@ function TimeSavedFilter({ filters }: { filters: FiltersReturn }) {
       onOpenChange={filters.handleTimeSavedPopoverOpen}
     >
       <PopoverTrigger asChild>
-        <Button variant="outline" className="gap-2 font-normal border-dashed">
+        <Button variant="ghost" className="gap-2 hover-underline hover:bg-transparent">
           <Clock className="h-4 w-4" />
           <span>{t('Total Time Saved')}</span>
           {filters.timeSavedLabel && (
@@ -381,7 +381,7 @@ function OwnerFilter({ filters }: { filters: FiltersReturn }) {
       onOpenChange={(open) => filters.updateOwnerFilter({ popoverOpen: open })}
     >
       <PopoverTrigger asChild>
-        <Button variant="outline" className="gap-2 font-normal border-dashed">
+        <Button variant="ghost" className="gap-2 hover-underline hover:bg-transparent">
           <Filter className="h-4 w-4" />
           <span>{t('Owner')}</span>
           {filters.selectedOwners.length > 0 && (

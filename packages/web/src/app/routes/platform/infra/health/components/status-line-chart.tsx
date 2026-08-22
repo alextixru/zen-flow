@@ -148,7 +148,7 @@ export function StatusLineChart({ data, isLoading }: StatusLineChartProps) {
               <CartesianGrid
                 vertical={false}
                 strokeDasharray="3 3"
-                stroke="hsl(var(--border))"
+                stroke="var(--border)"
               />
               <XAxis
                 dataKey="date"
