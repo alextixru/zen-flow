@@ -121,11 +121,50 @@ const ZenBrandPanel = () => {
       </div>
       <div className="flex flex-col gap-8">
         <svg viewBox="0 0 100 100" className="size-14" aria-hidden="true">
-          <rect x="1.67" y="1.67" width="30" height="30" rx="9.5" fill="currentColor" opacity="0.3" />
-          <rect x="68.33" y="1.67" width="30" height="30" rx="9.5" fill="currentColor" />
-          <rect x="35" y="35" width="30" height="30" rx="9.5" fill="currentColor" opacity="0.72" />
-          <rect x="1.67" y="68.33" width="30" height="30" rx="9.5" fill="currentColor" opacity="0.5" />
-          <rect x="68.33" y="68.33" width="30" height="30" rx="9.5" fill="currentColor" opacity="0.72" />
+          <rect
+            x="1.67"
+            y="1.67"
+            width="30"
+            height="30"
+            rx="9.5"
+            fill="currentColor"
+            opacity="0.3"
+          />
+          <rect
+            x="68.33"
+            y="1.67"
+            width="30"
+            height="30"
+            rx="9.5"
+            fill="currentColor"
+          />
+          <rect
+            x="35"
+            y="35"
+            width="30"
+            height="30"
+            rx="9.5"
+            fill="currentColor"
+            opacity="0.72"
+          />
+          <rect
+            x="1.67"
+            y="68.33"
+            width="30"
+            height="30"
+            rx="9.5"
+            fill="currentColor"
+            opacity="0.5"
+          />
+          <rect
+            x="68.33"
+            y="68.33"
+            width="30"
+            height="30"
+            rx="9.5"
+            fill="currentColor"
+            opacity="0.72"
+          />
         </svg>
         <h2 className="font-sentient text-4xl font-medium leading-tight max-w-md">
           {t('Calm, ordered automation')}
