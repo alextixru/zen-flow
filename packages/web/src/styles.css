@@ -470,6 +470,29 @@
   }
 }
 
+/* Zen DS: активное состояние — перманентное подчёркивание («застывший hover»), не заливка */
+@utility active-underline {
+  position: relative;
+
+  &::after {
+    content: '';
+    position: absolute;
+    left: 0;
+    bottom: 0;
+    height: 1px;
+    width: 100%;
+    background-color: currentColor;
+  }
+}
+
+/* Zen DS: разделитель строк таблицы — не от края до края, с воздухом с обеих сторон */
+@utility divider-inset {
+  background-image: linear-gradient(var(--border), var(--border));
+  background-size: calc(100% - 2.5rem) 1px;
+  background-position: center bottom;
+  background-repeat: no-repeat;
+}
+
 @utility scrollbar-none {
   scrollbar-width: none;
 

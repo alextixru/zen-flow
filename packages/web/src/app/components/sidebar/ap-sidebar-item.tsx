@@ -49,12 +49,8 @@ export const ApSidebarItem = (item: SidebarItemType) => {
   const button = (
     <SidebarMenuButton
       className={cn(
-        // Zen DS: активный пункт — инвертированный ink
-        {
-          'bg-sidebar-primary text-sidebar-primary-foreground hover:bg-sidebar-primary! hover:text-sidebar-primary-foreground!':
-            isLinkActive,
-        },
-        item.highlight && !isLinkActive && 'hover:bg-sidebar-accent/60',
+        // Zen DS: активный пункт — перманентное подчёркивание («застывший hover»), не заливка
+        { 'active-underline text-sidebar-foreground': isLinkActive },
       )}
       onClick={() => {
         item.onClick?.();
