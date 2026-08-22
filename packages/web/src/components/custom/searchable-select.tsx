@@ -158,7 +158,11 @@ export const SearchableSelect = <T,>({
             role="combobox"
             loading={loading}
             aria-expanded={open}
-            className={cn('w-full justify-between', triggerClassName)}
+            className={cn(
+              // Zen DS: селект — подчёркнутый текст, не рамка; значение — обычный регистр (это данные)
+              'w-full justify-between rounded-none border-0 border-b border-input bg-transparent px-1 font-sans text-sm font-normal normal-case tracking-normal enabled:hover:border-foreground',
+              triggerClassName,
+            )}
             onClick={(e) => {
               handleOpenChange(!open);
               e.preventDefault();
